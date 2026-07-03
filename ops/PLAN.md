@@ -50,7 +50,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 ## Checklist
 
 ### Phase A — Foundations
-- [ ] **S00** Toolchain to C++26/gcc-16 + baseline — `ops/steps/00-toolchain-baseline.md`
+- [x] **S00** Toolchain to C++26/gcc-16 + baseline — `ops/steps/00-toolchain-baseline.md`
 - [ ] **S01** layer_fmap + typeclass-lookup scheme overloads — `ops/steps/01-layer-fmap.md` (dep: S00)
 - [ ] **S02** functors.hpp: reusable base functors — `ops/steps/02-functors.md` (dep: S01)
 - [ ] **S03** Identity + either/pair duals + Comonad typeclass — `ops/steps/03-identity-comonad.md` (dep: S00)
@@ -81,3 +81,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 ## Status log (S00 + each agent appends one line)
 | Step | Agent date | Commit | Gate result (test count) | Handoff |
 |------|-----------|--------|--------------------------|---------|
+| S00 | 2026-07-03 | e96f02e | gcc-16: 100% passed, 0 failed, total 45; gcc-15 (default): 100% passed, 0 failed, total 45; gcc-17: compile OK | `ops/handoffs/00-toolchain-baseline.handoff.md` |
