@@ -30,9 +30,15 @@ one step** and stop. Follow this without improvising on process.
    - If the gate cannot pass: leave the checkbox unchecked, write a
      handoff with Status **BLOCKED** describing exactly where you stopped
      and what you tried, and STOP.
-5. **Record green.** Tick your step's box in `ops/PLAN.md`, append one
-   row to its Status log (include the new total test count), and commit
-   everything as one commit: `[schemes] SNN: <title>`.
+5. **Record green — two commits, in this order.** A commit hash cannot
+   appear inside its own commit, so the step ships as exactly two:
+   a. **Step commit**: the step's code/doc changes only, message
+      `[schemes] SNN: <title>`. Note its hash.
+   b. **Bookkeeping commit** (after writing the handoff, step 6):
+      the ticked box + Status-log row in `ops/PLAN.md` (row cites the
+      step commit's hash and the new total test count), the handoff
+      file, and any `ops/DEVIATIONS.md` rows, message
+      `[schemes] SNN: handoff`.
 6. **Hand off.** This is the part that makes the chain work:
    a. **Read the *next* step's file** `ops/steps/<next>.md` now.
    b. Copy `ops/HANDOFF_TEMPLATE.md` to `ops/handoffs/NN-<slug>.handoff.md`.
@@ -40,9 +46,9 @@ one step** and stop. Follow this without improvising on process.
       example output), deviations, discoveries — and, having just read
       the next step, write **specific forward notes** for the next agent
       (exact signatures you settled on, files to look at, gotchas).
-      Vague handoffs break the chain; be concrete.
+      Vague handoffs break the chain; be concrete. The handoff's
+      Commit field cites the step commit from 5a.
    d. If anything contradicted the design doc, also append a row to
       `ops/DEVIATIONS.md`.
-   e. Amend the handoff into your step's commit or make it a second
-      commit `[schemes] SNN: handoff` — either is fine.
+   e. Land it all as the bookkeeping commit (5b).
 7. **Stop.** Do not begin the next step.

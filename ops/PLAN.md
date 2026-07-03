@@ -22,7 +22,10 @@ design author can fold it back in.
   examples also require each new example binary to run and exit 0.
 - **Minimal diffs.** Touch only what the step names. Never edit existing
   passing tests except where a step explicitly says to.
-- **One commit per step**, message `[schemes] SNN: <title>`.
+- **Two commits per step**: the step commit `[schemes] SNN: <title>`,
+  then a bookkeeping commit `[schemes] SNN: handoff` carrying the
+  ticked box, status-log row (citing the step commit's hash), handoff,
+  and any deviation rows. See protocol step 5.
 - **House style.** New headers/tests follow the conventions in design §4
   and the existing files in `src/smd/fixpoint/` (SPDX, include guards,
   `.t.cpp` tests with re-inclusion check, FILE_SET + test-target wiring
