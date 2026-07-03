@@ -1,0 +1,59 @@
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: ':nil *:t -:t ::t <:t H:4 \n:nil ^:nil arch:headline author:t
+#+OPTIONS: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t tags:t
+#+OPTIONS: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+TITLE: Transclusion Examples
+#+SUBTITLE: A Case Study
+#+date: {{{modification-time(%Y-%m-%d, VC)}}}
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+LATEX_CLASS: report
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_HEADER:
+#+LATEX_HEADER_EXTRA:
+#+DESCRIPTION:
+#+KEYWORDS:
+#+SUBTITLE:
+#+LATEX_COMPILER: pdflatex
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:t html-style:t html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./etc/modus-operandi-tinted.css"/>
+#+HTML_HEAD_EXTRA:
+#+INFOJS_OPT:
+#+CREATOR:
+#+LATEX_HEADER:
+#+STARTUP: showall
+
+* Examples of Transclusion
+** Declaration of the ~name~ function
+#+transclude: [[file:./src/smd/example/fixpoint.hpp::44cc988c-7353-43aa-a7d3-8840f92371a6]]  :lines 2- :src cpp :end "44cc988c-7353-43aa-a7d3-8840f92371a6 end"
+
+** Definition of the ~name~ function
+#+transclude: [[file:src/smd/example/fixpoint.cpp::a66dec0e-e5cc-44b5-b9f1-bbed787c3d44]]  :lines 2- :src cpp :end "a66dec0e-e5cc-44b5-b9f1-bbed787c3d44 end"
+
+** Testing the ~name~ function
+#+transclude: [[file:src/smd/example/fixpoint.test.cpp::03013d1f-bcc1-4d3e-9701-3ed1a15c6370]]  :lines 2- :src cpp :end "03013d1f-bcc1-4d3e-9701-3ed1a15c6370 end"
+
+** Saying hello with the ~name~ function
+#+transclude: [[file:src/examples/hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9]]
+:lines 2- :src cpp :end "710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end"
+
+** The Transclusion for the example above
+#+begin_src org
+#+transclude: [[file:src/examples/hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9]] :lines 2- :src cpp :end "710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end"
+#+end_src
+
+
+# Local Variables:
+# org-html-htmlize-output-type: css
+# End:

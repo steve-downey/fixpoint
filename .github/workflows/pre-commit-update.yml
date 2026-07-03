@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+name: Weekly pre-commit autoupdate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * 0"
+
+permissions:
+  contents: read
+
+jobs:
+  auto-update-pre-commit:
+    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-update-pre-commit.yml@ab547291c55be8aedbb183577f571ca75b962f5b # 1.7.3
+    permissions:
+      checks: write
+      issues: write
+      pull-requests: write
+    secrets:
+      APP_ID: ${{ secrets.AUTO_PR_BOT_APP_ID }}
+      PRIVATE_KEY: ${{ secrets.AUTO_PR_BOT_PRIVATE_KEY }}

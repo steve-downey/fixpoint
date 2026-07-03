@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.1
+_src_path: /home/sdowney/src/example/main/
+include_prefix: smd
+library_name: fixpoint
+maintainer_email: sdowney@gmail.com
+maintainer_name: Steve Downey
+namespace: example
+project_slug: fixpoint
+project_title: Type Level Fixpoint
+sample_value: Steve
+test_framework: catch2
