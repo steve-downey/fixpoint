@@ -1,7 +1,7 @@
 # Handoff — S00 Toolchain to C++26/gcc-16, baseline recorded
 
 - **Status:** DONE (gate passed)
-- **Commit:** e96f02e — `[schemes] S00: toolchain to C++26/gcc-16`
+- **Commit:** df31f6a — `[schemes] S00: toolchain to C++26/gcc-16`
 - **Date / agent:** 2026-07-03, background execution agent
 
 ## What changed

@@ -81,4 +81,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 ## Status log (S00 + each agent appends one line)
 | Step | Agent date | Commit | Gate result (test count) | Handoff |
 |------|-----------|--------|--------------------------|---------|
-| S00 | 2026-07-03 | e96f02e | gcc-16: 100% passed, 0 failed, total 45; gcc-15 (default): 100% passed, 0 failed, total 45; gcc-17: compile OK | `ops/handoffs/00-toolchain-baseline.handoff.md` |
+| S00 | 2026-07-03 | df31f6a | gcc-16: 100% passed, 0 failed, total 45; gcc-15 (default): 100% passed, 0 failed, total 45; gcc-17: compile OK | `ops/handoffs/00-toolchain-baseline.handoff.md` |
