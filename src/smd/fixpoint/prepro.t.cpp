@@ -91,6 +91,31 @@ struct take_while_positive_nat {
     }
 };
 
+/** IntListF endo transformation: decrement every head by 1 (DEV-01).
+ * Unlike `take_while_positive_nat`'s monotone single-cut, this is
+ * non-idempotent: applying it twice differs from applying it once. That
+ * makes it an actual discriminator between cumulative hoisting (design
+ * §7.4's literal equation: a node at depth k has had e applied k times
+ * by the time prepro's algebra sees it) and a "shallow" implementation
+ * that transforms each node exactly once, in visitation order, and never
+ * re-hoists deeper layers. `take_while_positive_nat` cannot tell these
+ * apart — the collapse-to-Nil decision is made the first time any layer
+ * is inspected, so one application already reaches the fixed point — see
+ * DEV-01 in ops/DEVIATIONS.md. */
+struct decrement_nat {
+    template <class A>
+    constexpr auto operator()(const IntListF<A> &layer) const -> IntListF<A> {
+        return std::visit(
+            overloaded{
+                [](const Nil<int> &n) -> IntListF<A> { return n; },
+                [](const Cons<int, A> &c) -> IntListF<A> {
+                    return Cons<int, A>{c.head - 1, c.tail};
+                },
+            },
+            layer);
+    }
+};
+
 /** IntListF endo transformation: cap every head at 3. Used below an
  * unfold via postpro (design §10). */
 struct cap_at_three_nat {
@@ -204,6 +229,19 @@ TEST_CASE("prepro behavior: take-while-positive on [3,-1,4]-shaped input "
     // stops too early or too late on inputs shaped like this.
     IntList list = list_from_vector({3, -1, 4});
     CHECK(prepro<int>(take_while_positive_nat{}, sum_algebra, list) == 3);
+}
+
+TEST_CASE("prepro behavior: cumulative decrement pins per-depth application "
+          "count (DEV-01 discriminator, [10,10,10] -> 27)") {
+    // A node at depth k must have decrement_nat applied to it k times by
+    // the time sum_algebra sees it (design §7.4's cumulative-cost note),
+    // not once regardless of depth. Depths 0,1,2 for the three Cons
+    // layers: 10 - 0 + (10 - 1) + (10 - 2) = 10 + 9 + 8 = 27. A "shallow"
+    // implementation that decrements each node exactly once when visited
+    // (ignoring depth) would instead give 10 + 9 + 9 = 28 — see the
+    // `decrement_nat` doc comment and DEV-01 in ops/DEVIATIONS.md.
+    IntList list = list_from_vector({10, 10, 10});
+    CHECK(prepro<int>(decrement_nat{}, sum_algebra, list) == 27);
 }
 
 // ---------------------------------------------------------------------
