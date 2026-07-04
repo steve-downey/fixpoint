@@ -65,7 +65,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 
 ### Phase C — Course-of-values
 - [x] **S07** Cofree + histo — `ops/steps/07-cofree-histo.md` (dep: S02, S03)
-- [ ] **S08** Free + futu — `ops/steps/08-free-futu.md` (dep: S02, S03)
+- [x] **S08** Free + futu — `ops/steps/08-free-futu.md` (dep: S02, S03)
 - [ ] **S09** dyna + codyna + chrono — `ops/steps/09-dyna-chrono.md` (dep: S07, S08)
 
 ### Phase D — Mendler & Elgot
@@ -92,3 +92,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S05 | 2026-07-04 | acdf6b4 | gcc-16: 100% passed, 0 failed, total 113 | `ops/handoffs/05-zygo-mutu.handoff.md` |
 | S06 | 2026-07-04 | b10a095 | gcc-16: 100% passed, 0 failed, total 121 | `ops/handoffs/06-prepro-postpro.handoff.md` |
 | S07 | 2026-07-04 | 6c25a86 | gcc-16: 100% passed, 0 failed, total 133 (baseline 122 after the pre-existing S06-follow-up DEV-01 commit `94ae92f`, +11 new) | `ops/handoffs/07-cofree-histo.handoff.md` |
+| S08 | 2026-07-04 | ee50780 | gcc-16: 100% passed, 0 failed, total 145 (+12 new) | `ops/handoffs/08-free-futu.handoff.md` |
