@@ -131,12 +131,26 @@ constexpr auto nat_to_int(const Nat &nat) -> int {
 // ---------------------------------------------------------------------
 
 template <typename E>
-struct Nil {};
+struct Nil {
+    // Defaulted for the same reason as Zero's above (S07): no aggregate
+    // gets an implicit operator== for free, and anything built on top of
+    // ListF<E, A> whose own == needs every variant alternative comparable
+    // (e.g. Free<IntListF, A>'s node, S08) needs this.
+    friend constexpr auto operator==(const Nil &, const Nil &) -> bool =
+        default;
+};
 
 template <typename E, typename A>
 struct Cons {
     E head;
     Box<A> tail;
+
+    // Defaulted for the same reason as Nil's above: Cons had no
+    // operator== either (a plain struct never gets one implicitly), and
+    // ListF<E, A>'s == (needed by Free<IntListF, A>'s node, S08) needs
+    // both alternatives comparable, not just Nil.
+    friend constexpr auto operator==(const Cons &, const Cons &) -> bool =
+        default;
 };
 
 template <typename E, typename A>

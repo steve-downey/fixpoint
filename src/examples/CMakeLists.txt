@@ -119,3 +119,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(futu_rle_decode)
+
+# Add example source file.
+target_sources(futu_rle_decode PRIVATE futu_rle_decode.cpp)
+
+# Link example with the library.
+target_link_libraries(futu_rle_decode PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS futu_rle_decode
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
