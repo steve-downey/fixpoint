@@ -29,3 +29,33 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(para_pretty_print)
+
+# Add example source file.
+target_sources(para_pretty_print PRIVATE para_pretty_print.cpp)
+
+# Link example with the library.
+target_link_libraries(para_pretty_print PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS para_pretty_print
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
+
+add_executable(apo_sorted_insert)
+
+# Add example source file.
+target_sources(apo_sorted_insert PRIVATE apo_sorted_insert.cpp)
+
+# Link example with the library.
+target_link_libraries(apo_sorted_insert PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS apo_sorted_insert
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
