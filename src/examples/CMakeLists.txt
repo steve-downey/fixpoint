@@ -59,3 +59,33 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(zygo_balanced)
+
+# Add example source file.
+target_sources(zygo_balanced PRIVATE zygo_balanced.cpp)
+
+# Link example with the library.
+target_link_libraries(zygo_balanced PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS zygo_balanced
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
+
+add_executable(mutu_even_odd)
+
+# Add example source file.
+target_sources(mutu_even_odd PRIVATE mutu_even_odd.cpp)
+
+# Link example with the library.
+target_link_libraries(mutu_even_odd PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS mutu_even_odd
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
