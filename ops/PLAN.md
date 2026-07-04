@@ -56,7 +56,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S00** Toolchain to C++26/gcc-16 + baseline — `ops/steps/00-toolchain-baseline.md`
 - [x] **S01** layer_fmap + typeclass-lookup scheme overloads — `ops/steps/01-layer-fmap.md` (dep: S00)
 - [x] **S02** functors.hpp: reusable base functors — `ops/steps/02-functors.md` (dep: S01)
-- [ ] **S03** Identity + either/pair duals + Comonad typeclass — `ops/steps/03-identity-comonad.md` (dep: S00)
+- [x] **S03** Identity + either/pair duals + Comonad typeclass — `ops/steps/03-identity-comonad.md` (dep: S00)
 
 ### Phase B — Fokkinga's classical extensions
 - [ ] **S04** para + apo — `ops/steps/04-para-apo.md` (dep: S02, S03)
@@ -87,3 +87,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S00 | 2026-07-03 | df31f6a | gcc-16: 100% passed, 0 failed, total 45; gcc-15 (default): 100% passed, 0 failed, total 45; gcc-17: compile OK | `ops/handoffs/00-toolchain-baseline.handoff.md` |
 | S01 | 2026-07-03 | 7ceaff9 | gcc-16: 100% passed, 0 failed, total 50 | `ops/handoffs/01-layer-fmap.handoff.md` |
 | S02 | 2026-07-03 | b6619a8 | gcc-16: 100% passed, 0 failed, total 62 | `ops/handoffs/02-functors.handoff.md` |
+| S03 | 2026-07-03 | cb6d15d | gcc-16: 100% passed, 0 failed, total 98 | `ops/handoffs/03-identity-comonad.handoff.md` |
