@@ -134,3 +134,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(dyna_fibonacci)
+
+# Add example source file.
+target_sources(dyna_fibonacci PRIVATE dyna_fibonacci.cpp)
+
+# Link example with the library.
+target_link_libraries(dyna_fibonacci PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS dyna_fibonacci
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
