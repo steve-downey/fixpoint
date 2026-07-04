@@ -61,7 +61,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 ### Phase B — Fokkinga's classical extensions
 - [x] **S04** para + apo — `ops/steps/04-para-apo.md` (dep: S02, S03)
 - [x] **S05** zygo + mutu — `ops/steps/05-zygo-mutu.md` (dep: S02)
-- [ ] **S06** hoist + prepro + postpro — `ops/steps/06-prepro-postpro.md` (dep: S02)
+- [x] **S06** hoist + prepro + postpro — `ops/steps/06-prepro-postpro.md` (dep: S02)
 
 ### Phase C — Course-of-values
 - [ ] **S07** Cofree + histo — `ops/steps/07-cofree-histo.md` (dep: S02, S03)
@@ -90,3 +90,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S03 | 2026-07-03 | cb6d15d | gcc-16: 100% passed, 0 failed, total 98 | `ops/handoffs/03-identity-comonad.handoff.md` |
 | S04 | 2026-07-03 | 7ed6eb6 | gcc-16: 100% passed, 0 failed, total 107 | `ops/handoffs/04-para-apo.handoff.md` |
 | S05 | 2026-07-04 | acdf6b4 | gcc-16: 100% passed, 0 failed, total 113 | `ops/handoffs/05-zygo-mutu.handoff.md` |
+| S06 | 2026-07-04 | b10a095 | gcc-16: 100% passed, 0 failed, total 121 | `ops/handoffs/06-prepro-postpro.handoff.md` |
