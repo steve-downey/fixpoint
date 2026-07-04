@@ -89,3 +89,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(prepro_takewhile_sum)
+
+# Add example source file.
+target_sources(prepro_takewhile_sum PRIVATE prepro_takewhile_sum.cpp)
+
+# Link example with the library.
+target_link_libraries(prepro_takewhile_sum PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS prepro_takewhile_sum
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
