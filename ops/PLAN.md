@@ -59,7 +59,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S03** Identity + either/pair duals + Comonad typeclass — `ops/steps/03-identity-comonad.md` (dep: S00)
 
 ### Phase B — Fokkinga's classical extensions
-- [ ] **S04** para + apo — `ops/steps/04-para-apo.md` (dep: S02, S03)
+- [x] **S04** para + apo — `ops/steps/04-para-apo.md` (dep: S02, S03)
 - [ ] **S05** zygo + mutu — `ops/steps/05-zygo-mutu.md` (dep: S02)
 - [ ] **S06** hoist + prepro + postpro — `ops/steps/06-prepro-postpro.md` (dep: S02)
 
@@ -88,3 +88,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S01 | 2026-07-03 | 7ceaff9 | gcc-16: 100% passed, 0 failed, total 50 | `ops/handoffs/01-layer-fmap.handoff.md` |
 | S02 | 2026-07-03 | b6619a8 | gcc-16: 100% passed, 0 failed, total 62 | `ops/handoffs/02-functors.handoff.md` |
 | S03 | 2026-07-03 | cb6d15d | gcc-16: 100% passed, 0 failed, total 98 | `ops/handoffs/03-identity-comonad.handoff.md` |
+| S04 | 2026-07-03 | 7ed6eb6 | gcc-16: 100% passed, 0 failed, total 107 | `ops/handoffs/04-para-apo.handoff.md` |
