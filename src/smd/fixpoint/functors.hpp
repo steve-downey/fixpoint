@@ -34,8 +34,7 @@ namespace smd::fixpoint {
 struct Zero {
     // Defaulted so std::variant<Zero, Succ<A>> (and anything built on top,
     // e.g. Cofree<NatF, A>'s tail, S07) is comparable — an empty aggregate
-    // does not get an implicit operator== otherwise (see S07 deviation:
-    // ops/DEVIATIONS.md).
+    // does not get an implicit operator== otherwise.
     friend constexpr auto operator==(const Zero &, const Zero &) -> bool =
         default;
 };
