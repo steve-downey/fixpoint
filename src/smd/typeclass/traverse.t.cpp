@@ -40,9 +40,9 @@ TEST_CASE("traverse: empty vector yields pure empty structure") {
 
 TEST_CASE(
     "traverse: for_each on Identity infers applicative from return type") {
-    const auto &t = bt::traversable_typeclass<bt::test::Identity<int>>;
-    auto result = t.for_each(bt::test::Identity<int>{20},
+    const auto &t = bt::traversable_typeclass<bt::Identity<int>>;
+    auto result = t.for_each(bt::Identity<int>{20},
                              [](int x) { return std::optional<int>{x + 1}; });
-    REQUIRE(result == std::optional<bt::test::Identity<int>>{
-                          bt::test::Identity<int>{21}});
+    REQUIRE(result ==
+            std::optional<bt::Identity<int>>{bt::Identity<int>{21}});
 }

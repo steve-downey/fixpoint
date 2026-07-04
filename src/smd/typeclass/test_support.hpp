@@ -5,6 +5,7 @@
 
 #include <smd/typeclass/apply.hpp>
 #include <smd/typeclass/fold.hpp>
+#include <smd/typeclass/identity.hpp>
 #include <smd/typeclass/traverse.hpp>
 
 #include <algorithm>
@@ -35,17 +36,6 @@ auto check_applicative_homomorphism_law(const FUNCTION &function,
     return left == right;
 }
 
-/** Minimal single-element applicative context used in law tests. */
-template <class VALUE_TYPE>
-struct Identity {
-    using value_type = VALUE_TYPE;
-
-    VALUE_TYPE value;
-
-    friend auto operator==(const Identity &, const Identity &)
-        -> bool = default;
-};
-
 /** Ordered multi-element foldable context backed by `std::vector`. */
 template <class VALUE_TYPE>
 struct Sequence {
@@ -60,39 +50,6 @@ struct Sequence {
 } // namespace smd::typeclass::test
 
 namespace smd::typeclass {
-
-/** Applicative implementation for Identity<V>: pure wraps, apply unwraps and
- * invokes. */
-template <class VALUE_TYPE>
-struct TestIdentityApplicativeImpl {
-    template <class VALUE>
-    auto pure(this auto &&, VALUE &&value) {
-        return test::Identity<remove_cvref_t<VALUE>>{
-            std::forward<VALUE>(value)};
-    }
-
-    template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-    auto apply(this auto &&, const FUNCTION_IN_CONTEXT &function,
-               const ARGUMENT_IN_CONTEXT &argument) {
-        using Result = std::invoke_result_t<
-            const typename remove_cvref_t<FUNCTION_IN_CONTEXT>::value_type &,
-            const typename remove_cvref_t<ARGUMENT_IN_CONTEXT>::value_type &>;
-
-        return test::Identity<remove_cvref_t<Result>>{
-            std::invoke(function.value, argument.value)};
-    }
-};
-
-template <class VALUE_TYPE>
-struct TestIdentityApplicativeMap
-    : Applicative<TestIdentityApplicativeImpl<VALUE_TYPE>> {
-    using TestIdentityApplicativeImpl<VALUE_TYPE>::apply;
-    using TestIdentityApplicativeImpl<VALUE_TYPE>::pure;
-};
-
-template <class VALUE_TYPE>
-inline constexpr auto applicative_typeclass<test::Identity<VALUE_TYPE>> =
-    TestIdentityApplicativeMap<VALUE_TYPE>{};
 
 /** Foldable implementation for Sequence<V>: fold_map walks values
  * left-to-right. */
@@ -122,19 +79,21 @@ template <class VALUE_TYPE>
 inline constexpr auto foldable_typeclass<test::Sequence<VALUE_TYPE>> =
     TestSequenceFoldableMap<VALUE_TYPE>{};
 
-/** Traversable implementation for Identity<V>. */
+/** Traversable implementation for the public Identity<V> (smd/typeclass/
+ * identity.hpp). Test-only: there is no general Traversable typeclass
+ * instance for Identity in the library proper, only here, since traversing
+ * an effect-free context is a law-testing convenience, not a scheme need. */
 template <class VALUE_TYPE>
 struct TestIdentityTraversableImpl {
     using element_type = VALUE_TYPE;
 
     template <class APPLICATIVE, class FUNCTION>
     auto traverse(this auto &&, const APPLICATIVE &applicative,
-                  FUNCTION &&function,
-                  const test::Identity<VALUE_TYPE> &identity) {
+                  FUNCTION &&function, const Identity<VALUE_TYPE> &identity) {
         return applicative.invoke(
             [](auto &&value) {
                 using U = remove_cvref_t<decltype(value)>;
-                return test::Identity<U>{std::forward<decltype(value)>(value)};
+                return Identity<U>{std::forward<decltype(value)>(value)};
             },
             std::invoke(std::forward<FUNCTION>(function), identity.value));
     }
@@ -147,7 +106,7 @@ struct TestIdentityTraversableMap
 };
 
 template <class VALUE_TYPE>
-inline constexpr auto traversable_typeclass<test::Identity<VALUE_TYPE>> =
+inline constexpr auto traversable_typeclass<Identity<VALUE_TYPE>> =
     TestIdentityTraversableMap<VALUE_TYPE>{};
 
 } // namespace smd::typeclass

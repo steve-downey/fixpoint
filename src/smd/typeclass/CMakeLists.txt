@@ -16,6 +16,10 @@ target_sources(
                 fold.hpp
                 traverse.hpp
                 sequence.hpp
+                identity.hpp
+                either.hpp
+                pair.hpp
+                comonad.hpp
 )
 
 ## Tests
@@ -49,6 +53,10 @@ if(FIXPOINT_ENABLE_TESTING)
             fold.t.cpp
             traverse.t.cpp
             sequence.t.cpp
+            identity.t.cpp
+            either.t.cpp
+            pair.t.cpp
+            comonad.t.cpp
     )
 
     target_link_libraries(smd_typeclass_test fixpoint.fixpoint)
