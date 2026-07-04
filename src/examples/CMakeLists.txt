@@ -104,3 +104,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(histo_coin_change)
+
+# Add example source file.
+target_sources(histo_coin_change PRIVATE histo_coin_change.cpp)
+
+# Link example with the library.
+target_link_libraries(histo_coin_change PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS histo_coin_change
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)

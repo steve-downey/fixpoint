@@ -31,11 +31,24 @@ namespace smd::fixpoint {
 // NatF — unary naturals.
 // ---------------------------------------------------------------------
 
-struct Zero {};
+struct Zero {
+    // Defaulted so std::variant<Zero, Succ<A>> (and anything built on top,
+    // e.g. Cofree<NatF, A>'s tail, S07) is comparable — an empty aggregate
+    // does not get an implicit operator== otherwise (see S07 deviation:
+    // ops/DEVIATIONS.md).
+    friend constexpr auto operator==(const Zero &, const Zero &) -> bool =
+        default;
+};
 
 template <typename A>
 struct Succ {
     Box<A> pred;
+
+    // Defaulted for the same reason as Zero's above: no aggregate gets an
+    // implicit operator== for free, and std::variant<Zero, Succ<A>> needs
+    // every alternative comparable.
+    friend constexpr auto operator==(const Succ &, const Succ &) -> bool =
+        default;
 };
 
 template <typename A>
