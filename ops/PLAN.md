@@ -76,7 +76,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S12** Distributive laws — `ops/steps/12-dist-laws.md` (dep: S07, S08)
 - [x] **S13** gcata + recovery laws — `ops/steps/13-gcata.md` (dep: S12, S05)
 - [x] **S14** gana + ghylo + recovery laws — `ops/steps/14-gana-ghylo.md` (dep: S13, S09)
-- [ ] **S15** gprepro + gpostpro + zygo_histo_prepro — `ops/steps/15-gprepro-capstone.md` (dep: S14, S06)
+- [x] **S15** gprepro + gpostpro + zygo_histo_prepro — `ops/steps/15-gprepro-capstone.md` (dep: S14, S06)
 
 ### Phase F — Packaging
 - [ ] **S16** Umbrella header, docs catalog, final sweep — `ops/steps/16-packaging-docs.md` (dep: all of A–E)
@@ -99,3 +99,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S12 | 2026-07-04 | 73daaba | gcc-16: 100% passed, 0 failed, total 176 (+12 new) | `ops/handoffs/12-dist-laws.handoff.md` |
 | S13 | 2026-07-04 | 03f8a51 | gcc-16: 100% passed, 0 failed, total 183 (+7 new) | `ops/handoffs/13-gcata.handoff.md` |
 | S14 | 2026-07-04 | 0b6affe | gcc-16: 100% passed, 0 failed, total 194 (+11 new) | `ops/handoffs/14-gana-ghylo.handoff.md` |
+| S15 | 2026-07-05 | 52193af | gcc-16: 100% passed, 0 failed, total 202 (+8 new); generalized_tour runs, exits 0, all pairs match | `ops/handoffs/15-gprepro-capstone.handoff.md` |
