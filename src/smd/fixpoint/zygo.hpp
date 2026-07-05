@@ -52,6 +52,37 @@ constexpr auto zygo(const HelperAlg &helper, const MainAlg &main,
     return fold_fix<Carrier>(combined, tree).second;
 }
 
+/** zygo threading an explicit functor instance (OVERLOAD variant, same name).
+ *
+ * Distinguished from the 3-arg zygo above by *arity* (4 args), not by a
+ * constraint -- so unlike fold_fix/unfold_fix/refold, reusing the name here
+ * costs nothing and this keeps a static_assert for a clean diagnostic. That
+ * asymmetry is the point: the overload-vs-distinct-name tension only bites
+ * where an added instance-first argument collides in arity with an existing
+ * overload (the 3-arg fmap_fn schemes); where arities differ, overloading is
+ * free.
+ *
+ * The threaded @p functor is used at both fmap sites and so must be
+ * element-generic (fold layer F<Fix<F>> vs projection layer F<Carrier>).
+ */
+template <class Result, class Helper, class Functor, template <class> class F,
+          class HelperAlg, class MainAlg>
+constexpr auto zygo(const Functor &functor, const HelperAlg &helper,
+                    const MainAlg &main, const Fix<F> &tree) -> Result {
+    using Carrier = std::pair<Helper, Result>;
+    static_assert(
+        functor_instance_for<Functor, Helper (*)(const Carrier &), F<Carrier>>,
+        "zygo: the functor instance cannot project the helper component -- it "
+        "has no fmap(fn, F<pair<Helper,Result>>). Pass an element-generic "
+        "functor object usable at both fmap sites.");
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        auto helper_layer = functor.fmap(
+            [](const Carrier &c) -> Helper { return c.first; }, layer);
+        return Carrier{helper(helper_layer), main(layer)};
+    };
+    return fold_fix<Carrier>(functor, combined, tree).second;
+}
+
 } // namespace smd::fixpoint
 
 #endif

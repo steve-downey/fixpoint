@@ -10,6 +10,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <functional>
+#include <type_traits>
 #include <variant>
 
 using smd::fixpoint::Box;
@@ -57,6 +58,26 @@ auto fmap_nat(F &&f, const NatF<A> &nat) {
 auto fmap_nat_fn = [](auto &&f, const auto &nat) {
     return fmap_nat(std::forward<decltype(f)>(f), nat);
 };
+
+// An element-generic functor *object* for NatF, deliberately NOT registered in
+// functor_typeclass. The instance-first overloads accept it by value, so it
+// drives the recursion with nothing registered -- the thread-by-value
+// contract, reached here by overloading the existing scheme name.
+struct NatFunctor {
+    template <typename Fn, typename A>
+    auto fmap(Fn &&fn, const NatF<A> &nat) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          nat);
+    }
+};
+inline constexpr NatFunctor nat_functor{};
 
 auto count_algebra = [](const NatF<int> &n) -> int {
     return std::visit(overloaded{
@@ -133,4 +154,43 @@ TEST_CASE("Refold - EquivalentToFoldOfUnfold") {
             refold<int, NatF>(count_algebra, nat_coalgebra, fmap_nat_fn, n);
         CHECK(via_tree == via_refold);
     }
+}
+
+// --- instance-first overloads: same names, functor threaded by value -------
+// Each call reuses the existing scheme name with an instance as the first
+// argument; overload resolution (constraint partial ordering) routes it to the
+// instance form while the fmap_fn and lookup forms below stay reachable.
+
+TEST_CASE("Overload - FoldFix threads an unregistered instance") {
+    auto n = make_zero();
+    for (int i = 0; i < 5; ++i) {
+        n = make_succ(std::move(n));
+    }
+    CHECK(fold_fix<int>(nat_functor, count_algebra, n) == 5);
+}
+
+TEST_CASE("Overload - UnfoldFix threads an instance") {
+    auto nat = unfold_fix<NatF>(nat_functor, nat_coalgebra, 5);
+    CHECK(fold_fix<int>(nat_functor, count_algebra, nat) == 5);
+}
+
+TEST_CASE("Overload - Refold threads an instance") {
+    for (int n = 0; n < 10; ++n) {
+        auto via_instance =
+            refold<int, NatF>(nat_functor, count_algebra, nat_coalgebra, n);
+        auto via_fmap_fn =
+            refold<int, NatF>(count_algebra, nat_coalgebra, fmap_nat_fn, n);
+        CHECK(via_instance == via_fmap_fn);
+    }
+}
+
+TEST_CASE("Overload - fmap_fn and instance forms coexist under one name") {
+    // The 3-arg collision case: fold_fix(algebra, fmap_fn, tree) and
+    // fold_fix(instance, algebra, tree) share arity and name; constraint
+    // partial ordering routes each correctly. (The 2-arg lookup form needs a
+    // registered functor_typeclass, which this file's local NatF omits, so it
+    // is exercised elsewhere.)
+    auto n = make_succ(make_succ(make_succ(make_zero())));
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, n) == 3);    // fmap_fn
+    CHECK(fold_fix<int>(nat_functor, count_algebra, n) == 3);    // instance
 }

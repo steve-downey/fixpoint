@@ -10,10 +10,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <functional>
+#include <type_traits>
 #include <utility>
 #include <variant>
 
 using smd::fixpoint::fold_fix;
+using smd::fixpoint::make_box;
 using smd::fixpoint::IntTree;
 using smd::fixpoint::IntTreeF;
 using smd::fixpoint::Leaf;
@@ -123,6 +126,60 @@ TEST_CASE("zygo behavior: zygo_balanced on IntTree") {
         make_leaf(4));
     IntTree unbalanced_tree = make_node(left_spine, make_leaf(5));
     CHECK_FALSE(zygo<bool, int>(height_helper, balanced_main, unbalanced_tree));
+}
+
+// ---------------------------------------------------------------------
+// Instance-first overload of zygo (same name, 4 args): thread an
+// element-generic functor object, never registered anywhere. zygo's instance
+// form differs in arity from the base zygo, so overloading the name needs no
+// constraint and keeps the static_assert.
+// ---------------------------------------------------------------------
+
+namespace {
+
+struct GenericNatFunctor {
+    template <typename Fn, typename A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat_functor{};
+
+} // namespace
+
+TEST_CASE("zygo overload: instance-first matches lookup zygo") {
+    auto helper_algebra = [](const NatF<int> &layer) -> int {
+        return std::visit(overloaded{
+                               [](const Zero &) { return 0; },
+                               [](const Succ<int> &s) { return *s.pred + 1; },
+                           },
+                           layer);
+    };
+    auto main_algebra = [](const NatF<std::pair<int, int>> &layer) -> int {
+        return std::visit(
+            overloaded{
+                [](const Zero &) { return 0; },
+                [](const Succ<std::pair<int, int>> &s) {
+                    return s.pred->second + 1;
+                },
+            },
+            layer);
+    };
+
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK(zygo<int, int>(generic_nat_functor, helper_algebra, main_algebra,
+                             nat) ==
+              zygo<int, int>(helper_algebra, main_algebra, nat));
+    }
 }
 
 // ---------------------------------------------------------------------
