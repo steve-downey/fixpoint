@@ -6,6 +6,13 @@
 // ALWAYS a provided API, so no caller is ever stuck when the global lookup is
 // wrong or missing.
 //
+// NOTE (not final): this file demonstrates the *contract* only, using Monoid
+// over int as the motivating no-canonical-default case. It does NOT prescribe
+// how Monoid itself should be designed -- the authoritative Monoid work lives
+// in the finger-tree companion, and this must be unified with it before
+// anything here is treated as settled. Do not build on the monoid shapes here
+// as if they were final; reconcile with fingertree first.
+//
 // Monoid over `int` is the case that makes this non-optional. There is no
 // canonical default: sum, product, min, and max are all equally valid
 // monoids over int. The library's monoid_v<int> picks additive, which is
