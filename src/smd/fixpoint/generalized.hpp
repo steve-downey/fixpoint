@@ -3,15 +3,19 @@
 #ifndef INCLUDED_SMD_FIXPOINT_GENERALIZED
 #define INCLUDED_SMD_FIXPOINT_GENERALIZED
 
-// Generalized schemes (design §7.10): gcata, the comonadic generalized
-// catamorphism (S13), and gana/ghylo, the monadic generalized anamorphism
-// and the fused generalized refold (S14). gcata factors
-// fold_fix/histo/zygo/para through a single worker parameterized by a
-// distributive law (dist_laws.hpp, S12) and a comonad (comonad_typeclass,
-// S03/S07); gana mirrors that shape on the unfold side, factoring
-// unfold_fix/apo/futu through a distributive law and a monad
-// (monad_typeclass, S03/S08) -- the "recovery laws" below (design §9,
-// gcata.t.cpp/gana.t.cpp/ghylo.t.cpp) are the actual proof that the
+// Generalized schemes (design §7.10/§7.11): gcata, the comonadic generalized
+// catamorphism (S13), gana/ghylo, the monadic generalized anamorphism and the
+// fused generalized refold (S14), and gprepro/gpostpro/zygo_histo_prepro, the
+// transformed generalized folds/unfolds and Kmett's zygoHistoPrepro capstone
+// (S15). gcata factors fold_fix/histo/zygo/para through a single worker
+// parameterized by a distributive law (dist_laws.hpp, S12) and a comonad
+// (comonad_typeclass, S03/S07); gana mirrors that shape on the unfold side,
+// factoring unfold_fix/apo/futu through a distributive law and a monad
+// (monad_typeclass, S03/S08); gprepro/gpostpro splice prepro.hpp's own
+// `hoist<F>(e)` transformation into gcata's/gana's workers (S06's exact
+// "transform on the way down/out" delta against fold_fix/unfold_fix) --
+// the "recovery laws" and "degeneracy laws" below (design §9, gcata.t.cpp/
+// gana.t.cpp/ghylo.t.cpp/gprepro.t.cpp) are the actual proof that the
 // factoring is correct, this header's own doc comments are not.
 
 #include <smd/fixpoint/cofree.hpp>
@@ -19,6 +23,7 @@
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
+#include <smd/fixpoint/prepro.hpp>
 
 #include <smd/typeclass/comonad.hpp>
 #include <smd/typeclass/either.hpp>
@@ -396,6 +401,352 @@ constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
                      const Seed &seed) -> Result {
     return gcata<Result, WResult>(
         w_dist, algebra, gana<F, MSeed>(m_dist, coalgebra, seed));
+}
+
+// ---------------------------------------------------------------------
+// gprepro :: Comonad w => dist -> (forall x. f x -> f x)
+//                      -> (f (w a) -> a) -> t -> a
+// ---------------------------------------------------------------------
+
+/** Implementation detail of gprepro (not part of the public API): the
+ * worker `c : Fix<F> -> W<F<WResult>>` (design §7.11's own `c`) --
+ * gcata_worker_t's (S13) exact shape with one splice: each recursive call
+ * first hoists the *child subtree* through the natural transformation `e`
+ * via `hoist<F>(e, child)` (prepro.hpp, S06) before folding it. This is the
+ * literal "compare §7.4's prepro vs fold_fix -- same delta" the step file
+ * points at: `prepro`'s own body (prepro.hpp) recurses via
+ * `prepro<Result>(e, algebra, hoist<F>(e, child))`, and gprepro's worker
+ * does the same thing one level further out (`(*this)(hoist<F>(e, child))`
+ * instead of `(*this)(child)`), everything else copied verbatim from
+ * gcata_worker_t.
+ *
+ * WWR/C are computed up front exactly as gcata_worker_t's -- from
+ * Result/WResult/F/Dist alone, the same "name the type before writing the
+ * recursive body" discipline S07/S08/S12/S13/S14 all found necessary
+ * (Nat/e plays no part in either type, only in *which* subtree gets folded
+ * at each recursive step).
+ */
+template <class Result, class WResult, template <class> class F, class Dist,
+          class Nat, class GAlgebra>
+struct gprepro_worker_t {
+    const Dist &dist;
+    const Nat &e;
+    const GAlgebra &algebra;
+
+    using WWR = decltype(smd::typeclass::comonad_typeclass<WResult>.duplicate(
+        std::declval<WResult>()));
+    using C = decltype(dist(std::declval<F<WWR>>()));
+
+    constexpr auto operator()(const Fix<F> &t) const -> C {
+        return dist(layer_fmap(
+            [this](const Fix<F> &child) -> WWR {
+                return smd::typeclass::comonad_typeclass<WResult>.duplicate(
+                    smd::typeclass::comonad_typeclass<WResult>.fmap(
+                        algebra, (*this)(hoist<F>(e, child))));
+            },
+            unwrap_fix(t)));
+    }
+};
+
+/** gprepro :: Comonad w => dist -> (forall x. f x -> f x)
+ *                      -> (f (w a) -> a) -> t -> a
+ *
+ * Equation (design §7.11): `gprepro k e phi = phi(extract(c t))` where
+ * `c = k . fmapF(duplicate . fmapW phi . c . hoist<F>(e)) . unfix` --
+ * gcata's own `c` (design §7.10) with `hoist<F>(e)` spliced in front of
+ * each recursive call.
+ *
+ * Degeneracy laws (design §9/§7.11, gprepro.t.cpp, D8 -- these gate the
+ * implementation, not the equation above):
+ * `gprepro(dist_cata, identity_nat, phi') == fold_fix(phi)`;
+ * `gprepro(dist_cata, e, phi') == prepro(e, phi)` (S06's own take-while
+ * fixture); `gprepro(k, identity_nat, phi) == gcata(k, phi)` (any k, e.g.
+ * dist_histo).
+ *
+ * @tparam Result the fold's result type `a` (D5: explicit)
+ * @tparam WResult `w a` -- the comonad-wrapped carrier (D5: explicit,
+ *   mirrors gcata's own WResult)
+ * @param dist a distributive law `F<w<X>> -> w<F<X>>` for every X
+ *   (dist_laws.hpp)
+ * @param e a natural transformation `F<X> -> F<X>` for every X (endo, the
+ *   same contract as hoist's/prepro's own `e`)
+ * @param algebra `F<WResult> -> Result`
+ */
+template <class Result, class WResult, template <class> class F, class Dist,
+          class Nat, class GAlgebra>
+constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
+                      const Fix<F> &tree) -> Result {
+    gprepro_worker_t<Result, WResult, F, Dist, Nat, GAlgebra> worker{dist, e,
+                                                                     algebra};
+    return algebra(
+        smd::typeclass::comonad_typeclass<WResult>.extract(worker(tree)));
+}
+
+// ---------------------------------------------------------------------
+// gpostpro :: Monad m => dist -> (forall x. f x -> f x)
+//                     -> (a -> f (m a)) -> a -> t
+// ---------------------------------------------------------------------
+
+/** Implementation detail of gpostpro (not part of the public API): the
+ * worker `a : M<F<MSeed>> -> Fix<F>` (design §7.11) -- gana_worker_t's
+ * (S14) exact shape with one splice, dual to gprepro_worker_t's: each
+ * recursive *result* is hoisted through the natural transformation `e` via
+ * `hoist<F>(e, (*this)(next))` before being grafted in, mirroring
+ * postpro.hpp's own "unfold the child as usual, then hoist the whole
+ * resulting subtree before grafting" shape (S06) one level further out.
+ *
+ * MFMS/MMS are computed up front exactly as gana_worker_t's.
+ */
+template <template <class> class F, class MSeed, class Dist, class Nat,
+          class GCoalgebra>
+struct gpostpro_worker_t {
+    const Dist &dist;
+    const Nat &e;
+    const GCoalgebra &coalgebra;
+
+    using MFMS = decltype(smd::typeclass::monad_typeclass<MSeed>.pure(
+        std::declval<F<MSeed>>()));
+    using MMS = decltype(smd::typeclass::monad_typeclass<MSeed>.pure(
+        std::declval<MSeed>()));
+
+    constexpr auto operator()(const MFMS &m) const -> Fix<F> {
+        return wrap_fix<F>(layer_fmap(
+            [this](const MMS &mms) -> Fix<F> {
+                auto joined =
+                    smd::typeclass::monad_typeclass<MSeed>.join(mms);
+                auto next = layer_fmap(coalgebra, joined);
+                return hoist<F>(e, (*this)(next));
+            },
+            dist(m)));
+    }
+};
+
+/** gpostpro :: Monad m => dist -> (forall x. f x -> f x)
+ *                     -> (a -> f (m a)) -> a -> t
+ *
+ * Dual to gprepro: gana's own `a` (design §7.10) with `hoist<F>(e)`
+ * spliced around each recursive result before it is grafted in.
+ *
+ * Degeneracy laws (design §9/§7.11, gprepro.t.cpp, D8):
+ * `gpostpro(dist_ana, identity_nat, psi') == unfold_fix(psi)`;
+ * `gpostpro(dist_ana, e, psi') == postpro(e, psi)` (S06's own fixtures).
+ *
+ * @tparam F unary template functor (D5: explicit, mirrors gana's own F)
+ * @tparam MSeed `m a` -- the monad-wrapped seed (D5: explicit, mirrors
+ *   gana's own MSeed)
+ * @param dist a distributive law `M<F<X>> -> F<M<X>>` for every X
+ * @param e a natural transformation `F<X> -> F<X>` for every X
+ * @param coalgebra `Seed -> F<MSeed>`
+ */
+template <template <class> class F, class MSeed, class Dist, class Nat,
+          class GCoalgebra, class Seed>
+constexpr auto gpostpro(const Dist &dist, const Nat &e,
+                        const GCoalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    gpostpro_worker_t<F, MSeed, Dist, Nat, GCoalgebra> worker{dist, e,
+                                                              coalgebra};
+    return worker(
+        smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
+}
+
+} // namespace smd::fixpoint
+
+// ---------------------------------------------------------------------
+// zygo_histo_prepro's composed comonad (design §7.11): W<X> =
+// std::pair<Helper, Cofree<F,X>>, Kmett's `EnvT Helper (Cofree F) X`
+// (Control.Comonad.Trans.Env, recursion-schemes' own zygoHistoPrepro).
+// ---------------------------------------------------------------------
+
+namespace smd::typeclass {
+
+/** Comonad instance for the *composed* `std::pair<Helper, Cofree<F,X>>` --
+ * NOT the same instance as pair.hpp's generic `comonad_typeclass<pair<B,A>>`
+ * (`PairComonadImpl<B, A>`) instantiated at `A = Cofree<F,X>`. This is the
+ * "thin ice" the step file names: the two give *different* `duplicate`
+ * shapes, and only this one is right for gprepro's needs.
+ *
+ * `PairComonadImpl<B, A>::duplicate` re-nests only the *pair* layer itself:
+ * `duplicate(pair<B,X>) -> pair<B, pair<B,X>>` for its own generic template
+ * parameter (design's own "generic over its own element-type parameter,
+ * not fixed to the instance's keying type" pattern, S03/S07/S12/S13/S14).
+ * Plugging in `A = Cofree<F,X>`/its own generic param `= Cofree<F,X>` gives
+ * `pair<Helper, pair<Helper, Cofree<F,X>>>` -- a visibly different type from
+ * what gcata's/gprepro's worker needs here, `W<W<X>> = pair<Helper,
+ * Cofree<F, pair<Helper, Cofree<F,X>>>>` (`comonad_typeclass<WResult>
+ * .duplicate(declval<WResult>())`, generalized.hpp's `gprepro_worker_t`).
+ * These two types do not match (`pair<Helper,Cofree<F,X>>` vs
+ * `Cofree<F,pair<Helper,Cofree<F,X>>>` nested one level differently), so the
+ * generic pair instance cannot serve gprepro's needs at this W -- a
+ * dedicated instance, keyed specifically on `pair<Helper, Cofree<F,X>>`
+ * (more specialized than pair.hpp's `pair<B,A>` pattern, so this partial
+ * specialization is selected whenever `A` actually is `Cofree<F,X>` for
+ * some F/X), is required.
+ *
+ * This mirrors Haskell's `EnvT e w` Comonad instance
+ * (Control.Comonad.Trans.Env): `duplicate (EnvT e wa) = EnvT e (extend
+ * (EnvT e) wa)`, i.e. re-attach the *same* environment `e` to every
+ * position of the *underlying* comonad `w`'s own duplicate -- using `w`'s
+ * (here Cofree's) own `duplicate`/`fmap`, not a trivial re-pairing of the
+ * outer product. `extract`/`fmap` simply defer to the underlying Cofree
+ * comonad's own operations, threading `Helper` through unchanged (`fmap`)
+ * or dropping it (`extract`), exactly as `EnvT`'s own `Functor`/`Comonad`
+ * instances do.
+ */
+template <template <class> class F, class Helper, class X>
+struct ZygoHistoComonadImpl {
+    template <class Y>
+    constexpr auto
+    extract(this auto &&, const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
+        -> const Y & {
+        return smd::fixpoint::extract(w.second);
+    }
+
+    template <class Y>
+    constexpr auto
+    duplicate(this auto &&,
+              const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
+        -> std::pair<Helper,
+                    smd::fixpoint::Cofree<
+                        F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>> {
+        const Helper &env = w.first;
+        auto duplicated_cofree =
+            comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.duplicate(w.second);
+        auto reattached = comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.fmap(
+            [&env](const smd::fixpoint::Cofree<F, Y> &c)
+                -> std::pair<Helper, smd::fixpoint::Cofree<F, Y>> {
+                return std::pair<Helper, smd::fixpoint::Cofree<F, Y>>{env, c};
+            },
+            duplicated_cofree);
+        return std::pair<Helper,
+                         smd::fixpoint::Cofree<
+                             F, std::pair<Helper,
+                                         smd::fixpoint::Cofree<F, Y>>>>{
+            env, std::move(reattached)};
+    }
+
+    template <class Fn, class Y>
+    constexpr auto fmap(this auto &&, Fn &&fn,
+                        const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w) {
+        using Z = remove_cvref_t<std::invoke_result_t<Fn, const Y &>>;
+        return std::pair<Helper, smd::fixpoint::Cofree<F, Z>>{
+            w.first, comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.fmap(
+                         std::forward<Fn>(fn), w.second)};
+    }
+};
+
+template <template <class> class F, class Helper, class X>
+struct ZygoHistoComonadMap : Comonad<ZygoHistoComonadImpl<F, Helper, X>> {
+    using ZygoHistoComonadImpl<F, Helper, X>::duplicate;
+    using ZygoHistoComonadImpl<F, Helper, X>::extract;
+    using ZygoHistoComonadImpl<F, Helper, X>::fmap;
+};
+
+/** The composed comonad instance, keyed on `std::pair<Helper,
+ * Cofree<F,X>>` specifically -- more specialized than pair.hpp's own
+ * `comonad_typeclass<std::pair<B,A>>` pattern, so this specialization wins
+ * whenever the value slot actually is `Cofree<F,X>` for some F/X (i.e.
+ * exactly and only for zygo_histo_prepro's own W); pair.hpp's generic
+ * instance still serves every other `pair<B,A>` use in this codebase
+ * (zygo_via_gcata's `pair<Helper,Result>`, para_via_gcata's
+ * `pair<Fix<F>,Result>`) unchanged.
+ */
+template <template <class> class F, class Helper, class X>
+inline constexpr auto
+    comonad_typeclass<std::pair<Helper, smd::fixpoint::Cofree<F, X>>> =
+        ZygoHistoComonadMap<F, Helper, X>{};
+
+} // namespace smd::typeclass
+
+namespace smd::fixpoint {
+
+// ---------------------------------------------------------------------
+// dist_zygo_histo(f) :: (f b -> b) -> f (EnvT b (Cofree f) a)
+//                     -> EnvT b (Cofree f) (f a)
+// ---------------------------------------------------------------------
+
+/** The object returned by dist_zygo_histo<F>(f) (factory, see below): a
+ * one-off distributive law for zygo_histo_prepro's own composed comonad
+ * `W<X> = std::pair<Helper, Cofree<F,X>>` (design §7.11 -- capstone
+ * specific, deliberately NOT added to dist_laws.hpp, per the step file).
+ * Mirrors Kmett's `distZygoT`: `distZygoT g k fe = EnvT (g (extract <$>
+ * fe)) (k (lower <$> fe))` with `k` bound here to `dist_histo<F>` --
+ * `g (helper) : F<Helper> -> Helper` folds the helper component (`.first`,
+ * matching S05/zygo's own convention), `dist_histo<F>` (S12) redistributes
+ * the Cofree component (`.second`).
+ *
+ * Like `dist_para`/`dist_histo`/`dist_futu` (dist_laws.hpp, DEV-02), `F`
+ * must be bound explicitly at the struct level (called as
+ * `dist_zygo_histo<F>(f)`): the call operator's own argument type contains
+ * a *bare* `F<...>` application (an alias-template functor family), which
+ * GCC 16 cannot deduce a template-template parameter back out of. `Helper`
+ * and the per-call element type `X` both deduce normally from the argument
+ * once `F` is bound, mirroring `dist_histo_t`'s own `A`.
+ */
+template <template <class> class F, class HelperAlg>
+struct dist_zygo_histo_t {
+    HelperAlg helper;
+
+    template <class Helper, class X>
+    constexpr auto
+    operator()(const F<std::pair<Helper, Cofree<F, X>>> &l) const
+        -> std::pair<Helper, Cofree<F, F<X>>> {
+        auto helper_layer = layer_fmap(
+            [](const std::pair<Helper, Cofree<F, X>> &p) -> Helper {
+                return p.first;
+            },
+            l);
+        auto w_layer = layer_fmap(
+            [](const std::pair<Helper, Cofree<F, X>> &p) -> Cofree<F, X> {
+                return p.second;
+            },
+            l);
+        return std::pair<Helper, Cofree<F, F<X>>>{helper(helper_layer),
+                                                   dist_histo<F>(w_layer)};
+    }
+};
+
+/** distZygoHisto :: (f b -> b) -> f (EnvT b (Cofree f) a)
+ *                 -> EnvT b (Cofree f) (f a)
+ *
+ * Factory: takes the helper algebra `F<Helper> -> Helper` and returns the
+ * one-off law above. Called as `dist_zygo_histo<F>(f)`.
+ */
+template <template <class> class F, class HelperAlg>
+constexpr auto dist_zygo_histo(HelperAlg helper)
+    -> dist_zygo_histo_t<F, HelperAlg> {
+    return dist_zygo_histo_t<F, HelperAlg>{std::move(helper)};
+}
+
+// ---------------------------------------------------------------------
+// zygo_histo_prepro -- Kmett's famous capstone (design §7.11).
+// ---------------------------------------------------------------------
+
+/** zygo_histo_prepro :: (f b -> b) -> (forall x. f x -> f x)
+ *                     -> (f (EnvT b (Cofree f) a) -> a) -> t -> a
+ *
+ * Zygomorphic histomorphism with a prepromorphism pass: `gprepro` with the
+ * concrete composed comonad `W<X> = std::pair<Helper, Cofree<F,X>>` and
+ * `dist_zygo_histo<F>(f)` as the distributive law (design §7.11).
+ *
+ * Degeneracy law (design §9/§7.11, gprepro.t.cpp): with `e = identity`,
+ * `f` ignored by `g`, and `g` using only `extract` of the Cofree,
+ * degenerates to `fold_fix`.
+ *
+ * @tparam Result the fold's result type `a` (D5: explicit)
+ * @tparam Helper the helper algebra's carrier `b` (D5: explicit, mirrors
+ *   zygo's own Helper)
+ * @param f the helper algebra `F<Helper> -> Helper`
+ * @param e a natural transformation `F<X> -> F<X>` for every X
+ * @param g the main algebra `F<std::pair<Helper, Cofree<F,Result>>> ->
+ *   Result`
+ */
+template <class Result, class Helper, template <class> class F,
+          class HelperAlg, class Nat, class MainAlg>
+constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
+                                 const MainAlg &g, const Fix<F> &tree)
+    -> Result {
+    using WResult = std::pair<Helper, Cofree<F, Result>>;
+    return gprepro<Result, WResult>(dist_zygo_histo<F>(f), e, g, tree);
 }
 
 } // namespace smd::fixpoint

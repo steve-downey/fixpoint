@@ -165,6 +165,21 @@ install(
     EXCLUDE_FROM_ALL
 )
 
+add_executable(generalized_tour)
+
+# Add example source file.
+target_sources(generalized_tour PRIVATE generalized_tour.cpp)
+
+# Link example with the library.
+target_link_libraries(generalized_tour PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS generalized_tour
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
+
 add_executable(elgot_shortcircuit)
 
 # Add example source file.
