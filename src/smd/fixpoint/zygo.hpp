@@ -52,6 +52,35 @@ constexpr auto zygo(const HelperAlg &helper, const MainAlg &main,
     return fold_fix<Carrier>(combined, tree).second;
 }
 
+/** zygo threading an explicit functor instance (the `_with` form).
+ *
+ * The same @p functor is used at both fmap sites -- the delegated
+ * fold_fix_with recursion and the helper projection inside `combined` -- so
+ * it must be usable at more than one element type (`F<Fix<F>>` at the fold,
+ * `F<std::pair<Helper,Result>>` at the projection). A single-element-type
+ * instance will trip the static_assert in one of the two sites; thread an
+ * element-generic functor object (its `fmap` templated over the element
+ * type). This is the multi-site cost of thread-by-value: the price of not
+ * re-looking-up per site.
+ */
+template <class Result, class Helper, class Functor, template <class> class F,
+          class HelperAlg, class MainAlg>
+constexpr auto zygo_with(const Functor &functor, const HelperAlg &helper,
+                         const MainAlg &main, const Fix<F> &tree) -> Result {
+    using Carrier = std::pair<Helper, Result>;
+    static_assert(
+        functor_instance_for<Functor, Helper (*)(const Carrier &), F<Carrier>>,
+        "zygo_with: the functor instance cannot project the helper component "
+        "-- it has no fmap(fn, F<pair<Helper,Result>>). Pass an "
+        "element-generic functor object usable at both fmap sites.");
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        auto helper_layer = functor.fmap(
+            [](const Carrier &c) -> Helper { return c.first; }, layer);
+        return Carrier{helper(helper_layer), main(layer)};
+    };
+    return fold_fix_with<Carrier>(functor, combined, tree).second;
+}
+
 } // namespace smd::fixpoint
 
 #endif
