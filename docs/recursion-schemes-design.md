@@ -164,6 +164,27 @@ GCC 17 secondary smoke build. See §3 D9.
   and could replace `Box`; we deliberately stay with `Box` for
   consistency and its nullable default (see box.hpp's rationale).
   Migration to `std::indirect` is out of scope (§11).
+- **D12 — Explicit-instance `_with` forms; thread the instance by value.**
+  Every generic scheme provides a `_with` form taking the functor instance
+  *by value* as an explicit first argument
+  (`fold_fix_with(functor, alg, tree)`, `unfold_fix_with`, `refold_with`,
+  `zygo_with`, …), threaded unchanged down the recursion. This is the
+  standing contract that a value-based local typeclass instance is *always*
+  a provided API, so a caller is never stuck when the global lookup is wrong
+  (a typeclass with no canonical default — e.g. Monoid over `int`: sum vs
+  product vs min vs max, with no transparent newtype in C++ to disambiguate)
+  or absent (unregistered, test-local, or ODR-sensitive types). A **distinct
+  `_with` name**, not an overload of the scheme name: the `_with`/overload
+  question was prototyped both ways (branches `experiment-schemes-with` and
+  `experiment-schemes-overload`), and overloading the name loses decisively on
+  diagnostics — a mistyped instance to the 3-arg-colliding schemes falls
+  through to the unconstrained `fmap_fn` overload and errors deep in its body
+  instead of at a named `static_assert`. Each `_with` validates its instance
+  with a `static_assert` (`functor_instance_for`), not a `requires`-clause:
+  threading is not overload selection, so a bad instance earns one direct
+  diagnostic. At multi-site schemes (e.g. zygo's two fmap sites at different
+  element types) the single threaded instance must be element-generic. Full
+  record: `docs/explicit-typeclass-instance-dispatch.md`.
 
 ## §4 Core conventions
 
@@ -402,6 +423,18 @@ Instances: `Identity<A>` (S03); env/product comonad
 | `Cofree<F, A>` | ✓ | — | — | ✓ | S07 |
 | `Free<F, A>` | ✓ | — | ✓ | — | S08 |
 | each base functor layer | ✓ | — | — | — | S01/S02 |
+
+### §6.5 Explicit-instance `_with` scheme forms (D12)
+
+Alongside the lookup overloads (§6.2), each scheme provides a `_with` form
+that takes the functor instance by value as the first argument and threads it
+down the recursion — the third of the three lookup modes (implicit lookup /
+NTTP pinning / explicit object). Signatures:
+`fold_fix_with(functor, alg, tree)`, `unfold_fix_with(functor, coalg, seed)`,
+`refold_with(functor, alg, coalg, seed)`, `zygo_with(functor, helper, main,
+tree)`. The instance need not be registered in `functor_typeclass`; validation
+is a `static_assert` (`functor_instance_for`, `fmap.hpp`). See D12 and the full
+design-surface record in `docs/explicit-typeclass-instance-dispatch.md`.
 
 ## §7 Scheme catalog
 
