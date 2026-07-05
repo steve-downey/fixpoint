@@ -44,6 +44,7 @@
 #include <smd/typeclass/either.hpp>
 #include <smd/typeclass/identity.hpp>
 
+#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -71,13 +72,30 @@ inline constexpr dist_cata_t dist_cata{};
 
 /** distAna :: Identity (f a) -> f (Identity a)
  * fmapF(wrap-in-Identity) over the layer inside.
+ *
+ * The wrapping lambda names its result type explicitly
+ * (`Identity<remove_cvref_t<decltype(x)>>{x}`) rather than writing
+ * `Identity{x}` and relying on CTAD (DEV-03, S14): when `A` (the layer's
+ * own element type) is itself already an `Identity<...>` -- which is
+ * exactly what happens when `dist_ana` is used as `gana`'s distributive
+ * law with `MSeed = Identity<Seed>` (generalized.hpp's `ana_via_gana`) --
+ * `Identity{x}` hits CTAD's implicit *copy* deduction candidate
+ * ([over.match.class.deduct]) and silently collapses to `Identity<T>`
+ * (a copy of `x`) instead of wrapping it one level deeper as
+ * `Identity<Identity<T>>`, exactly as `vector{v}` for `v : vector<int>`
+ * copies rather than nesting. Naming the template argument explicitly
+ * sidesteps CTAD entirely, so the lambda always wraps regardless of what
+ * `x`'s own type happens to be.
  */
 struct dist_ana_t {
     template <class Layer> // Layer = F<A>; argument is Identity<Layer>
     constexpr auto operator()(const smd::typeclass::Identity<Layer> &ident)
         const {
         return layer_fmap(
-            [](const auto &x) { return smd::typeclass::Identity{x}; },
+            [](const auto &x) {
+                return smd::typeclass::Identity<
+                    std::remove_cvref_t<decltype(x)>>{x};
+            },
             ident.value);
     }
 };

@@ -32,8 +32,16 @@ struct Monad : protected Impl {
 
     // apply: synthesized from bind + pure.
     // ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)
+    //
+    // constexpr (design D10, S14): none of these four derived operations
+    // were marked constexpr before S14 (gana.t.cpp's ana_via_gana constexpr
+    // smoke test is the first caller to invoke `join` in a constant
+    // expression, via `monad_typeclass<MSeed>.join(...)` -- generalized.hpp)
+    // -- a pre-existing gap, not a new requirement; adding `constexpr` here
+    // is purely additive (Impl::bind/pure, which these all forward to, were
+    // already constexpr in every instance in this codebase).
     template <class MF, class MA>
-    auto apply(this auto &&self, MF &&mf, MA &&ma) {
+    constexpr auto apply(this auto &&self, MF &&mf, MA &&ma) {
         return self.bind(std::forward<MF>(mf), [&self, &ma](auto &&f) {
             return self.bind(ma, [&self, &f](auto &&a) {
                 return self.pure(std::invoke(std::forward<decltype(f)>(f),
@@ -45,7 +53,7 @@ struct Monad : protected Impl {
     // join: flatten nested monad.
     // join mma = mma >>= id
     template <class MMA>
-    auto join(this auto &&self, MMA &&mma) {
+    constexpr auto join(this auto &&self, MMA &&mma) {
         return self.bind(std::forward<MMA>(mma),
                          [](auto &&inner) { return inner; });
     }
@@ -53,7 +61,7 @@ struct Monad : protected Impl {
     // kleisli: forward Kleisli composition (>=>).
     // (f >=> g) a = f a >>= g
     template <class F, class G>
-    auto kleisli(this auto &&self, F f, G g) {
+    constexpr auto kleisli(this auto &&self, F f, G g) {
         return [&self, f = std::move(f), g = std::move(g)](auto &&a) {
             return self.bind(f(std::forward<decltype(a)>(a)), g);
         };
@@ -61,7 +69,8 @@ struct Monad : protected Impl {
 
     // bind_with: explicit monad object override.
     template <class MONAD_MAP, class MA, class F>
-    auto bind_with(this auto &&, const MONAD_MAP &monad_map, MA &&ma, F &&f) {
+    constexpr auto bind_with(this auto &&, const MONAD_MAP &monad_map,
+                             MA &&ma, F &&f) {
         return monad_map.bind(std::forward<MA>(ma), std::forward<F>(f));
     }
 };
@@ -108,14 +117,14 @@ inline constexpr auto monad_typeclass<std::optional<VALUE_TYPE>> =
 
 /** Sequences a monadic value `ma` through function `f` (Haskell's `>>=`). */
 template <class MA, class F>
-auto mbind(MA &&ma, F &&f) {
+constexpr auto mbind(MA &&ma, F &&f) {
     const auto &map = monad_typeclass<remove_cvref_t<MA>>;
     return map.bind(std::forward<MA>(ma), std::forward<F>(f));
 }
 
 /** Flattens a nested monadic value; equivalent to `bind(mma, id)`. */
 template <class MMA>
-auto join(MMA &&mma) {
+constexpr auto join(MMA &&mma) {
     const auto &map = monad_typeclass<remove_cvref_t<MMA>>;
     return map.join(std::forward<MMA>(mma));
 }

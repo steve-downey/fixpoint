@@ -30,7 +30,7 @@ if(FIXPOINT_ENABLE_TESTING)
 
     target_sources(
         smd_fixpoint_test
-        PRIVATE box.t.cpp fix.t.cpp overloaded.t.cpp fmap.t.cpp recursion_schemes.t.cpp functors.t.cpp para.t.cpp apo.t.cpp zygo.t.cpp mutu.t.cpp prepro.t.cpp cofree.t.cpp histo.t.cpp free.t.cpp futu.t.cpp chrono.t.cpp mendler.t.cpp elgot.t.cpp dist_laws.t.cpp generalized.t.cpp
+        PRIVATE box.t.cpp fix.t.cpp overloaded.t.cpp fmap.t.cpp recursion_schemes.t.cpp functors.t.cpp para.t.cpp apo.t.cpp zygo.t.cpp mutu.t.cpp prepro.t.cpp cofree.t.cpp histo.t.cpp free.t.cpp futu.t.cpp chrono.t.cpp mendler.t.cpp elgot.t.cpp dist_laws.t.cpp generalized.t.cpp gana.t.cpp ghylo.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
