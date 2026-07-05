@@ -164,3 +164,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(elgot_shortcircuit)
+
+# Add example source file.
+target_sources(elgot_shortcircuit PRIVATE elgot_shortcircuit.cpp)
+
+# Link example with the library.
+target_link_libraries(elgot_shortcircuit PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS elgot_shortcircuit
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
