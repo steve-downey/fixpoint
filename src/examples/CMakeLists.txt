@@ -149,3 +149,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(mendler_eval)
+
+# Add example source file.
+target_sources(mendler_eval PRIVATE mendler_eval.cpp)
+
+# Link example with the library.
+target_link_libraries(mendler_eval PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS mendler_eval
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)
