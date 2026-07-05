@@ -37,8 +37,14 @@ template <template <class> class F, class A>
 struct Free {
     std::variant<A, F<Free<F, A>>> node; // Pure a | Roll layer
 
-    friend constexpr auto operator==(const Free &, const Free &) -> bool =
-        default;
+    // Hand-written (not = default): see cofree.hpp's/functors.hpp's own
+    // comment — Free<F,A> is self-referential through F<Free<F,A>>, exactly
+    // the shape that triggers Clang's eager defaulted-comparison
+    // completeness check inside a self-embedding class template.
+    friend constexpr auto operator==(const Free &lhs, const Free &rhs)
+        -> bool {
+        return lhs.node == rhs.node;
+    }
 };
 
 /** pure_free(a) -> Free<F, A>: a Pure leaf holding @p a. */
