@@ -70,7 +70,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 
 ### Phase D — Mendler & Elgot
 - [x] **S10** mcata + mhisto — `ops/steps/10-mendler.md` (dep: S02)
-- [ ] **S11** elgot + coelgot — `ops/steps/11-elgot.md` (dep: S02, S03)
+- [x] **S11** elgot + coelgot — `ops/steps/11-elgot.md` (dep: S02, S03)
 
 ### Phase E — Generalizations
 - [ ] **S12** Distributive laws — `ops/steps/12-dist-laws.md` (dep: S07, S08)
@@ -95,3 +95,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S08 | 2026-07-04 | ee50780 | gcc-16: 100% passed, 0 failed, total 145 (+12 new) | `ops/handoffs/08-free-futu.handoff.md` |
 | S09 | 2026-07-04 | 5c9e169 | gcc-16: 100% passed, 0 failed, total 151 (+6 new) | `ops/handoffs/09-dyna-chrono.handoff.md` |
 | S10 | 2026-07-04 | 0893792 | gcc-16: 100% passed, 0 failed, total 157 (+6 new) | `ops/handoffs/10-mendler.handoff.md` |
+| S11 | 2026-07-04 | b73f64d | gcc-16: 100% passed, 0 failed, total 164 (+7 new) | `ops/handoffs/11-elgot.handoff.md` |
