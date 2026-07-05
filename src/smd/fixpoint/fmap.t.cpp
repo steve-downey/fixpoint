@@ -155,3 +155,84 @@ TEST_CASE("fmap - LookupFoldFixIsConstexpr") {
     static_assert(count_via_lookup(2) == 2);
     CHECK(count_via_lookup(2) == 2);
 }
+
+// --- The three lookup modes -------------------------------------------
+// (implicit lookup / NTTP pinning / explicit object), per the typeclass-
+// object design in "Writing Algorithms with Typeclass Objects".
+
+using smd::fixpoint::layer_fmap;
+
+namespace {
+
+// A functor instance for NatF that is deliberately NOT registered in the
+// global functor_typeclass registry — it lives here, in the test's own
+// anonymous namespace, exactly the "instance not in the global registry"
+// case the explicit modes exist for. It tags every mapped Succ payload with
+// +100 so results are distinguishable from the registered instance.
+struct TaggingNatFunctorImpl {
+    template <typename Fn>
+    constexpr auto fmap(this auto &&, Fn &&fn, const NatF<int> &layer) {
+        return std::visit(
+            overloaded{
+                [](const Zero &) -> NatF<int> { return Zero{}; },
+                [&](const Succ<int> &s) -> NatF<int> {
+                    return Succ<int>{
+                        make_box<int>(std::invoke(fn, *s.pred) + 100)};
+                },
+            },
+            layer);
+    }
+};
+
+inline constexpr TaggingNatFunctorImpl tagging_nat_functor{};
+
+} // namespace
+
+TEST_CASE("fmap - mode 1 implicit lookup uses the registered instance") {
+    // Two args -> Typeclass NTTP defaults to the registered (non-tagging)
+    // instance; a Succ<int>{7} mapped through +1 stays 8.
+    NatF<int> layer = Succ<int>{make_box<int>(7)};
+    auto mapped = layer_fmap([](int x) { return x + 1; }, layer);
+    auto *succ = std::get_if<Succ<int>>(&mapped);
+    REQUIRE(succ != nullptr);
+    CHECK(*succ->pred == 8);
+}
+
+TEST_CASE("fmap - mode 2 NTTP pinning selects an unregistered instance") {
+    // Pin the tagging instance: only Layer and the object are spelled, so the
+    // callable stays an inline lambda. +1 then +100 -> 108.
+    NatF<int> layer = Succ<int>{make_box<int>(7)};
+    auto mapped = layer_fmap<NatF<int>, tagging_nat_functor>(
+        [](int x) { return x + 1; }, layer);
+    auto *succ = std::get_if<Succ<int>>(&mapped);
+    REQUIRE(succ != nullptr);
+    CHECK(*succ->pred == 108);
+}
+
+TEST_CASE("fmap - mode 3 explicit object argument threads the instance") {
+    // Instance as first runtime argument; coexists with the two-arg form.
+    NatF<int> layer = Succ<int>{make_box<int>(7)};
+    auto mapped =
+        layer_fmap(tagging_nat_functor, [](int x) { return x + 1; }, layer);
+    auto *succ = std::get_if<Succ<int>>(&mapped);
+    REQUIRE(succ != nullptr);
+    CHECK(*succ->pred == 108);
+}
+
+TEST_CASE("fmap - explicit modes are constexpr") {
+    constexpr auto pinned = [] {
+        NatF<int> layer = Succ<int>{make_box<int>(7)};
+        auto mapped = layer_fmap<NatF<int>, tagging_nat_functor>(
+            [](int x) { return x + 1; }, layer);
+        return *std::get<Succ<int>>(mapped).pred;
+    }();
+    constexpr auto explicit_obj = [] {
+        NatF<int> layer = Succ<int>{make_box<int>(7)};
+        auto mapped = layer_fmap(
+            tagging_nat_functor, [](int x) { return x + 1; }, layer);
+        return *std::get<Succ<int>>(mapped).pred;
+    }();
+    static_assert(pinned == 108 && explicit_obj == 108);
+    CHECK(pinned == 108);
+    CHECK(explicit_obj == 108);
+}
