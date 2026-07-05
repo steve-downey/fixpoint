@@ -102,6 +102,22 @@ inline constexpr fold_fix_fn<Result> fold_fix{};
 // its keep when an algorithm body composes *several* named operations
 // (possibly from two typeclasses); a single-operation scheme is not that.
 
+/** In-context check that @p Functor can `fmap` a callable `Fn` over a `Layer`.
+ *
+ * A plain compile-time bool, meant for `static_assert` — not a requires-clause
+ * on the algorithm templates. Threading the instance is *the same operation*
+ * regardless of where the instance comes from, so there is no overload to
+ * select between: a bad instance should produce one direct diagnostic naming
+ * the problem, not SFINAE-remove a candidate and bury the real cause under
+ * "no matching function" spew. We cannot validate a typeclass object fully
+ * generically, but in the context of concrete layer and function types (which
+ * each scheme has) the check is straightforward. */
+template <class Functor, class Fn, class Layer>
+constexpr bool functor_maps = requires(const Functor &functor, Fn fn,
+                                        const Layer &layer) {
+    functor.fmap(fn, layer);
+};
+
 /** Explicit-instance catamorphism: `functor` is threaded down the recursion
  * as an ordinary value; no registry lookup, no global specialization needed. */
 template <class Result, class Functor, template <typename> class F,
@@ -109,6 +125,11 @@ template <class Result, class Functor, template <typename> class F,
 constexpr auto fold_fix_threaded(const Functor &functor,
                                  const Algebra &algebra, const Fix<F> &tree)
     -> Result {
+    static_assert(
+        functor_maps<Functor, Result (*)(const Fix<F> &), F<Fix<F>>>,
+        "fold_fix_threaded: the functor instance has no fmap(fn, F<Fix<F>>) "
+        "for this layer -- pass a functor typeclass object for F "
+        "(e.g. smd::typeclass::functor_typeclass<F<Fix<F>>>).");
     auto evaluated = functor.fmap(
         [&](const Fix<F> &child) -> Result {
             return fold_fix_threaded<Result>(functor, algebra, child);
