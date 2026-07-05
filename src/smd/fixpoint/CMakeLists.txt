@@ -6,7 +6,28 @@ target_sources(
         FILE_SET smd_fixpoint_headers
             TYPE HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/src
-            FILES overloaded.hpp fix.hpp box.hpp fmap.hpp recursion_schemes.hpp functors.hpp para.hpp apo.hpp zygo.hpp mutu.hpp prepro.hpp cofree.hpp histo.hpp free.hpp futu.hpp chrono.hpp mendler.hpp elgot.hpp dist_laws.hpp generalized.hpp
+            FILES
+                overloaded.hpp
+                fix.hpp
+                box.hpp
+                fmap.hpp
+                recursion_schemes.hpp
+                functors.hpp
+                para.hpp
+                apo.hpp
+                zygo.hpp
+                mutu.hpp
+                prepro.hpp
+                cofree.hpp
+                histo.hpp
+                free.hpp
+                futu.hpp
+                chrono.hpp
+                mendler.hpp
+                elgot.hpp
+                dist_laws.hpp
+                generalized.hpp
+                schemes.hpp
 )
 
 ## Tests
@@ -30,7 +51,31 @@ if(FIXPOINT_ENABLE_TESTING)
 
     target_sources(
         smd_fixpoint_test
-        PRIVATE box.t.cpp fix.t.cpp overloaded.t.cpp fmap.t.cpp recursion_schemes.t.cpp functors.t.cpp para.t.cpp apo.t.cpp zygo.t.cpp mutu.t.cpp prepro.t.cpp cofree.t.cpp histo.t.cpp free.t.cpp futu.t.cpp chrono.t.cpp mendler.t.cpp elgot.t.cpp dist_laws.t.cpp generalized.t.cpp gana.t.cpp ghylo.t.cpp gprepro.t.cpp
+        PRIVATE
+            box.t.cpp
+            fix.t.cpp
+            overloaded.t.cpp
+            fmap.t.cpp
+            recursion_schemes.t.cpp
+            functors.t.cpp
+            para.t.cpp
+            apo.t.cpp
+            zygo.t.cpp
+            mutu.t.cpp
+            prepro.t.cpp
+            cofree.t.cpp
+            histo.t.cpp
+            free.t.cpp
+            futu.t.cpp
+            chrono.t.cpp
+            mendler.t.cpp
+            elgot.t.cpp
+            dist_laws.t.cpp
+            generalized.t.cpp
+            gana.t.cpp
+            ghylo.t.cpp
+            gprepro.t.cpp
+            schemes.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
