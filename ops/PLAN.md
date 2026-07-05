@@ -69,7 +69,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S09** dyna + codyna + chrono — `ops/steps/09-dyna-chrono.md` (dep: S07, S08)
 
 ### Phase D — Mendler & Elgot
-- [ ] **S10** mcata + mhisto — `ops/steps/10-mendler.md` (dep: S02)
+- [x] **S10** mcata + mhisto — `ops/steps/10-mendler.md` (dep: S02)
 - [ ] **S11** elgot + coelgot — `ops/steps/11-elgot.md` (dep: S02, S03)
 
 ### Phase E — Generalizations
@@ -94,3 +94,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S07 | 2026-07-04 | 6c25a86 | gcc-16: 100% passed, 0 failed, total 133 (baseline 122 after the pre-existing S06-follow-up DEV-01 commit `94ae92f`, +11 new) | `ops/handoffs/07-cofree-histo.handoff.md` |
 | S08 | 2026-07-04 | ee50780 | gcc-16: 100% passed, 0 failed, total 145 (+12 new) | `ops/handoffs/08-free-futu.handoff.md` |
 | S09 | 2026-07-04 | 5c9e169 | gcc-16: 100% passed, 0 failed, total 151 (+6 new) | `ops/handoffs/09-dyna-chrono.handoff.md` |
+| S10 | 2026-07-04 | 0893792 | gcc-16: 100% passed, 0 failed, total 157 (+6 new) | `ops/handoffs/10-mendler.handoff.md` |
