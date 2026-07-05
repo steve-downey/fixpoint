@@ -73,7 +73,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S11** elgot + coelgot — `ops/steps/11-elgot.md` (dep: S02, S03)
 
 ### Phase E — Generalizations
-- [ ] **S12** Distributive laws — `ops/steps/12-dist-laws.md` (dep: S07, S08)
+- [x] **S12** Distributive laws — `ops/steps/12-dist-laws.md` (dep: S07, S08)
 - [ ] **S13** gcata + recovery laws — `ops/steps/13-gcata.md` (dep: S12, S05)
 - [ ] **S14** gana + ghylo + recovery laws — `ops/steps/14-gana-ghylo.md` (dep: S13, S09)
 - [ ] **S15** gprepro + gpostpro + zygo_histo_prepro — `ops/steps/15-gprepro-capstone.md` (dep: S14, S06)
@@ -96,3 +96,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S09 | 2026-07-04 | 5c9e169 | gcc-16: 100% passed, 0 failed, total 151 (+6 new) | `ops/handoffs/09-dyna-chrono.handoff.md` |
 | S10 | 2026-07-04 | 0893792 | gcc-16: 100% passed, 0 failed, total 157 (+6 new) | `ops/handoffs/10-mendler.handoff.md` |
 | S11 | 2026-07-04 | b73f64d | gcc-16: 100% passed, 0 failed, total 164 (+7 new) | `ops/handoffs/11-elgot.handoff.md` |
+| S12 | 2026-07-04 | 73daaba | gcc-16: 100% passed, 0 failed, total 176 (+12 new) | `ops/handoffs/12-dist-laws.handoff.md` |
