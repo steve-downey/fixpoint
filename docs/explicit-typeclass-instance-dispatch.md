@@ -157,10 +157,45 @@ instances too can thread through multi-site schemes.
 - `experiment-schemes-with` @ `d63b10f` — `_with` on real schemes (chosen).
 - `experiment-schemes-overload` @ `0059131` — overload variant (comparison).
 
+## Rollout status
+
+`_with` forms are provided for **every functor-dispatched scheme**:
+
+- classical — `fold_fix_with`, `unfold_fix_with`, `refold_with`
+- para/apo — `para_with`, `apo_with`
+- prepro family — `hoist_with`, `prepro_with`, `postpro_with`
+- zygo/mutu — `zygo_with`, `mutu_with`
+- course-of-values — `histo_with`, `futu_with`,
+  `dyna_with`/`codyna_with`/`chrono_with`
+- Elgot — `elgot_with`, `coelgot_with`
+
+Not applicable: `mendler` (mcata/mhisto consult *no* functor instance — the
+Mendler encoding recurses via an explicit worker, D2/§4); `cofree`/`free`
+(these *are* the functor instances, not schemes); `schemes.hpp` (umbrella).
+
+Multi-site schemes (their fmap sites map different element types) need an
+element-generic threaded instance: **zygo** (fold vs helper projection) and
+**postpro** (unfold at F<Seed> vs inner hoist at F<Fix<F>>). The rest are
+single-site and thread even a per-element-type registered instance.
+
+## Deferred: the generalized family (multi-typeclass threading)
+
+`gcata`/`gprepro`/`zygo_histo_prepro`, `gana`/`gpostpro`, and `ghylo`
+(generalized.hpp) are **not** given `_with` forms yet, on purpose. They are not
+merely functor-dispatched: `gcata`/`gprepro` also dispatch through
+`comonad_typeclass<WResult>` (`extract`/`duplicate`/`fmap`), `gana`/`gpostpro`
+through `monad_typeclass<MSeed>` (`pure`/`bind`/`join`), and the `dist` laws
+they take (dist_laws.hpp) use `layer_fmap` *internally*. A faithful `_with`
+would have to thread the functor **and** the comonad/monad instance, **and**
+rework the dist laws to receive the functor — a genuine multi-typeclass
+extension of the contract, not a mechanical rollout. Deferred as its own design
+step; the functor-only half-measure is rejected because it would leave the
+comonad/monad "stuck", violating the very contract `_with` exists to honor.
+
 ## Open follow-ons
 
-1. Roll `_with` out to the remaining single-op schemes (para, apo, prepro,
-   histo, futu, mutu, mendler, elgot, generalized family).
+1. Design multi-typeclass `_with` for the generalized family (functor +
+   comonad/monad, dist-law rework).
 2. Decide the element-generic-instance question (Finding 4) for the library
    functor instances.
 3. Reconcile the Monoid contract example with the finger-tree companion's
