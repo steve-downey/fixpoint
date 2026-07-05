@@ -16,6 +16,7 @@
 #include <vector>
 
 using smd::fixpoint::apo;
+using smd::fixpoint::apo_with;
 using smd::fixpoint::Cons;
 using smd::fixpoint::IntList;
 using smd::fixpoint::IntListF;
@@ -32,6 +33,7 @@ using smd::fixpoint::Succ;
 using smd::fixpoint::unwrap_fix;
 using smd::fixpoint::Zero;
 using smd::typeclass::either;
+using smd::typeclass::functor_typeclass;
 using smd::typeclass::make_left;
 using smd::typeclass::make_right;
 
@@ -186,6 +188,26 @@ TEST_CASE("apo: zero-copy graft matches the by-value graft (IntList)") {
     auto back_value = apo<IntListF>(make_insert_coalgebra_graft(10), sorted);
     CHECK(list_to_vector(back_value) ==
           std::vector<int>{1, 3, 7, 9, 10});
+}
+
+// ---------------------------------------------------------------------
+// _with form (design D12): threading the registered functor instance
+// reproduces the lookup form.
+// ---------------------------------------------------------------------
+
+TEST_CASE("apo_with: matches apo threading the registered instance") {
+    auto coalgebra = [](int n) -> NatF<either<Nat, int>> {
+        if (n <= 0) {
+            return Zero{};
+        }
+        return Succ<either<Nat, int>>{
+            make_box<either<Nat, int>>(make_right<Nat>(n - 1))};
+    };
+    const auto &functor = functor_typeclass<NatF<either<Nat, int>>>;
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(nat_to_int(apo_with<NatF>(functor, coalgebra, n)) ==
+              nat_to_int(apo<NatF>(coalgebra, n)));
+    }
 }
 
 // ---------------------------------------------------------------------

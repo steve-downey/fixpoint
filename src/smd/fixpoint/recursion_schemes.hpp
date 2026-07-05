@@ -118,7 +118,7 @@ template <typename Result, template <typename> class F, class Functor,
 constexpr auto fold_fix_with(const Functor &functor, const Algebra &algebra,
                              const Fix<F> &tree) -> Result {
     static_assert(
-        functor_instance_for<Functor, Result (*)(const Fix<F> &), F<Fix<F>>>,
+        functor_maps_to<Functor, F<Fix<F>>, Result>,
         "fold_fix_with: the functor instance has no fmap(fn, F<Fix<F>>) for "
         "this layer -- pass a functor typeclass object for F.");
     auto evaluated = functor.fmap(
@@ -137,8 +137,7 @@ constexpr auto unfold_fix_with(const Functor &functor,
     -> Fix<F> {
     auto layer = coalgebra(seed);
     static_assert(
-        functor_instance_for<Functor, Fix<F> (*)(const Seed &),
-                             std::remove_cvref_t<decltype(layer)>>,
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Fix<F>>,
         "unfold_fix_with: the functor instance has no fmap(fn, F<Seed>) for "
         "the coalgebra's layer -- pass a functor typeclass object for F.");
     auto expanded = functor.fmap(
@@ -157,8 +156,7 @@ constexpr auto refold_with(const Functor &functor, const Algebra &algebra,
     -> Result {
     auto layer = coalgebra(seed);
     static_assert(
-        functor_instance_for<Functor, Result (*)(const Seed &),
-                             std::remove_cvref_t<decltype(layer)>>,
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Result>,
         "refold_with: the functor instance has no fmap(fn, F<Seed>) for the "
         "coalgebra's layer -- pass a functor typeclass object for F.");
     auto evaluated = functor.fmap(

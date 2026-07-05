@@ -12,13 +12,16 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <numeric>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
 using smd::fixpoint::Cons;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::hoist;
+using smd::fixpoint::hoist_with;
 using smd::fixpoint::IntList;
 using smd::fixpoint::IntListF;
 using smd::fixpoint::list_from_vector;
@@ -31,7 +34,9 @@ using smd::fixpoint::NatF;
 using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::postpro;
+using smd::fixpoint::postpro_with;
 using smd::fixpoint::prepro;
+using smd::fixpoint::prepro_with;
 using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
 using smd::fixpoint::Zero;
@@ -261,6 +266,59 @@ TEST_CASE("postpro behavior: cap_at_three applied below an unfold") {
         postpro<IntListF>(cap_at_three_nat{}, coalgebra, std::size_t{0});
     std::vector<int> expected{1, 3, 2, 3, 3};
     CHECK(list_to_vector(capped) == expected);
+}
+
+// ---------------------------------------------------------------------
+// _with forms (design D12): threading a functor instance reproduces the
+// lookup forms. postpro is multi-site in the element type (it unfolds at
+// F<Seed> but its inner hoist folds F<Fix<F>> subtrees), so like zygo the
+// threaded instance must be element-generic; this local object is never
+// registered anywhere.
+// ---------------------------------------------------------------------
+
+namespace {
+struct GenericNatFunctor {
+    template <class Fn, class A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat{};
+} // namespace
+
+TEST_CASE("hoist_with / prepro_with / postpro_with match the lookup forms") {
+    auto algebra = [](const NatF<int> &layer) -> int {
+        return std::visit(overloaded{
+                               [](const Zero &) { return 0; },
+                               [](const Succ<int> &s) { return *s.pred + 1; },
+                           },
+                           layer);
+    };
+    auto coalgebra = [](int m) -> NatF<int> {
+        if (m <= 0) {
+            return Zero{};
+        }
+        return Succ<int>{make_box<int>(m - 1)};
+    };
+
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK(nat_to_int(hoist_with<NatF>(generic_nat, identity_nat{}, nat)) ==
+              nat_to_int(hoist<NatF>(identity_nat{}, nat)));
+        CHECK(prepro_with<int>(generic_nat, identity_nat{}, algebra, nat) ==
+              prepro<int>(identity_nat{}, algebra, nat));
+        CHECK(nat_to_int(postpro_with<NatF>(generic_nat, identity_nat{},
+                                            coalgebra, n)) ==
+              nat_to_int(postpro<NatF>(identity_nat{}, coalgebra, n)));
+    }
 }
 
 // ---------------------------------------------------------------------

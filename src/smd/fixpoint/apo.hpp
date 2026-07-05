@@ -49,6 +49,31 @@ constexpr auto apo(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
     return wrap_fix<F>(std::move(expanded));
 }
 
+/** apo threading an explicit functor instance (the `_with` form, design D12).
+ * The layer's element type is an `either` the scheme never spells, so the
+ * instance is validated with `functor_maps_to` (no element type named). */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto apo_with(const Functor &functor, const Coalgebra &coalgebra,
+                        const Seed &seed) -> Fix<F> {
+    auto layer = coalgebra(seed);
+    static_assert(
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Fix<F>>,
+        "apo_with: the functor instance has no fmap(fn, "
+        "F<either<Fix<F>,Seed>>) for the coalgebra's layer -- pass a functor "
+        "typeclass object for F.");
+    auto expanded = functor.fmap(
+        [&](const auto &step) -> Fix<F> {
+            return smd::typeclass::match(
+                step,
+                [](const auto &subtree) -> Fix<F> { return subtree; },
+                [&](const auto &next_seed) -> Fix<F> {
+                    return apo_with<F>(functor, coalgebra, next_seed);
+                });
+        },
+        layer);
+    return wrap_fix<F>(std::move(expanded));
+}
+
 } // namespace smd::fixpoint
 
 #endif

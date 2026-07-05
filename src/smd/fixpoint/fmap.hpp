@@ -44,6 +44,26 @@ concept functor_instance_for =
         tc.fmap(std::forward<Fn>(fn), layer);
     };
 
+namespace detail {
+/** Unevaluated probe callable that yields @p R for any argument. Lets a
+ * `_with` scheme validate its threaded instance without having to *name* the
+ * layer's element type (which for apo/postpro is an `either`/seed wrapper the
+ * scheme never spells). Declared, never defined — used only in the
+ * unevaluated context of `functor_maps_to`. */
+template <class R>
+struct yields {
+    R operator()(auto &&) const;
+};
+} // namespace detail
+
+/** Compile-time bool for `static_assert`: can @p Functor `fmap` a @p Layer,
+ * producing @p R-typed children? The validation idiom for every `_with`
+ * scheme. A bool, not a `requires`-clause: threading an instance is an
+ * assertion of a requirement, not overload selection, so a bad instance earns
+ * one direct diagnostic (see design D12). */
+template <class Functor, class Layer, class R>
+concept functor_maps_to = functor_instance_for<Functor, detail::yields<R>, Layer>;
+
 /** Apply the functor instance for @p layer's concrete type to @p fn.
  *
  * Modes 1 (implicit lookup) and 2 (NTTP pinning): the @p Typeclass reference

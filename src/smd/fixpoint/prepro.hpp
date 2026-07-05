@@ -118,6 +118,59 @@ constexpr auto postpro(const Nat &e, const Coalgebra &coalgebra,
     return wrap_fix<F>(std::move(expanded));
 }
 
+// -- Explicit-instance `_with` forms (design D12) --------------------------
+
+/** hoist threading an explicit functor instance; delegates to
+ * fold_fix_with (which validates the instance). */
+template <template <class> class G, template <class> class F, class Functor,
+          class Nat>
+constexpr auto hoist_with(const Functor &functor, const Nat &e,
+                          const Fix<F> &tree) -> Fix<G> {
+    return fold_fix_with<Fix<G>>(
+        functor,
+        [&](const F<Fix<G>> &layer) -> Fix<G> { return wrap_fix<G>(e(layer)); },
+        tree);
+}
+
+/** prepro threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Nat,
+          class Algebra>
+constexpr auto prepro_with(const Functor &functor, const Nat &e,
+                           const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
+    static_assert(
+        functor_maps_to<Functor, F<Fix<F>>, Result>,
+        "prepro_with: the functor instance has no fmap(fn, F<Fix<F>>) for "
+        "this layer -- pass a functor typeclass object for F.");
+    auto evaluated = functor.fmap(
+        [&](const Fix<F> &child) -> Result {
+            return prepro_with<Result>(functor, e, algebra,
+                                       hoist_with<F>(functor, e, child));
+        },
+        unwrap_fix(tree));
+    return algebra(evaluated);
+}
+
+/** postpro threading an explicit functor instance. */
+template <template <class> class F, class Functor, class Nat, class Coalgebra,
+          class Seed>
+constexpr auto postpro_with(const Functor &functor, const Nat &e,
+                            const Coalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    auto layer = coalgebra(seed);
+    static_assert(
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Fix<F>>,
+        "postpro_with: the functor instance has no fmap(fn, F<Seed>) for the "
+        "coalgebra's layer -- pass a functor typeclass object for F.");
+    auto expanded = functor.fmap(
+        [&](const Seed &child) -> Fix<F> {
+            return hoist_with<F>(functor, e,
+                                 postpro_with<F>(functor, e, coalgebra, child));
+        },
+        layer);
+    return wrap_fix<F>(std::move(expanded));
+}
+
 } // namespace smd::fixpoint
 
 #endif

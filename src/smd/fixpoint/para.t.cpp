@@ -25,8 +25,10 @@ using smd::fixpoint::NatF;
 using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::para;
+using smd::fixpoint::para_with;
 using smd::fixpoint::Succ;
 using smd::fixpoint::Zero;
+using smd::typeclass::functor_typeclass;
 
 TEST_CASE("para - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -129,6 +131,31 @@ TEST_CASE("para behavior: tails collects each node's original tail (IntList)") {
     auto result = para<std::vector<std::vector<int>>>(algebra, list);
     std::vector<std::vector<int>> expected{{1, 2, 3}, {2, 3}, {3}, {}};
     CHECK(result == expected);
+}
+
+// ---------------------------------------------------------------------
+// _with form (design D12): threading the registered functor instance
+// reproduces the lookup form. (Single-site scheme: one input layer type
+// throughout, so the per-element-type registered instance threads fine.)
+// ---------------------------------------------------------------------
+
+TEST_CASE("para_with: matches para threading the registered instance") {
+    auto para_algebra = [](const NatF<std::pair<Nat, int>> &layer) -> int {
+        return std::visit(
+            overloaded{
+                [](const Zero &) { return 0; },
+                [](const Succ<std::pair<Nat, int>> &s) {
+                    return (*s.pred).second + 1;
+                },
+            },
+            layer);
+    };
+    const auto &functor = functor_typeclass<NatF<Nat>>;
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK(para_with<int>(functor, para_algebra, nat) ==
+              para<int>(para_algebra, nat));
+    }
 }
 
 // ---------------------------------------------------------------------

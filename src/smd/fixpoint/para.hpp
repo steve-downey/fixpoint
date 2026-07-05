@@ -40,6 +40,24 @@ constexpr auto para(const Algebra &algebra, const Fix<F> &tree) -> Result {
     return algebra(evaluated);
 }
 
+/** para threading an explicit functor instance (the `_with` form, design
+ * D12). */
+template <class Result, template <class> class F, class Functor, class Algebra>
+constexpr auto para_with(const Functor &functor, const Algebra &algebra,
+                         const Fix<F> &tree) -> Result {
+    static_assert(
+        functor_maps_to<Functor, F<Fix<F>>, std::pair<Fix<F>, Result>>,
+        "para_with: the functor instance has no fmap(fn, F<Fix<F>>) for this "
+        "layer -- pass a functor typeclass object for F.");
+    auto evaluated = functor.fmap(
+        [&](const Fix<F> &child) -> std::pair<Fix<F>, Result> {
+            return std::pair<Fix<F>, Result>{
+                child, para_with<Result>(functor, algebra, child)};
+        },
+        unwrap_fix(tree));
+    return algebra(evaluated);
+}
+
 } // namespace smd::fixpoint
 
 #endif

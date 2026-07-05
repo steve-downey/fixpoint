@@ -69,7 +69,7 @@ constexpr auto zygo_with(const Functor &functor, const HelperAlg &helper,
                          const MainAlg &main, const Fix<F> &tree) -> Result {
     using Carrier = std::pair<Helper, Result>;
     static_assert(
-        functor_instance_for<Functor, Helper (*)(const Carrier &), F<Carrier>>,
+        functor_maps_to<Functor, F<Carrier>, Helper>,
         "zygo_with: the functor instance cannot project the helper component "
         "-- it has no fmap(fn, F<pair<Helper,Result>>). Pass an "
         "element-generic functor object usable at both fmap sites.");
