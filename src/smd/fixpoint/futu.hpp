@@ -73,6 +73,50 @@ constexpr auto futu(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
     return wrap_fix<F>(std::move(expanded));
 }
 
+// -- Explicit-instance `_with` forms (design D12) --------------------------
+
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto futu_with(const Functor &functor, const Coalgebra &coalgebra,
+                         const Seed &seed) -> Fix<F>;
+
+/** futu_worker threading an explicit functor instance. */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto futu_worker_with(const Functor &functor,
+                                const Coalgebra &coalgebra,
+                                const Free<F, Seed> &chunk) -> Fix<F> {
+    return std::visit(
+        overloaded{
+            [&](const Seed &s) -> Fix<F> {
+                return futu_with<F>(functor, coalgebra, s);
+            },
+            [&](const F<Free<F, Seed>> &layer) -> Fix<F> {
+                return wrap_fix<F>(functor.fmap(
+                    [&](const Free<F, Seed> &child) -> Fix<F> {
+                        return futu_worker_with<F>(functor, coalgebra, child);
+                    },
+                    layer));
+            },
+        },
+        chunk.node);
+}
+
+/** futu threading an explicit functor instance (the `_with` form). */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto futu_with(const Functor &functor, const Coalgebra &coalgebra,
+                         const Seed &seed) -> Fix<F> {
+    auto layer = coalgebra(seed); // F<Free<F, Seed>>
+    static_assert(
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Fix<F>>,
+        "futu_with: the functor instance has no fmap(fn, F<Free<F,Seed>>) for "
+        "the coalgebra's layer -- pass a functor typeclass object for F.");
+    auto expanded = functor.fmap(
+        [&](const Free<F, Seed> &child) -> Fix<F> {
+            return futu_worker_with<F>(functor, coalgebra, child);
+        },
+        layer);
+    return wrap_fix<F>(std::move(expanded));
+}
+
 } // namespace smd::fixpoint
 
 #endif

@@ -33,6 +33,18 @@ constexpr auto histo(const Algebra &algebra, const Fix<F> &tree) -> Result {
     return extract(fold_fix<Carrier>(combined, tree));
 }
 
+/** histo threading an explicit functor instance (the `_with` form, design
+ * D12); delegates to fold_fix_with, which validates the instance. */
+template <class Result, template <class> class F, class Functor, class Algebra>
+constexpr auto histo_with(const Functor &functor, const Algebra &algebra,
+                          const Fix<F> &tree) -> Result {
+    using Carrier = Cofree<F, Result>;
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        return Carrier{algebra(layer), layer};
+    };
+    return extract(fold_fix_with<Carrier>(functor, combined, tree));
+}
+
 } // namespace smd::fixpoint
 
 #endif

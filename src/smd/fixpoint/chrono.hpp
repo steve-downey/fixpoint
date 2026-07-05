@@ -104,6 +104,50 @@ constexpr auto chrono(const Algebra &algebra, const Coalgebra &coalgebra,
         refold<Carrier, F>(combined, unroll_step, pure_free<F>(seed)));
 }
 
+// -- Explicit-instance `_with` forms (design D12): delegate to refold_with,
+// which validates the threaded instance. --------------------------------
+
+/** dyna threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Algebra,
+          class Coalgebra, class Seed>
+constexpr auto dyna_with(const Functor &functor, const Algebra &algebra,
+                         const Coalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    using Carrier = Cofree<F, Result>;
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        return Carrier{algebra(layer), layer};
+    };
+    return extract(refold_with<Carrier, F>(functor, combined, coalgebra, seed));
+}
+
+/** codyna threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Algebra,
+          class Coalgebra, class Seed>
+constexpr auto codyna_with(const Functor &functor, const Algebra &algebra,
+                           const Coalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
+        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    return refold_with<Result, F>(functor, algebra, unroll_step,
+                                  pure_free<F>(seed));
+}
+
+/** chrono threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Algebra,
+          class Coalgebra, class Seed>
+constexpr auto chrono_with(const Functor &functor, const Algebra &algebra,
+                           const Coalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    using Carrier = Cofree<F, Result>;
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        return Carrier{algebra(layer), layer};
+    };
+    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
+        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    return extract(refold_with<Carrier, F>(functor, combined, unroll_step,
+                                           pure_free<F>(seed)));
+}
+
 } // namespace smd::fixpoint
 
 #endif

@@ -18,8 +18,10 @@
 #include <vector>
 
 using smd::fixpoint::coelgot;
+using smd::fixpoint::coelgot_with;
 using smd::fixpoint::Cons;
 using smd::fixpoint::elgot;
+using smd::fixpoint::elgot_with;
 using smd::fixpoint::IntListF;
 using smd::fixpoint::make_box;
 using smd::fixpoint::NatF;
@@ -29,6 +31,7 @@ using smd::fixpoint::refold;
 using smd::fixpoint::Succ;
 using smd::fixpoint::Zero;
 using smd::typeclass::either;
+using smd::typeclass::functor_typeclass;
 using smd::typeclass::make_left;
 using smd::typeclass::make_right;
 
@@ -68,6 +71,13 @@ TEST_CASE("elgot law: always-Right degenerates to refold (Nat)") {
         CHECK(elgot<int, NatF>(nat_count_phi, always_right, n) ==
               refold<int, NatF>(nat_count_phi, nat_count_psi, n));
     }
+
+    // _with (design D12): threading the registered instance matches.
+    const auto &functor = functor_typeclass<NatF<int>>;
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(elgot_with<int, NatF>(functor, nat_count_phi, always_right, n) ==
+              elgot<int, NatF>(nat_count_phi, always_right, n));
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -84,6 +94,14 @@ TEST_CASE("coelgot law: ignoring the seed degenerates to refold (Nat)") {
     for (int n = 0; n <= 10; ++n) {
         CHECK(coelgot<int, NatF>(ignore_seed, nat_count_psi, n) ==
               refold<int, NatF>(nat_count_phi, nat_count_psi, n));
+    }
+
+    // _with (design D12): threading the registered instance matches.
+    const auto &functor = functor_typeclass<NatF<int>>;
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(coelgot_with<int, NatF>(functor, ignore_seed, nat_count_psi,
+                                      n) ==
+              coelgot<int, NatF>(ignore_seed, nat_count_psi, n));
     }
 }
 

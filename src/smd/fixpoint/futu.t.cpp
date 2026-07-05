@@ -19,6 +19,7 @@
 using smd::fixpoint::Cons;
 using smd::fixpoint::Free;
 using smd::fixpoint::futu;
+using smd::fixpoint::futu_with;
 using smd::fixpoint::IntList;
 using smd::fixpoint::IntListF;
 using smd::fixpoint::layer_fmap;
@@ -33,6 +34,7 @@ using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
 using smd::fixpoint::Zero;
 using smd::fixpoint::list_to_vector;
+using smd::typeclass::functor_typeclass;
 
 TEST_CASE("futu - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -60,6 +62,13 @@ TEST_CASE("futu law: one-layer-per-step futu degenerates to unfold_fix (Nat)") {
         Nat via_futu = futu<NatF>(one_layer_coalgebra, n);
         Nat via_unfold = unfold_fix<NatF>(psi, n);
         CHECK(nat_to_int(via_futu) == nat_to_int(via_unfold));
+    }
+
+    // _with (design D12): threading the registered instance matches.
+    const auto &functor = functor_typeclass<NatF<Free<NatF, int>>>;
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(nat_to_int(futu_with<NatF>(functor, one_layer_coalgebra, n)) ==
+              nat_to_int(futu<NatF>(one_layer_coalgebra, n)));
     }
 }
 

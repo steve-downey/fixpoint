@@ -19,9 +19,12 @@
 #include <variant>
 
 using smd::fixpoint::chrono;
+using smd::fixpoint::chrono_with;
 using smd::fixpoint::Cofree;
 using smd::fixpoint::codyna;
+using smd::fixpoint::codyna_with;
 using smd::fixpoint::dyna;
+using smd::fixpoint::dyna_with;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::Free;
 using smd::fixpoint::futu;
@@ -34,6 +37,7 @@ using smd::fixpoint::pure_free;
 using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
 using smd::fixpoint::Zero;
+using smd::typeclass::functor_typeclass;
 
 TEST_CASE("chrono - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -138,6 +142,27 @@ TEST_CASE("chrono law: chrono(phi, psi, s) == histo(phi, futu(psi, s))") {
         int via_histo_futu =
             histo<int>(fib_algebra, futu<NatF>(one_layer_countdown, n));
         CHECK(via_chrono == via_histo_futu);
+    }
+}
+
+// ---------------------------------------------------------------------
+// _with forms (design D12): threading the registered functor instance
+// reproduces the lookup forms. dyna's refold runs over F<Seed> (Seed=int);
+// codyna/chrono run over F<Free<F,Seed>> (the Free-chunk seed).
+// ---------------------------------------------------------------------
+
+TEST_CASE("dyna_with / codyna_with / chrono_with match the lookup forms") {
+    const auto &ana_functor = functor_typeclass<NatF<int>>;
+    const auto &futu_functor = functor_typeclass<NatF<Free<NatF, int>>>;
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(dyna_with<int, NatF>(ana_functor, fib_algebra, countdown, n) ==
+              dyna<int, NatF>(fib_algebra, countdown, n));
+        CHECK(codyna_with<int, NatF>(futu_functor, plain_count_algebra,
+                                     one_layer_countdown, n) ==
+              codyna<int, NatF>(plain_count_algebra, one_layer_countdown, n));
+        CHECK(chrono_with<int, NatF>(futu_functor, fib_algebra,
+                                     one_layer_countdown, n) ==
+              chrono<int, NatF>(fib_algebra, one_layer_countdown, n));
     }
 }
 

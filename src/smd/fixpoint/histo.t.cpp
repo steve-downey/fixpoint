@@ -19,6 +19,7 @@ using smd::fixpoint::Cofree;
 using smd::fixpoint::extract;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::histo;
+using smd::fixpoint::histo_with;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::Nat;
 using smd::fixpoint::nat_from_int;
@@ -26,6 +27,7 @@ using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::Succ;
 using smd::fixpoint::Zero;
+using smd::typeclass::functor_typeclass;
 
 TEST_CASE("histo - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -97,6 +99,15 @@ TEST_CASE("histo behavior: Fibonacci via histo on Nat, 0..10") {
     int expected[] = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55};
     for (int n = 0; n <= 10; ++n) {
         CHECK(histo<int>(fib_algebra, nat_from_int(n)) == expected[n]);
+    }
+}
+
+TEST_CASE("histo_with: matches histo threading the registered instance") {
+    const auto &functor = functor_typeclass<NatF<Nat>>;
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK(histo_with<int>(functor, fib_algebra, nat) ==
+              histo<int>(fib_algebra, nat));
     }
 }
 

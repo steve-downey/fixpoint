@@ -34,6 +34,20 @@ constexpr auto mutu(const AlgA &alg_a, const AlgB &alg_b,
     return fold_fix<Carrier>(combined, tree);
 }
 
+/** mutu threading an explicit functor instance (the `_with` form, design
+ * D12); delegates to fold_fix_with, which validates the instance. */
+template <class A, class B, template <class> class F, class Functor,
+          class AlgA, class AlgB>
+constexpr auto mutu_with(const Functor &functor, const AlgA &alg_a,
+                         const AlgB &alg_b, const Fix<F> &tree)
+    -> std::pair<A, B> {
+    using Carrier = std::pair<A, B>;
+    auto combined = [&](const F<Carrier> &layer) -> Carrier {
+        return Carrier{alg_a(layer), alg_b(layer)};
+    };
+    return fold_fix_with<Carrier>(functor, combined, tree);
+}
+
 } // namespace smd::fixpoint
 
 #endif

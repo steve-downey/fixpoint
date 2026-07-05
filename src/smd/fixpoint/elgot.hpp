@@ -83,6 +83,54 @@ constexpr auto coelgot(const Algebra &algebra, const Coalgebra &coalgebra,
     return algebra(seed, evaluated);
 }
 
+// -- Explicit-instance `_with` forms (design D12) --------------------------
+
+/** elgot threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Algebra,
+          class Coalgebra, class Seed>
+constexpr auto elgot_with(const Functor &functor, const Algebra &algebra,
+                          const Coalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    auto step = coalgebra(seed);
+    return smd::typeclass::match(
+        step,
+        [](const Result &answer) -> Result { return answer; },
+        [&](const auto &layer) -> Result {
+            static_assert(
+                functor_maps_to<Functor,
+                                std::remove_cvref_t<decltype(layer)>, Result>,
+                "elgot_with: the functor instance has no fmap(fn, F<Seed>) "
+                "for the coalgebra's layer -- pass a functor typeclass object "
+                "for F.");
+            auto evaluated = functor.fmap(
+                [&](const Seed &child) -> Result {
+                    return elgot_with<Result, F>(functor, algebra, coalgebra,
+                                                 child);
+                },
+                layer);
+            return algebra(evaluated);
+        });
+}
+
+/** coelgot threading an explicit functor instance. */
+template <class Result, template <class> class F, class Functor, class Algebra,
+          class Coalgebra, class Seed>
+constexpr auto coelgot_with(const Functor &functor, const Algebra &algebra,
+                            const Coalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    auto layer = coalgebra(seed); // evaluated exactly once per seed
+    static_assert(
+        functor_maps_to<Functor, std::remove_cvref_t<decltype(layer)>, Result>,
+        "coelgot_with: the functor instance has no fmap(fn, F<Seed>) for the "
+        "coalgebra's layer -- pass a functor typeclass object for F.");
+    auto evaluated = functor.fmap(
+        [&](const Seed &child) -> Result {
+            return coelgot_with<Result, F>(functor, algebra, coalgebra, child);
+        },
+        layer);
+    return algebra(seed, evaluated);
+}
+
 } // namespace smd::fixpoint
 
 #endif

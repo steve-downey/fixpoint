@@ -15,12 +15,14 @@
 
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::mutu;
+using smd::fixpoint::mutu_with;
 using smd::fixpoint::Nat;
 using smd::fixpoint::nat_from_int;
 using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::Succ;
 using smd::fixpoint::Zero;
+using smd::typeclass::functor_typeclass;
 
 TEST_CASE("mutu - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -70,6 +72,15 @@ TEST_CASE("mutu law: consistent with a hand-paired fold_fix (Nat)") {
         Nat nat = nat_from_int(n);
         CHECK((mutu<int, int>(count_alg, double_count_alg, nat)) ==
               fold_fix<std::pair<int, int>>(hand_paired, nat));
+    }
+
+    // _with (design D12): threading the registered instance matches.
+    const auto &functor = functor_typeclass<NatF<Nat>>;
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK((mutu_with<int, int>(functor, count_alg, double_count_alg,
+                                   nat)) ==
+              (mutu<int, int>(count_alg, double_count_alg, nat)));
     }
 }
 
