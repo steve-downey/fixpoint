@@ -35,8 +35,18 @@ struct Cofree {
     A head;               // the annotation at this node
     F<Cofree<F, A>> tail; // one functor layer of annotated children
 
-    friend constexpr auto operator==(const Cofree &, const Cofree &) -> bool =
-        default;
+    // Hand-written (not = default): this is the exact type the clang-22
+    // "incomplete type" cascade (dist_laws.t.cpp/gprepro.t.cpp) traces
+    // through — forming F<WWR> for WWR = Cofree<F,X> (generalized.hpp's
+    // gcata_worker_t/gprepro_worker_t) requires std::variant to ask
+    // is_trivially_destructible_v<Succ<WWR>>, which (per Clang, more
+    // eagerly than GCC) forces this defaulted friend's deleted-ness check,
+    // which requires Cofree<F,X> itself complete — a cycle. A plain friend
+    // body sidesteps this: it is only instantiated when actually called.
+    friend constexpr auto operator==(const Cofree &lhs, const Cofree &rhs)
+        -> bool {
+        return lhs.head == rhs.head && lhs.tail == rhs.tail;
+    }
 };
 
 /** extract(c) -> const A& : the annotation at this node. */

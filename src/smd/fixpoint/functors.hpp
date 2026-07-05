@@ -32,22 +32,31 @@ namespace smd::fixpoint {
 // ---------------------------------------------------------------------
 
 struct Zero {
-    // Defaulted so std::variant<Zero, Succ<A>> (and anything built on top,
-    // e.g. Cofree<NatF, A>'s tail, S07) is comparable — an empty aggregate
-    // does not get an implicit operator== otherwise.
-    friend constexpr auto operator==(const Zero &, const Zero &) -> bool =
-        default;
+    // Hand-written (not = default): Clang 22 eagerly instantiates a
+    // defaulted comparison operator's deleted-ness check inside a class
+    // template body, which forces completeness of any self-referential
+    // functor family wrapping this type (e.g. Cofree<NatF, Cofree<NatF,A>>,
+    // "squared" comonad-duplicate results, S13/S15) before that family has
+    // finished being defined — GCC defers this check, so it never hits the
+    // cycle. A plain friend body is only instantiated when actually
+    // ODR-used (both compilers agree on this), which breaks the cycle.
+    friend constexpr auto operator==(const Zero &, const Zero &) -> bool {
+        return true;
+    }
 };
 
 template <typename A>
 struct Succ {
     Box<A> pred;
 
-    // Defaulted for the same reason as Zero's above: no aggregate gets an
-    // implicit operator== for free, and std::variant<Zero, Succ<A>> needs
-    // every alternative comparable.
-    friend constexpr auto operator==(const Succ &, const Succ &) -> bool =
-        default;
+    // Hand-written for the same reason as Zero's above. Member-wise
+    // comparison of Box<A>: Box's own operator== already null-checks
+    // (box.hpp), so comparing the Box objects directly (not dereferencing)
+    // is exactly what `= default` would have produced.
+    friend constexpr auto operator==(const Succ &lhs, const Succ &rhs)
+        -> bool {
+        return lhs.pred == rhs.pred;
+    }
 };
 
 template <typename A>
@@ -132,12 +141,10 @@ constexpr auto nat_to_int(const Nat &nat) -> int {
 
 template <typename E>
 struct Nil {
-    // Defaulted for the same reason as Zero's above (S07): no aggregate
-    // gets an implicit operator== for free, and anything built on top of
-    // ListF<E, A> whose own == needs every variant alternative comparable
-    // (e.g. Free<IntListF, A>'s node, S08) needs this.
-    friend constexpr auto operator==(const Nil &, const Nil &) -> bool =
-        default;
+    // Hand-written for the same reason as Zero's above (S07).
+    friend constexpr auto operator==(const Nil &, const Nil &) -> bool {
+        return true;
+    }
 };
 
 template <typename E, typename A>
@@ -145,12 +152,13 @@ struct Cons {
     E head;
     Box<A> tail;
 
-    // Defaulted for the same reason as Nil's above: Cons had no
-    // operator== either (a plain struct never gets one implicitly), and
-    // ListF<E, A>'s == (needed by Free<IntListF, A>'s node, S08) needs
-    // both alternatives comparable, not just Nil.
-    friend constexpr auto operator==(const Cons &, const Cons &) -> bool =
-        default;
+    // Hand-written for the same reason as Nil's above. Member-wise, in
+    // declaration order, short-circuiting on the first false — exactly
+    // what `= default` would produce.
+    friend constexpr auto operator==(const Cons &lhs, const Cons &rhs)
+        -> bool {
+        return lhs.head == rhs.head && lhs.tail == rhs.tail;
+    }
 };
 
 template <typename E, typename A>
