@@ -79,7 +79,7 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 - [x] **S15** gprepro + gpostpro + zygo_histo_prepro — `ops/steps/15-gprepro-capstone.md` (dep: S14, S06)
 
 ### Phase F — Packaging
-- [ ] **S16** Umbrella header, docs catalog, final sweep — `ops/steps/16-packaging-docs.md` (dep: all of A–E)
+- [x] **S16** Umbrella header, docs catalog, final sweep — `ops/steps/16-packaging-docs.md` (dep: all of A–E)
 
 ## Status log (S00 + each agent appends one line)
 | Step | Agent date | Commit | Gate result (test count) | Handoff |
@@ -100,3 +100,4 @@ Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
 | S13 | 2026-07-04 | 03f8a51 | gcc-16: 100% passed, 0 failed, total 183 (+7 new) | `ops/handoffs/13-gcata.handoff.md` |
 | S14 | 2026-07-04 | 0b6affe | gcc-16: 100% passed, 0 failed, total 194 (+11 new) | `ops/handoffs/14-gana-ghylo.handoff.md` |
 | S15 | 2026-07-05 | 52193af | gcc-16: 100% passed, 0 failed, total 202 (+8 new); generalized_tour runs, exits 0, all pairs match | `ops/handoffs/15-gprepro-capstone.handoff.md` |
+| S16 | 2026-07-05 | bf6ec8a | gcc-16: 100% passed, 0 failed, total 214 (+12 new); all 13 example binaries run, exit 0; gcc-17: compile clean (0 errors/warnings) | `ops/handoffs/16-packaging-docs.handoff.md` |
