@@ -1,0 +1,103 @@
+# Recursion Schemes — Operational Plan (master)
+
+This is the entry point. Read it fully before doing anything. The
+architecture it implements is specified in
+`docs/recursion-schemes-design.md`; this plan exists to *test* that
+design in real C++26 code. Every step is gated on a fully green build and
+test run, and every place reality contradicts the design is logged so the
+design author can fold it back in.
+
+## How to use this plan
+1. Read `ops/AGENT_PROTOCOL.md` — it defines exactly how to execute one step.
+2. Find the first unchecked step below whose dependencies are all checked.
+3. Execute only that step. Then stop.
+
+## Ground rules
+- **One step per agent.** Never start the next step.
+- **No green, no check.** A step's box is ticked only after its
+  verification gate passes. If it can't pass, leave it unchecked, write a
+  BLOCKED handoff, stop.
+- **The gate is `make TOOLCHAIN=gcc-16 test` fully green** — every test,
+  new and pre-existing (baseline before this plan: 45). Steps that add
+  examples also require each new example binary to run and exit 0.
+- **Minimal diffs.** Touch only what the step names. Never edit existing
+  passing tests except where a step explicitly says to.
+- **Two commits per step**: the step commit `[schemes] SNN: <title>`,
+  then a bookkeeping commit `[schemes] SNN: handoff` carrying the
+  ticked box, status-log row (citing the step commit's hash), handoff,
+  and any deviation rows. See protocol step 5.
+- **House style.** New headers/tests follow the conventions in design §4
+  and the existing files in `src/smd/fixpoint/` (SPDX, include guards,
+  `.t.cpp` tests with re-inclusion check, FILE_SET + test-target wiring
+  in the module CMakeLists).
+- **Feedback loop.** If reality differs from
+  `docs/recursion-schemes-design.md`, do the smallest thing that works,
+  append a row to `ops/DEVIATIONS.md`, and note it in your handoff.
+- **Trust the laws over the equations** (design §3 D8): if a transcribed
+  recursive equation fights its equivalence test, the test wins.
+
+## Build & test (S00 pins these; expected values below)
+```bash
+cd <repo root>
+make TOOLCHAIN=gcc-16 test          # configure+build+ctest, Asan config
+make TOOLCHAIN=gcc-16 ctest         # ctest only, after a build
+# run one example:
+.build/build-gcc-16/src/examples/Asan/<example_name>
+# secondary smoke (optional unless a step says otherwise):
+make TOOLCHAIN=gcc-17 compile
+```
+Toolchain: g++-16 (`/usr/bin/g++-16`), C++26 (`-std=gnu++26` via
+`etc/gcc-flags.cmake`, bumped in S00). Secondary: g++-17
+(`~/.local/bin/g++-17`, personal trunk build; toolchain file added in S00).
+
+## Checklist
+
+### Phase A — Foundations
+- [x] **S00** Toolchain to C++26/gcc-16 + baseline — `ops/steps/00-toolchain-baseline.md`
+- [x] **S01** layer_fmap + typeclass-lookup scheme overloads — `ops/steps/01-layer-fmap.md` (dep: S00)
+- [x] **S02** functors.hpp: reusable base functors — `ops/steps/02-functors.md` (dep: S01)
+- [x] **S03** Identity + either/pair duals + Comonad typeclass — `ops/steps/03-identity-comonad.md` (dep: S00)
+
+### Phase B — Fokkinga's classical extensions
+- [x] **S04** para + apo — `ops/steps/04-para-apo.md` (dep: S02, S03)
+- [x] **S05** zygo + mutu — `ops/steps/05-zygo-mutu.md` (dep: S02)
+- [x] **S06** hoist + prepro + postpro — `ops/steps/06-prepro-postpro.md` (dep: S02)
+
+### Phase C — Course-of-values
+- [x] **S07** Cofree + histo — `ops/steps/07-cofree-histo.md` (dep: S02, S03)
+- [x] **S08** Free + futu — `ops/steps/08-free-futu.md` (dep: S02, S03)
+- [x] **S09** dyna + codyna + chrono — `ops/steps/09-dyna-chrono.md` (dep: S07, S08)
+
+### Phase D — Mendler & Elgot
+- [x] **S10** mcata + mhisto — `ops/steps/10-mendler.md` (dep: S02)
+- [x] **S11** elgot + coelgot — `ops/steps/11-elgot.md` (dep: S02, S03)
+
+### Phase E — Generalizations
+- [x] **S12** Distributive laws — `ops/steps/12-dist-laws.md` (dep: S07, S08)
+- [x] **S13** gcata + recovery laws — `ops/steps/13-gcata.md` (dep: S12, S05)
+- [x] **S14** gana + ghylo + recovery laws — `ops/steps/14-gana-ghylo.md` (dep: S13, S09)
+- [x] **S15** gprepro + gpostpro + zygo_histo_prepro — `ops/steps/15-gprepro-capstone.md` (dep: S14, S06)
+
+### Phase F — Packaging
+- [x] **S16** Umbrella header, docs catalog, final sweep — `ops/steps/16-packaging-docs.md` (dep: all of A–E)
+
+## Status log (S00 + each agent appends one line)
+| Step | Agent date | Commit | Gate result (test count) | Handoff |
+|------|-----------|--------|--------------------------|---------|
+| S00 | 2026-07-03 | df31f6a | gcc-16: 100% passed, 0 failed, total 45; gcc-15 (default): 100% passed, 0 failed, total 45; gcc-17: compile OK | `ops/handoffs/00-toolchain-baseline.handoff.md` |
+| S01 | 2026-07-03 | 7ceaff9 | gcc-16: 100% passed, 0 failed, total 50 | `ops/handoffs/01-layer-fmap.handoff.md` |
+| S02 | 2026-07-03 | b6619a8 | gcc-16: 100% passed, 0 failed, total 62 | `ops/handoffs/02-functors.handoff.md` |
+| S03 | 2026-07-03 | cb6d15d | gcc-16: 100% passed, 0 failed, total 98 | `ops/handoffs/03-identity-comonad.handoff.md` |
+| S04 | 2026-07-03 | 7ed6eb6 | gcc-16: 100% passed, 0 failed, total 107 | `ops/handoffs/04-para-apo.handoff.md` |
+| S05 | 2026-07-04 | acdf6b4 | gcc-16: 100% passed, 0 failed, total 113 | `ops/handoffs/05-zygo-mutu.handoff.md` |
+| S06 | 2026-07-04 | b10a095 | gcc-16: 100% passed, 0 failed, total 121 | `ops/handoffs/06-prepro-postpro.handoff.md` |
+| S07 | 2026-07-04 | 6c25a86 | gcc-16: 100% passed, 0 failed, total 133 (baseline 122 after the pre-existing S06-follow-up DEV-01 commit `94ae92f`, +11 new) | `ops/handoffs/07-cofree-histo.handoff.md` |
+| S08 | 2026-07-04 | ee50780 | gcc-16: 100% passed, 0 failed, total 145 (+12 new) | `ops/handoffs/08-free-futu.handoff.md` |
+| S09 | 2026-07-04 | 5c9e169 | gcc-16: 100% passed, 0 failed, total 151 (+6 new) | `ops/handoffs/09-dyna-chrono.handoff.md` |
+| S10 | 2026-07-04 | 0893792 | gcc-16: 100% passed, 0 failed, total 157 (+6 new) | `ops/handoffs/10-mendler.handoff.md` |
+| S11 | 2026-07-04 | b73f64d | gcc-16: 100% passed, 0 failed, total 164 (+7 new) | `ops/handoffs/11-elgot.handoff.md` |
+| S12 | 2026-07-04 | 73daaba | gcc-16: 100% passed, 0 failed, total 176 (+12 new) | `ops/handoffs/12-dist-laws.handoff.md` |
+| S13 | 2026-07-04 | 03f8a51 | gcc-16: 100% passed, 0 failed, total 183 (+7 new) | `ops/handoffs/13-gcata.handoff.md` |
+| S14 | 2026-07-04 | 0b6affe | gcc-16: 100% passed, 0 failed, total 194 (+11 new) | `ops/handoffs/14-gana-ghylo.handoff.md` |
+| S15 | 2026-07-05 | 52193af | gcc-16: 100% passed, 0 failed, total 202 (+8 new); generalized_tour runs, exits 0, all pairs match | `ops/handoffs/15-gprepro-capstone.handoff.md` |
+| S16 | 2026-07-05 | bf6ec8a | gcc-16: 100% passed, 0 failed, total 214 (+12 new); all 13 example binaries run, exit 0; gcc-17: compile clean (0 errors/warnings) | `ops/handoffs/16-packaging-docs.handoff.md` |

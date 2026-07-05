@@ -79,3 +79,42 @@ The code in infra is Apache 2.0 licensed, see https://github.com/bemanproject/in
 The css in `etc/`  is exported from emacs based on the modus tinted themes via `org-html-htmlize-generate-css` .
 
 The Makefile that drives the workflow is mine, is Apache 2.0 licensed, and take what you need from it. No part of it is interesting enough to be protected.
+
+## Recursion schemes
+
+`src/smd/fixpoint/` also carries a from-scratch, tested implementation of
+the classical recursion-schemes catalog on top of this repo's `Fix<F>`
+fixed-point type: `para`/`apo`, `zygo`/`mutu`, `hoist`/`prepro`/`postpro`,
+`histo`/`futu` (with their `Cofree`/`Free` carriers), the fused
+course-of-values refolds `dyna`/`codyna`/`chrono`, Mendler-style
+`mcata`/`mhisto`, `elgot`/`coelgot`, a set of distributive laws, and their
+comonadic/monadic generalizations `gcata`/`gana`/`ghylo` down to Kmett's
+`zygo_histo_prepro` capstone. Everything is `constexpr`-capable and pinned
+by an equivalence-law test suite (each new scheme is proven to degenerate
+to an already-tested one).
+
+One include brings in the whole catalog:
+
+```cpp
+#include <smd/fixpoint/schemes.hpp>
+```
+
+Build and test it (same toolchain/gate as the rest of the project):
+
+```bash
+make TOOLCHAIN=gcc-16 test
+```
+
+Each scheme has a runnable, heavily-commented example under
+`src/examples/` (built alongside the tests above), e.g.:
+
+```bash
+.build/build-gcc-16/src/examples/Asan/histo_coin_change
+.build/build-gcc-16/src/examples/Asan/generalized_tour
+```
+
+See [`docs/recursion-schemes.md`](docs/recursion-schemes.md) for the
+user-facing catalog (signatures, equations, usage snippets, one pointer per
+example) and [`docs/recursion-schemes-design.md`](docs/recursion-schemes-design.md)
+for the design rationale and decisions log. The step-by-step build log
+that produced it lives under `ops/` (`ops/PLAN.md`, `ops/handoffs/`).
