@@ -17,6 +17,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <functional>
+#include <type_traits>
 #include <variant>
 
 using smd::fixpoint::chrono;
@@ -29,6 +31,7 @@ using smd::fixpoint::dist_histo;
 using smd::fixpoint::dyna;
 using smd::fixpoint::Free;
 using smd::fixpoint::ghylo;
+using smd::fixpoint::ghylo_with;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::make_box;
 using smd::fixpoint::NatF;
@@ -39,6 +42,8 @@ using smd::fixpoint::Succ;
 using smd::fixpoint::Zero;
 
 using smd::typeclass::Identity;
+using smd::typeclass::comonad_typeclass;
+using smd::typeclass::monad_typeclass;
 
 TEST_CASE("ghylo - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -106,6 +111,25 @@ constexpr auto ana_coalgebra_prime(int m) -> NatF<Identity<int>> {
     return layer_fmap([](int x) { return Identity<int>{x}; }, countdown(m));
 }
 
+// Element-generic NatF functor, deliberately NOT registered -- exercises
+// ghylo_with's multi-typeclass threading with an unregistered functor. The
+// projection/lift fixtures below thread it too (via layer_fmap's mode-3 form).
+struct GenericNatFunctor {
+    template <class Fn, class A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat{};
+
 } // namespace
 
 // ---------------------------------------------------------------------
@@ -118,6 +142,32 @@ TEST_CASE("ghylo law: ghylo(dist_cata, dist_ana) equals refold (Nat count)") {
             dist_cata, cata_algebra_prime, dist_ana, ana_coalgebra_prime, n));
         int via_refold = refold<int, NatF>(plain_count_algebra, countdown, n);
         CHECK(via_ghylo == via_refold);
+    }
+}
+
+// ghylo_with (design D12, multi-typeclass): threading an unregistered functor
+// (comonad + monad stay canonical) still recovers refold. The algebra/coalgebra
+// fixtures thread the same functor via layer_fmap's mode-3 form, so nothing
+// touches the global registry.
+TEST_CASE("ghylo_with: ghylo_with(dist_cata, dist_ana) matches refold "
+          "(unregistered functor)") {
+    auto alg_prime = [](const NatF<Identity<int>> &layer) -> int {
+        return plain_count_algebra(layer_fmap(
+            generic_nat, [](const Identity<int> &i) { return i.value; },
+            layer));
+    };
+    auto coalg_prime = [](int m) -> NatF<Identity<int>> {
+        return layer_fmap(
+            generic_nat, [](int x) { return Identity<int>{x}; }, countdown(m));
+    };
+    for (int n = 0; n <= 10; ++n) {
+        int via_ghylo_with =
+            (ghylo_with<int, Identity<int>, NatF, Identity<int>>(
+                generic_nat, comonad_typeclass<Identity<int>>,
+                monad_typeclass<Identity<int>>, dist_cata, alg_prime, dist_ana,
+                coalg_prime, n));
+        int via_refold = refold<int, NatF>(plain_count_algebra, countdown, n);
+        CHECK(via_ghylo_with == via_refold);
     }
 }
 

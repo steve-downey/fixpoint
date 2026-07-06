@@ -534,6 +534,24 @@ constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
         w_dist, algebra, gana<F, MSeed>(m_dist, coalgebra, seed));
 }
 
+/** ghylo threading explicit functor, comonad, and monad instances (design
+ * D12). A pure compose of gana_with (build the intermediate Fix<F>) and
+ * gcata_with (fold it); the *same* functor threads both halves, the comonad
+ * serves the gcata half, the monad the gana half. Both dist laws are called
+ * in their functor-threaded form by the underlying workers. */
+template <class Result, class WResult, template <class> class F, class MSeed,
+          class Functor, class Comonad, class Monad, class WDist,
+          class GAlgebra, class MDist, class GCoalgebra, class Seed>
+constexpr auto ghylo_with(const Functor &functor, const Comonad &comonad,
+                          const Monad &monad, const WDist &w_dist,
+                          const GAlgebra &algebra, const MDist &m_dist,
+                          const GCoalgebra &coalgebra, const Seed &seed)
+    -> Result {
+    return gcata_with<Result, WResult>(
+        functor, comonad, w_dist, algebra,
+        gana_with<F, MSeed>(functor, monad, m_dist, coalgebra, seed));
+}
+
 // ---------------------------------------------------------------------
 // gprepro :: Comonad w => dist -> (forall x. f x -> f x)
 //                      -> (f (w a) -> a) -> t -> a
