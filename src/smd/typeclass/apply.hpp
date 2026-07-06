@@ -4,6 +4,7 @@
 #define INCLUDED_SMD_TYPECLASS_APPLY
 
 #include <smd/typeclass/detail/typeclass_base.hpp>
+#include <smd/typeclass/functor.hpp>
 
 #include <concepts>
 #include <functional>
@@ -76,6 +77,39 @@ auto make_terminating_partial(FUNCTION &&function) {
         std::forward<FUNCTION>(function), std::tuple<>{}};
 }
 
+// apply_chain: left-folds `self.ap` over the remaining effectful arguments.
+// A free function (not a class member) so it is unaffected by the
+// class-hierarchy access-control subtlety noted below: with deducing-`this`,
+// a call of the form `self.member(...)` is checked as an access through
+// `self`'s *reified* type, not merely by where the call is lexically
+// written. Once `self`'s type is reached by crossing a `protected`
+// inheritance step two or more class-template layers below the class
+// declaring `member`, a private *or* protected class member becomes
+// inaccessible even though the call site is textually inside the
+// declaring class -- exactly the shape of the `Applicative` structural
+// chain here (Functor <- Applicative <- Monad, each `protected Impl`).
+// Keeping this helper as a free function sidesteps the issue entirely: it
+// only ever calls the already-public `self.ap`.
+template <class SELF, class ACCUMULATED>
+auto apply_chain(SELF &&, ACCUMULATED &&accumulated) {
+    return std::forward<ACCUMULATED>(accumulated);
+}
+
+template <class SELF, class ACCUMULATED, class NEXT_ARGUMENT,
+         class... REST_ARGUMENTS>
+auto apply_chain(SELF &&self, ACCUMULATED &&accumulated,
+                 NEXT_ARGUMENT &&next_argument,
+                 REST_ARGUMENTS &&...rest_arguments) {
+    auto next = self.ap(std::forward<ACCUMULATED>(accumulated),
+                        std::forward<NEXT_ARGUMENT>(next_argument));
+    if constexpr (sizeof...(REST_ARGUMENTS) == 0) {
+        return next;
+    } else {
+        return apply_chain(std::forward<SELF>(self), std::move(next),
+                           std::forward<REST_ARGUMENTS>(rest_arguments)...);
+    }
+}
+
 } // namespace detail
 
 // Applicative pattern invariants:
@@ -88,19 +122,39 @@ auto make_terminating_partial(FUNCTION &&function) {
 //   applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
 
-/** CRTP base for Applicative instances.
- * `Impl` must provide `pure(value)` and `apply(f_in_context, arg_in_context)`.
- * All other operations are derived.
+/** Adapter: supplies a single-argument `fmap` so an Applicative can also
+ * serve as a Functor base, defined as `self.invoke(fn, x)` so it defers to
+ * the most-derived object's `invoke` (respecting any Impl-provided override).
  */
 template <class Impl>
-struct Applicative : protected Impl {
+struct applicative_functor_adapter : protected Impl {
+    using Impl::apply;
+    using Impl::pure;
+
+    template <class FUNCTION, class ARGUMENT>
+    auto fmap(this auto &&self, FUNCTION &&function, ARGUMENT &&argument) {
+        return self.invoke(std::forward<FUNCTION>(function),
+                           std::forward<ARGUMENT>(argument));
+    }
+};
+
+/** CRTP base for Applicative instances.
+ * `Impl` must provide `pure(value)` and `apply(f_in_context, arg_in_context)`.
+ * All other operations are derived. Structurally chains onto `Functor` (via
+ * `applicative_functor_adapter`) so the full Functor surface (`fmap`,
+ * `replace`) is also available on an Applicative object.
+ */
+template <class Impl>
+struct Applicative : protected Functor<applicative_functor_adapter<Impl>> {
     static_assert(
         !std::is_same_v<Impl, std::false_type>,
         "No applicative_typeclass<T> specialization found. "
         "Specialize smd::typeclass::applicative_typeclass<T> for "
         "your type T and provide pure(...) and apply(...) operations.");
     // Alternate-core: pure + apply are the primitives; invoke and all others
-    // derive from them.
+    // derive from them. fmap/replace come from the Functor base.
+    using Functor<applicative_functor_adapter<Impl>>::fmap;
+    using Functor<applicative_functor_adapter<Impl>>::replace;
     using Impl::apply;
     using Impl::pure;
 
@@ -143,35 +197,14 @@ struct Applicative : protected Impl {
         } else {
             auto lifted_function = self.pure(detail::make_terminating_partial(
                 std::forward<FUNCTION>(function)));
-            return self.apply_chain(
+            return detail::apply_chain(
+                self,
                 self.ap(std::move(lifted_function),
                         std::forward<FIRST_ARGUMENT>(first_argument)),
                 std::forward<REST_ARGUMENTS>(rest_arguments)...);
         }
     }
 
-  private:
-    template <class ACCUMULATED>
-    auto apply_chain(this auto &&, ACCUMULATED &&accumulated) {
-        return std::forward<ACCUMULATED>(accumulated);
-    }
-
-    template <class ACCUMULATED, class NEXT_ARGUMENT, class... REST_ARGUMENTS>
-    auto apply_chain(this auto &&self, ACCUMULATED &&accumulated,
-                     NEXT_ARGUMENT &&next_argument,
-                     REST_ARGUMENTS &&...rest_arguments) {
-        auto next = self.ap(std::forward<ACCUMULATED>(accumulated),
-                            std::forward<NEXT_ARGUMENT>(next_argument));
-        if constexpr (sizeof...(REST_ARGUMENTS) == 0) {
-            return next;
-        } else {
-            return self.apply_chain(
-                std::move(next),
-                std::forward<REST_ARGUMENTS>(rest_arguments)...);
-        }
-    }
-
-  public:
     /** Single-argument fmap via invoke; applies `function` to one effectful
      * arg. */
     template <class FUNCTION, class ARGUMENT>

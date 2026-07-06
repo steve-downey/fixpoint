@@ -14,32 +14,22 @@
 
 namespace smd::typeclass {
 
-/** CRTP base for Monad instances.
- * `Impl` must provide `pure(value)` and `bind(ma, f)`.
- * `apply` is synthesized; `join` and `kleisli` are derived.
- * Monad does not inherit from Applicative, but provides equivalent
- * operations once `apply` is synthesized from `bind` + `pure`.
+/** Adapter: supplies `pure` (delegated to Impl) and synthesizes `apply` from
+ * `bind` + `pure` so a Monad can also serve as an Applicative base.
+ * ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)
+ *
+ * constexpr (design D10, S14): `apply` was not marked constexpr before S14
+ * (gana.t.cpp's ana_via_gana constexpr smoke test is the first caller to
+ * invoke `join` in a constant expression, via
+ * `monad_typeclass<MSeed>.join(...)` -- generalized.hpp) -- a pre-existing
+ * gap, not a new requirement; adding `constexpr` here is purely additive
+ * (Impl::bind/pure, which this forwards to, were already constexpr in every
+ * instance in this codebase).
  */
 template <class Impl>
-struct Monad : protected Impl {
-    static_assert(!std::is_same_v<Impl, std::false_type>,
-                  "No monad_typeclass<T> specialization found. "
-                  "Specialize smd::typeclass::monad_typeclass<T> for your "
-                  "type T and provide pure(...) and bind(...) operations.");
-
-    using Impl::bind;
+struct monad_applicative_adapter : protected Impl {
     using Impl::pure;
 
-    // apply: synthesized from bind + pure.
-    // ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)
-    //
-    // constexpr (design D10, S14): none of these four derived operations
-    // were marked constexpr before S14 (gana.t.cpp's ana_via_gana constexpr
-    // smoke test is the first caller to invoke `join` in a constant
-    // expression, via `monad_typeclass<MSeed>.join(...)` -- generalized.hpp)
-    // -- a pre-existing gap, not a new requirement; adding `constexpr` here
-    // is purely additive (Impl::bind/pure, which these all forward to, were
-    // already constexpr in every instance in this codebase).
     template <class MF, class MA>
     constexpr auto apply(this auto &&self, MF &&mf, MA &&ma) {
         return self.bind(std::forward<MF>(mf), [&self, &ma](auto &&f) {
@@ -49,6 +39,40 @@ struct Monad : protected Impl {
             });
         });
     }
+};
+
+/** CRTP base for Monad instances.
+ * `Impl` must provide `pure(value)` and `bind(ma, f)`.
+ * `apply` is synthesized; `join` and `kleisli` are derived.
+ * Structurally chains onto `Applicative` (via `monad_applicative_adapter`),
+ * which itself chains onto `Functor`, so the full Functor + Applicative
+ * surface is also available on a Monad object.
+ */
+template <class Impl>
+struct Monad : protected Applicative<monad_applicative_adapter<Impl>> {
+    static_assert(!std::is_same_v<Impl, std::false_type>,
+                  "No monad_typeclass<T> specialization found. "
+                  "Specialize smd::typeclass::monad_typeclass<T> for your "
+                  "type T and provide pure(...) and bind(...) operations.");
+
+    // Re-expose the full Functor + Applicative surface (protected
+    // inheritance hides it by default); Monad's own derived ops (join,
+    // kleisli, bind_with) stay declared below as normal public members.
+    using Applicative<monad_applicative_adapter<Impl>>::apply;
+    using Applicative<monad_applicative_adapter<Impl>>::apply_pure;
+    using Applicative<monad_applicative_adapter<Impl>>::apply_pure_with;
+    using Applicative<monad_applicative_adapter<Impl>>::ap;
+    using Applicative<monad_applicative_adapter<Impl>>::discard_first;
+    using Applicative<monad_applicative_adapter<Impl>>::discard_second;
+    using Applicative<monad_applicative_adapter<Impl>>::fmap;
+    using Applicative<monad_applicative_adapter<Impl>>::invoke;
+    using Applicative<monad_applicative_adapter<Impl>>::invoke_with;
+    using Applicative<monad_applicative_adapter<Impl>>::lift;
+    using Applicative<monad_applicative_adapter<Impl>>::map;
+    using Applicative<monad_applicative_adapter<Impl>>::pure;
+    using Applicative<monad_applicative_adapter<Impl>>::replace;
+    using Applicative<monad_applicative_adapter<Impl>>::zip_with;
+    using Impl::bind;
 
     // join: flatten nested monad.
     // join mma = mma >>= id
