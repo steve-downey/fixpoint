@@ -18,12 +18,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <functional>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
 
 using smd::fixpoint::Cofree;
 using smd::fixpoint::cata_via_gcata;
+using smd::fixpoint::cata_via_gcata_with;
 using smd::fixpoint::dist_cata;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::gcata;
@@ -83,12 +86,43 @@ auto list_sum_algebra(const IntListF<int> &layer) -> int {
         layer);
 }
 
+// An element-generic NatF functor object, deliberately NOT registered in
+// functor_typeclass -- exercises gcata_with's multi-typeclass threading with
+// an unregistered functor (the comonad, Identity's, stays canonical/looked-up).
+struct GenericNatFunctor {
+    template <class Fn, class A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(
+            overloaded{
+                [](const Zero &) -> NatF<B> { return Zero{}; },
+                [&](const Succ<A> &s) -> NatF<B> {
+                    return Succ<B>{smd::fixpoint::make_box<B>(
+                        std::invoke(fn, *s.pred))};
+                },
+            },
+            layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat{};
+
 } // namespace
 
 TEST_CASE("gcata law: cata_via_gcata equals fold_fix (Nat, 0..10)") {
     for (int n = 0; n <= 10; ++n) {
         Nat nat = nat_from_int(n);
         CHECK(cata_via_gcata<int>(nat_count_algebra, nat) ==
+              fold_fix<int>(nat_count_algebra, nat));
+    }
+}
+
+// gcata_with (design D12, multi-typeclass): threading an unregistered functor
+// (comonad stays canonical) still recovers fold_fix.
+TEST_CASE("gcata_with: cata_via_gcata_with matches fold_fix (unregistered "
+          "functor)") {
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK(cata_via_gcata_with<int>(generic_nat, nat_count_algebra, nat) ==
               fold_fix<int>(nat_count_algebra, nat));
     }
 }

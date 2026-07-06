@@ -111,6 +111,55 @@ constexpr auto gcata(const Dist &dist, const GAlgebra &algebra,
 }
 
 // ---------------------------------------------------------------------
+// gcata_with (design D12): the multi-typeclass explicit-instance form.
+//
+// gcata dispatches through THREE customization points: the base functor
+// (worker's layer_fmap, and the dist law's own internal layer_fmap), the
+// comonad (comonad_typeclass<WResult>: extract/duplicate/fmap), and the dist
+// law (already an explicit parameter). gcata_with threads the functor and the
+// comonad by value and calls the dist law in its functor-threaded form
+// `dist(functor, layer)` -- so none of the three need be registered. Both
+// instances are used element-generically (one object serves every X), exactly
+// as the lookup singletons are.
+// ---------------------------------------------------------------------
+
+/** Worker for gcata_with: gcata_worker_t threading an explicit functor and
+ * comonad instead of looking them up. `dist` is called in its
+ * functor-threaded (2-arg) form. */
+template <class Result, class WResult, template <class> class F, class Functor,
+          class Comonad, class Dist, class GAlgebra>
+struct gcata_worker_with_t {
+    const Functor &functor;
+    const Comonad &comonad;
+    const Dist &dist;
+    const GAlgebra &algebra;
+
+    using WWR = decltype(comonad.duplicate(std::declval<WResult>()));
+    using C = decltype(dist(functor, std::declval<F<WWR>>()));
+
+    constexpr auto operator()(const Fix<F> &t) const -> C {
+        return dist(functor,
+                    layer_fmap(functor,
+                               [this](const Fix<F> &child) -> WWR {
+                                   return comonad.duplicate(
+                                       comonad.fmap(algebra, (*this)(child)));
+                               },
+                               unwrap_fix(t)));
+    }
+};
+
+/** gcata threading an explicit functor and comonad instance (design D12). */
+template <class Result, class WResult, template <class> class F, class Functor,
+          class Comonad, class Dist, class GAlgebra>
+constexpr auto gcata_with(const Functor &functor, const Comonad &comonad,
+                          const Dist &dist, const GAlgebra &algebra,
+                          const Fix<F> &tree) -> Result {
+    gcata_worker_with_t<Result, WResult, F, Functor, Comonad, Dist, GAlgebra>
+        worker{functor, comonad, dist, algebra};
+    return algebra(comonad.extract(worker(tree)));
+}
+
+// ---------------------------------------------------------------------
 // Recovery functions (design §9): thin wrappers pinning gcata to each
 // existing scheme's own algebra shape. Each is gated in gcata.t.cpp by
 // exact-answer equivalence with fold_fix/histo/zygo/para on the same
@@ -118,6 +167,24 @@ constexpr auto gcata(const Dist &dist, const GAlgebra &algebra,
 // header's doc comments, is the actual proof the factoring is correct
 // (design D8).
 // ---------------------------------------------------------------------
+
+/** cata_via_gcata_with: gcata_with(dist_cata, ...) recovers fold_fix,
+ * threading an explicit functor (the comonad here is Identity's, canonical,
+ * so it is looked up). A worked example of the multi-typeclass form. */
+template <class Result, template <class> class F, class Functor, class Algebra>
+constexpr auto cata_via_gcata_with(const Functor &functor,
+                                   const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
+    using WResult = smd::typeclass::Identity<Result>;
+    auto algebra_prime = [&](const F<WResult> &layer) -> Result {
+        return algebra(layer_fmap(
+            functor, [](const WResult &i) -> Result { return i.value; },
+            layer));
+    };
+    return gcata_with<Result, WResult>(
+        functor, smd::typeclass::comonad_typeclass<WResult>, dist_cata,
+        algebra_prime, tree);
+}
 
 /** cata_via_gcata: `gcata(dist_cata, ...)` recovers fold_fix.
  *

@@ -63,6 +63,16 @@ struct dist_cata_t {
         return smd::typeclass::Identity{
             layer_fmap([](const auto &i) { return i.value; }, l)};
     }
+
+    // Functor-threaded form (design D12): the generalized `_with` schemes call
+    // every dist law as `dist(functor, layer)` so the functor need not be
+    // registered. Distinguished from the lookup form above by arity; the only
+    // change is layer_fmap's explicit-object (mode 3) overload.
+    template <class Functor, class Layer>
+    constexpr auto operator()(const Functor &functor, const Layer &l) const {
+        return smd::typeclass::Identity{
+            layer_fmap(functor, [](const auto &i) { return i.value; }, l)};
+    }
 };
 inline constexpr dist_cata_t dist_cata{};
 
