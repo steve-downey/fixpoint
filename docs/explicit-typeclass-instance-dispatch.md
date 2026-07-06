@@ -178,24 +178,46 @@ element-generic threaded instance: **zygo** (fold vs helper projection) and
 **postpro** (unfold at F<Seed> vs inner hoist at F<Fix<F>>). The rest are
 single-site and thread even a per-element-type registered instance.
 
-## Deferred: the generalized family (multi-typeclass threading)
+## The generalized family — multi-typeclass threading (in progress)
 
-`gcata`/`gprepro`/`zygo_histo_prepro`, `gana`/`gpostpro`, and `ghylo`
-(generalized.hpp) are **not** given `_with` forms yet, on purpose. They are not
-merely functor-dispatched: `gcata`/`gprepro` also dispatch through
-`comonad_typeclass<WResult>` (`extract`/`duplicate`/`fmap`), `gana`/`gpostpro`
-through `monad_typeclass<MSeed>` (`pure`/`bind`/`join`), and the `dist` laws
-they take (dist_laws.hpp) use `layer_fmap` *internally*. A faithful `_with`
-would have to thread the functor **and** the comonad/monad instance, **and**
-rework the dist laws to receive the functor — a genuine multi-typeclass
-extension of the contract, not a mechanical rollout. Deferred as its own design
-step; the functor-only half-measure is rejected because it would leave the
-comonad/monad "stuck", violating the very contract `_with` exists to honor.
+The generalized schemes dispatch through more than the functor:
+`gcata`/`gprepro`/`zygo_histo_prepro` also through `comonad_typeclass<WResult>`,
+`gana`/`gpostpro` through `monad_typeclass<MSeed>`, and the `dist` laws they
+take use `layer_fmap` internally. So a faithful `_with` threads the functor
+**and** the comonad/monad, and calls each dist law in a functor-threaded form.
+Key facts that made this tractable:
+
+- **The dist laws consult only the functor** (concrete Identity/Cofree/Free/
+  pair/either ops, no comonad/monad *lookup*). So each dist law gets one extra
+  overload — `dist(functor, layer)` — whose body just swaps `layer_fmap(fn, l)`
+  for the mode-3 `layer_fmap(functor, fn, l)`. Arity-distinguished; no
+  constraint.
+- **Both instances are element-generic** — one comonad/monad object serves
+  every X — so they thread exactly like a functor object.
+- **Comonad/Monad symmetry.** gcata reaches its W-fmap through the comonad
+  object (`comonad.fmap`); gana's `fmapM` had gone through a *separate*
+  `functor_typeclass<M>` lookup because the `Monad` CRTP base exposed no
+  `fmap`. Fixed by **deriving `Monad::fmap`** (`fmap f m = bind(m, pure∘f)` —
+  every monad is a functor, mirroring `Comonad::fmap`; lawful, additive, agrees
+  with the functor instance). So `gcata_with` and `gana_with` are symmetric:
+  **two threaded instances each** (functor + comonad, functor + monad), not
+  three.
+
+`gcata_with(functor, comonad, dist, algebra, tree)` and
+`gana_with(functor, monad, dist, coalgebra, seed)` are implemented and
+validated end-to-end with an **unregistered** functor via `cata_via_gcata_with`
+/ `ana_via_gana_with` (comonad/monad stay canonical, looked up in the recovery
+wrappers). dist_cata and dist_ana have their functor-threaded overloads.
+
+**Remaining generalized rollout** (mechanical, pattern proven): `ghylo_with`
+(composes gcata_with + gana_with), `gprepro_with`/`gpostpro_with` (workers +
+`hoist_with` splice), `zygo_histo_prepro_with`; functor-threaded overloads for
+`dist_histo`/`dist_futu`/`dist_zygo`/`dist_para`/`dist_apo` and their recovery
+functions (histo/para/zygo/apo/futu via g\*).
 
 ## Open follow-ons
 
-1. Design multi-typeclass `_with` for the generalized family (functor +
-   comonad/monad, dist-law rework).
+1. Finish the generalized rollout above.
 2. Decide the element-generic-instance question (Finding 4) for the library
    functor instances.
 3. Reconcile the Monoid contract example with the finger-tree companion's
