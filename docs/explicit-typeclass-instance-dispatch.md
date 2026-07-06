@@ -209,16 +209,31 @@ validated end-to-end with an **unregistered** functor via `cata_via_gcata_with`
 / `ana_via_gana_with` (comonad/monad stay canonical, looked up in the recovery
 wrappers). dist_cata and dist_ana have their functor-threaded overloads.
 
-**Remaining generalized rollout** (mechanical, pattern proven): `ghylo_with`
-(composes gcata_with + gana_with), `gprepro_with`/`gpostpro_with` (workers +
-`hoist_with` splice), `zygo_histo_prepro_with`; functor-threaded overloads for
-`dist_histo`/`dist_futu`/`dist_zygo`/`dist_para`/`dist_apo` and their recovery
-functions (histo/para/zygo/apo/futu via g\*).
+**The generalized family is complete.** All of `gcata_with`, `gana_with`,
+`ghylo_with` (composes the two), `gprepro_with`/`gpostpro_with` (workers + a
+`hoist_with` splice), and `zygo_histo_prepro_with` are implemented, with
+functor-threaded overloads on every dist law
+(dist_cata/ana/histo/futu/zygo/para/apo/zygo_histo) and all recovery functions
+(cata/histo/zygo/para via gcata_with; ana/apo/futu via gana_with). Every scheme
+is validated with an element-generic unregistered functor.
+
+**Finding — the contract's reach depends on the carrier's comonad/monad.** A
+recovery honors the unregistered-functor contract *fully* only if its carrier's
+comonad/monad does not itself consult the functor. Identity (cata/ana),
+pair-env (zygo/para), and either (apo) do not → fully unregistered. **Cofree**
+(histo, zygo_histo_prepro) and **Free** (futu) *do* — their instances
+`layer_fmap` via lookup — so in those the registered functor still serves the
+comonad/monad internals. Fully unregistering them needs functor-threaded
+Cofree-comonad / Free-monad instances: the same "recursive instance threads
+another instance" problem as the Free/Cofree *functor* instances themselves.
+This is the natural next boundary, not a gap in the pattern.
 
 ## Open follow-ons
 
-1. Finish the generalized rollout above.
+1. Functor-threaded Cofree-comonad / Free-monad instances (to fully unregister
+   histo/futu/zygo_histo_prepro) — the recursive-instance threading problem.
 2. Decide the element-generic-instance question (Finding 4) for the library
-   functor instances.
+   functor instances (registered instances are per-element-type;
+   thread-by-value needs element-generic).
 3. Reconcile the Monoid contract example with the finger-tree companion's
    Monoid before treating any monoid shape here as settled.
