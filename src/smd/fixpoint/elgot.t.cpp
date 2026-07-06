@@ -4,8 +4,8 @@
 #include <smd/fixpoint/elgot.hpp>
 #include <smd/fixpoint/elgot.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -17,17 +17,17 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntListF;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::coelgot;
-using smd::fixpoint::Cons;
 using smd::fixpoint::elgot;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::make_box;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::refold;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 using smd::typeclass::either;
 using smd::typeclass::make_left;
 using smd::typeclass::make_right;
@@ -51,10 +51,10 @@ auto nat_count_psi(int n) -> NatF<int> {
 
 auto nat_count_phi(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 } // namespace
@@ -104,8 +104,7 @@ TEST_CASE("coelgot invariant: coalgebra evaluated exactly once per seed "
         ++invocations;
         return nat_count_psi(n);
     };
-    auto ignore_seed_counting = [](const int &, const NatF<int> &layer)
-        -> int {
+    auto ignore_seed_counting = [](const int &, const NatF<int> &layer) -> int {
         return nat_count_phi(layer);
     };
 
@@ -132,8 +131,8 @@ namespace {
 
 auto make_counting_product_coalgebra(const std::vector<int> &v,
                                      int &invocations) {
-    return [&v, &invocations](std::size_t i)
-               -> either<int, IntListF<std::size_t>> {
+    return [&v,
+            &invocations](std::size_t i) -> either<int, IntListF<std::size_t>> {
         ++invocations;
         if (i >= v.size()) {
             return make_right<int>(IntListF<std::size_t>{Nil<int>{}});
@@ -147,11 +146,12 @@ auto make_counting_product_coalgebra(const std::vector<int> &v,
 }
 
 auto product_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 1; },
-                           [](const Cons<int, int> &c) { return c.head * *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 1; },
+            [](const Cons<int, int> &c) { return c.head * *c.tail; },
+        },
+        layer);
 }
 
 } // namespace
@@ -162,8 +162,8 @@ TEST_CASE("elgot behavior: product-with-zero bailout counts invocations "
     int invocations = 0;
     auto coalgebra = make_counting_product_coalgebra(v, invocations);
 
-    int result = elgot<int, IntListF>(product_algebra, coalgebra,
-                                      std::size_t{0});
+    int result =
+        elgot<int, IntListF>(product_algebra, coalgebra, std::size_t{0});
 
     CHECK(result == 0);
     // The 0 sits at index 2 (0-based): the coalgebra is invoked for
@@ -184,8 +184,8 @@ TEST_CASE("elgot edge case: coalgebra short-circuits on the very first "
     int invocations = 0;
     auto coalgebra = make_counting_product_coalgebra(v, invocations);
 
-    int result = elgot<int, IntListF>(product_algebra, coalgebra,
-                                      std::size_t{0});
+    int result =
+        elgot<int, IntListF>(product_algebra, coalgebra, std::size_t{0});
 
     CHECK(result == 0);
     CHECK(invocations == 1);
@@ -218,8 +218,8 @@ auto running_indices_algebra(const int &seed,
 
 TEST_CASE("coelgot behavior: running indices, algebra uses the seed (Nat)") {
     std::vector<int> expected{5, 4, 3, 2, 1, 0};
-    auto result = coelgot<std::vector<int>, NatF>(
-        running_indices_algebra, nat_count_psi, 5);
+    auto result = coelgot<std::vector<int>, NatF>(running_indices_algebra,
+                                                  nat_count_psi, 5);
     CHECK(result == expected);
 }
 
@@ -233,10 +233,10 @@ namespace {
 constexpr auto elgot_constexpr_smoke() -> bool {
     auto algebra = [](const NatF<int> &layer) -> int {
         return std::visit(overloaded{
-                               [](const Zero &) { return 0; },
-                               [](const Succ<int> &s) { return *s.pred + 1; },
-                           },
-                           layer);
+                              [](const Zero &) { return 0; },
+                              [](const Succ<int> &s) { return *s.pred + 1; },
+                          },
+                          layer);
     };
     auto coalgebra = [](int n) -> either<int, NatF<int>> {
         if (n <= 0) {
@@ -251,10 +251,10 @@ constexpr auto elgot_constexpr_smoke() -> bool {
 constexpr auto coelgot_constexpr_smoke() -> bool {
     auto algebra = [](const int &seed, const NatF<int> &layer) -> int {
         return std::visit(overloaded{
-                               [&](const Zero &) { return seed; },
-                               [](const Succ<int> &s) { return *s.pred + 1; },
-                           },
-                           layer);
+                              [&](const Zero &) { return seed; },
+                              [](const Succ<int> &s) { return *s.pred + 1; },
+                          },
+                          layer);
     };
     auto coalgebra = [](int n) -> NatF<int> {
         if (n <= 0) {

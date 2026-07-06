@@ -4,16 +4,16 @@
 #include <smd/fixpoint/free.hpp>
 #include <smd/fixpoint/free.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/functors.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <variant>
 
-using smd::fixpoint::Cons;
+using smd::concrete::Cons;
+using smd::concrete::IntListF;
 using smd::fixpoint::Free;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::is_pure;
 using smd::fixpoint::make_box;
 using smd::fixpoint::pure_free;
@@ -69,8 +69,7 @@ TEST_CASE("free functor: fmap maps the Pure value, recurses through Roll") {
     auto &functor = smd::typeclass::functor_typeclass<IntFree>;
 
     IntFree pure_leaf = pure_free<IntListF>(4);
-    IntFree mapped_pure =
-        functor.fmap([](int x) { return x + 10; }, pure_leaf);
+    IntFree mapped_pure = functor.fmap([](int x) { return x + 10; }, pure_leaf);
     CHECK(is_pure(mapped_pure));
     CHECK(std::get<int>(mapped_pure.node) == 14);
 

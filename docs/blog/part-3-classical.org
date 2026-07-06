@@ -71,14 +71,14 @@ recursing into seeds, then ~wrap_fix~ instead of an algebra.
 
 The nat and list fixtures the rest of the series leans on are anamorphisms
 from ordinary C++ values.
-From [[file:../../src/smd/fixpoint/functors.hpp][=src/smd/fixpoint/functors.hpp=]]:
+From [[file:../../src/smd/concrete/functors.hpp][=src/smd/concrete/functors.hpp=]]:
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::0cc54e00-8ad2-4f77-a3f1-f3562a923b37]] :lines 2- :src cpp :end "0cc54e00-8ad2-4f77-a3f1-f3562a923b37 end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::0cc54e00-8ad2-4f77-a3f1-f3562a923b37]] :lines 2- :src cpp :end "0cc54e00-8ad2-4f77-a3f1-f3562a923b37 end"
 
 ~nat_from_int~ unfolds a countdown; ~nat_to_int~ folds it back.
 The list versions are the same pair at a different functor:
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::f0dc904d-7ea2-4a34-b7c8-1779969b5e42]] :lines 2- :src cpp :end "f0dc904d-7ea2-4a34-b7c8-1779969b5e42 end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::f0dc904d-7ea2-4a34-b7c8-1779969b5e42]] :lines 2- :src cpp :end "f0dc904d-7ea2-4a34-b7c8-1779969b5e42 end"
 
 Termination is the programmer's promise, not the type system's.
 A coalgebra that always returns a ~Succ~ unfolds forever.

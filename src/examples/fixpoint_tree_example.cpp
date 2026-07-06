@@ -4,18 +4,18 @@
 // Demonstrates the smd::fixpoint library: build a small arithmetic
 // expression tree and evaluate it via a catamorphism (fold_fix). There is
 // no hand-written tree-walking code — only the shape of the data (ExprF,
-// from smd/fixpoint/functors.hpp) and the per-node evaluation logic
+// from smd/concrete/functors.hpp) and the per-node evaluation logic
 // (eval, also from functors.hpp).
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 
 #include <print>
 
-using smd::fixpoint::add_node;
-using smd::fixpoint::const_node;
-using smd::fixpoint::eval;
-using smd::fixpoint::Expr;
-using smd::fixpoint::mul_node;
+using smd::concrete::add_node;
+using smd::concrete::const_node;
+using smd::concrete::eval;
+using smd::concrete::Expr;
+using smd::concrete::mul_node;
 
 // 7a31aed8-07e7-4c69-afad-4f5fcb2e08f8
 int main() {

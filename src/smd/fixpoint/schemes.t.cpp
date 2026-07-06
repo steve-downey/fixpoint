@@ -4,6 +4,8 @@
 #include <smd/fixpoint/schemes.hpp>
 #include <smd/fixpoint/schemes.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include <utility>
@@ -17,6 +19,13 @@
 // call one of each, with no missing include/ODR surprise from combining all
 // of them in a single translation unit.
 
+using smd::concrete::IntListF;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::ana_via_gana;
 using smd::fixpoint::cata_via_gcata;
 using smd::fixpoint::Cofree;
@@ -27,20 +36,13 @@ using smd::fixpoint::extract;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::futu;
 using smd::fixpoint::histo;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::make_box;
 using smd::fixpoint::mcata;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::para;
 using smd::fixpoint::prepro;
 using smd::fixpoint::pure_free;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unwrap_fix;
-using smd::fixpoint::Zero;
 
 using smd::typeclass::either;
 using smd::typeclass::Identity;

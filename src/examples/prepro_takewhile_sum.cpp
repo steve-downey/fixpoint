@@ -4,22 +4,22 @@
 // Demonstrates prepro (design §7.4): take-while fused into a fold. The
 // natural transformation rewrites `Cons(x, rest)` to `Nil` once `x < 0`;
 // prepro applies it cumulatively on the way down an IntList (from
-// smd/fixpoint/functors.hpp) before the summing algebra ever sees a node,
+// smd/concrete/functors.hpp) before the summing algebra ever sees a node,
 // so the negative element (and everything past it) is dropped without a
 // separate take-while pass over the list.
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/prepro.hpp>
 
 #include <print>
 #include <variant>
 #include <vector>
 
-using smd::fixpoint::Cons;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::Nil;
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::prepro;
 
@@ -48,11 +48,12 @@ struct take_while_positive {
 
 // The algebra: sum every remaining head.
 auto sum_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 0; },
-                           [](const Cons<int, int> &c) { return c.head + *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 0; },
+            [](const Cons<int, int> &c) { return c.head + *c.tail; },
+        },
+        layer);
 }
 // b46e1d07-0c11-4acb-ae54-673564092c5b end
 

@@ -31,9 +31,9 @@ Both weld the recursion into the type.
 
 Instead, I describe /one layer/ of the tree, with a type parameter ~A~
 standing wherever a child would go.
-From [[file:../../src/smd/fixpoint/functors.hpp][=src/smd/fixpoint/functors.hpp=]]:
+From [[file:../../src/smd/concrete/functors.hpp][=src/smd/concrete/functors.hpp=]]:
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::2c4f33dc-5a80-4afb-8254-b33bab58a0b0]] :lines 2- :src cpp :end "2c4f33dc-5a80-4afb-8254-b33bab58a0b0 end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::2c4f33dc-5a80-4afb-8254-b33bab58a0b0]] :lines 2- :src cpp :end "2c4f33dc-5a80-4afb-8254-b33bab58a0b0 end"
 
 ~ExprF~ never mentions ~ExprF~.
 When ~A~ is ~int~, an ~ExprF<int>~ is one layer whose children are already
@@ -166,7 +166,7 @@ Nothing more is promised, so nothing more can go wrong.
 Building nodes through ~wrap_fix~ and ~make_box~ by hand is ceremony.
 The functor header ships constructors that hide it:
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::5f486336-1b03-4f4a-87b9-ad169d481bd6]] :lines 2- :src cpp :end "5f486336-1b03-4f4a-87b9-ad169d481bd6 end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::5f486336-1b03-4f4a-87b9-ad169d481bd6]] :lines 2- :src cpp :end "5f486336-1b03-4f4a-87b9-ad169d481bd6 end"
 
 The ~eval~ at the end is a preview: it consumes the tree with ~fold_fix~,
 the catamorphism, and its per-node logic never mentions recursion.
@@ -186,7 +186,7 @@ The same header defines the other base functors the series uses:
 ~NatF~ (Peano naturals --- ~Zero~ or ~Succ~), ~ListF<E, ·>~ (cons lists
 carrying payload type ~E~), and ~TreeF<E, ·>~ (leaf-valued binary trees).
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::534bcaa9-4a28-453d-83c3-37d4f479bc8c]] :lines 2- :src cpp :end "534bcaa9-4a28-453d-83c3-37d4f479bc8c end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::534bcaa9-4a28-453d-83c3-37d4f479bc8c]] :lines 2- :src cpp :end "534bcaa9-4a28-453d-83c3-37d4f479bc8c end"
 
 Two things to notice.
 ~ListF~ is a /binary/ template --- element type and recursion slot --- and

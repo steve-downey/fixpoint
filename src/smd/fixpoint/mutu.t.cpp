@@ -4,7 +4,7 @@
 #include <smd/fixpoint/mutu.hpp>
 #include <smd/fixpoint/mutu.hpp> // Re-inclusion check
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -13,14 +13,14 @@
 #include <utility>
 #include <variant>
 
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::mutu;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 TEST_CASE("mutu - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -35,27 +35,25 @@ namespace {
 
 // alg_a: counts Succ layers (same shape as nat_to_int).
 auto count_alg(const NatF<std::pair<int, int>> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const Zero &) { return 0; },
-            [](const Succ<std::pair<int, int>> &s) {
-                return s.pred->first + 1;
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const Zero &) { return 0; },
+                          [](const Succ<std::pair<int, int>> &s) {
+                              return s.pred->first + 1;
+                          },
+                      },
+                      layer);
 }
 
 // alg_b: counts Succ layers by twos — deliberately a different function of
 // the structure so the pairing isn't degenerate.
 auto double_count_alg(const NatF<std::pair<int, int>> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const Zero &) { return 0; },
-            [](const Succ<std::pair<int, int>> &s) {
-                return s.pred->second + 2;
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const Zero &) { return 0; },
+                          [](const Succ<std::pair<int, int>> &s) {
+                              return s.pred->second + 2;
+                          },
+                      },
+                      layer);
 }
 
 } // namespace
@@ -86,9 +84,7 @@ constexpr auto alg_even(const NatF<std::pair<bool, bool>> &layer) -> bool {
     return std::visit(
         overloaded{
             [](const Zero &) { return true; },
-            [](const Succ<std::pair<bool, bool>> &s) {
-                return s.pred->second;
-            },
+            [](const Succ<std::pair<bool, bool>> &s) { return s.pred->second; },
         },
         layer);
 }
@@ -97,9 +93,7 @@ constexpr auto alg_odd(const NatF<std::pair<bool, bool>> &layer) -> bool {
     return std::visit(
         overloaded{
             [](const Zero &) { return false; },
-            [](const Succ<std::pair<bool, bool>> &s) {
-                return s.pred->first;
-            },
+            [](const Succ<std::pair<bool, bool>> &s) { return s.pred->first; },
         },
         layer);
 }

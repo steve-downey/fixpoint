@@ -18,21 +18,21 @@
 // makes mcata mcata. Every branch below only ever calls `recurse` on a
 // child, never inspects one any other way.
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/mendler.hpp>
 
 #include <print>
 #include <variant>
 
-using smd::fixpoint::Add;
-using smd::fixpoint::add_node;
-using smd::fixpoint::Const;
-using smd::fixpoint::const_node;
-using smd::fixpoint::Expr;
-using smd::fixpoint::ExprF;
+using smd::concrete::Add;
+using smd::concrete::add_node;
+using smd::concrete::Const;
+using smd::concrete::const_node;
+using smd::concrete::Expr;
+using smd::concrete::ExprF;
+using smd::concrete::Mul;
+using smd::concrete::mul_node;
 using smd::fixpoint::mcata;
-using smd::fixpoint::mul_node;
-using smd::fixpoint::Mul;
 using smd::fixpoint::overloaded;
 
 namespace {
@@ -43,17 +43,16 @@ namespace {
 // itself, never named as a type (design §7.7's pitfall: keep it a plain
 // generic callable).
 auto eval_via_mcata = [](auto recurse, const ExprF<Expr> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const Const<Expr> &c) { return c.val; },
-            [&](const Add<Expr> &a) -> int {
-                return recurse(*a.left) + recurse(*a.right);
-            },
-            [&](const Mul<Expr> &m) -> int {
-                return recurse(*m.left) * recurse(*m.right);
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const Const<Expr> &c) { return c.val; },
+                          [&](const Add<Expr> &a) -> int {
+                              return recurse(*a.left) + recurse(*a.right);
+                          },
+                          [&](const Mul<Expr> &m) -> int {
+                              return recurse(*m.left) * recurse(*m.right);
+                          },
+                      },
+                      layer);
 };
 // 205a652d-1975-4836-8344-14f9f762c8fd end
 

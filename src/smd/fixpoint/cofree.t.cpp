@@ -4,20 +4,20 @@
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/cofree.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/functors.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <variant>
 
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Cofree;
 using smd::fixpoint::extract;
 using smd::fixpoint::make_box;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unwrap_cofree;
-using smd::fixpoint::Zero;
 
 TEST_CASE("cofree - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -66,8 +66,7 @@ TEST_CASE("cofree: equality is structural") {
 TEST_CASE("cofree functor: fmap increments every head, all the way down") {
     AnnNat ann2 = make_ann_nat_012();
     auto &functor = smd::typeclass::functor_typeclass<AnnNat>;
-    AnnNat mapped =
-        functor.fmap([](int head) { return head + 10; }, ann2);
+    AnnNat mapped = functor.fmap([](int head) { return head + 10; }, ann2);
 
     CHECK(extract(mapped) == 12);
     const auto &succ2 = std::get<Succ<AnnNat>>(unwrap_cofree(mapped));
@@ -102,9 +101,9 @@ TEST_CASE("cofree comonad: extend is fmap . duplicate") {
     const auto &comonad = smd::typeclass::comonad_typeclass<AnnNat>;
     auto via_extend = comonad.extend(
         [](const AnnNat &inner) { return extract(inner) * 2; }, ann2);
-    auto via_fmap_duplicate = comonad.fmap(
-        [](const AnnNat &inner) { return extract(inner) * 2; },
-        comonad.duplicate(ann2));
+    auto via_fmap_duplicate =
+        comonad.fmap([](const AnnNat &inner) { return extract(inner) * 2; },
+                     comonad.duplicate(ann2));
     CHECK(via_extend == via_fmap_duplicate);
 }
 

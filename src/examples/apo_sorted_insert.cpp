@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 // Demonstrates apo (design §7.2): insert a value into an already-sorted
-// IntList (from smd/fixpoint/functors.hpp). The coalgebra walks the list
+// IntList (from smd/concrete/functors.hpp). The coalgebra walks the list
 // looking for the insertion point; once found, instead of continuing to
 // unfold element-by-element it short-circuits with `Left`, grafting the
 // *untouched* remainder of the original list back in as-is — no fold_fix
 // needed to rebuild everything after the insertion point.
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/apo.hpp>
-#include <smd/fixpoint/functors.hpp>
 
 #include <smd/typeclass/either.hpp>
 
@@ -17,14 +17,14 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nil;
 using smd::fixpoint::apo;
-using smd::fixpoint::Cons;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::unwrap_fix;
 using smd::typeclass::either;
@@ -40,8 +40,8 @@ namespace {
  * runs out; Right keeps unfolding past elements smaller than @p value.
  */
 auto make_insert_coalgebra(int value) {
-    return [value](const IntList &remaining)
-               -> IntListF<either<IntList, IntList>> {
+    return [value](
+               const IntList &remaining) -> IntListF<either<IntList, IntList>> {
         const auto &layer = unwrap_fix(remaining);
         return std::visit(
             overloaded{

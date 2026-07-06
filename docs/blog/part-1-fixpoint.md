@@ -1,4 +1,4 @@
-<div class="abstract" id="org872c12d">
+<div class="abstract" id="org20845cf">
 <p>
 A recursive type that names itself is ordinary. A type that is the fixed
 point of a <b>non-recursive</b> template is the foundation every recursion scheme
@@ -22,7 +22,7 @@ for all, whose job the indirection is.
 
 I want an arithmetic expression tree: constants, addition, multiplication. The usual C++ move is a class hierarchy, or a `std::variant` that names itself through a `unique_ptr`. Both weld the recursion into the type.
 
-Instead, I describe *one layer* of the tree, with a type parameter `A` standing wherever a child would go. From [`src/smd/fixpoint/functors.hpp`](../../src/smd/fixpoint/functors.hpp):
+Instead, I describe *one layer* of the tree, with a type parameter `A` standing wherever a child would go. From [`src/smd/concrete/functors.hpp`](../../src/smd/concrete/functors.hpp):
 
 ```cpp
 template <typename A>
@@ -32,18 +32,18 @@ struct Const {
 
 template <typename A>
 struct Add {
-    Box<A> left, right;
+    smd::fixpoint::Box<A> left, right;
 };
 
 template <typename A>
 struct Mul {
-    Box<A> left, right;
+    smd::fixpoint::Box<A> left, right;
 };
 
 template <typename A>
 using ExprF = std::variant<Const<A>, Add<A>, Mul<A>>;
 
-using Expr = Fix<ExprF>;
+using Expr = smd::fixpoint::Fix<ExprF>;
 ```
 
 `ExprF` never mentions `ExprF`. When `A` is `int`, an `ExprF<int>` is one layer whose children are already integers. When `A` is the full tree type, the children are subtrees. This parameterization &#x2014; the *base functor* &#x2014; is the whole idea (Milewski, Bartosz, 2013) (Milewski, Bartosz, 2017). Everything else in this series is machinery for choosing what to put in that `A` slot.
@@ -182,35 +182,34 @@ Building nodes through `wrap_fix` and `make_box` by hand is ceremony. The functo
 ```cpp
 /** Build a constant leaf holding @p v. */
 constexpr auto const_node(int v) -> Expr {
-    return wrap_fix<ExprF>(ExprF<Expr>{Const<Expr>{v}});
+    return smd::fixpoint::wrap_fix<ExprF>(ExprF<Expr>{Const<Expr>{v}});
 }
 
 /** Build @p l + @p r. */
 constexpr auto add_node(Expr l, Expr r) -> Expr {
-    return wrap_fix<ExprF>(ExprF<Expr>{
-        Add<Expr>{make_box<Expr>(std::move(l)), make_box<Expr>(std::move(r))}});
+    return smd::fixpoint::wrap_fix<ExprF>(
+        ExprF<Expr>{Add<Expr>{smd::fixpoint::make_box<Expr>(std::move(l)),
+                              smd::fixpoint::make_box<Expr>(std::move(r))}});
 }
 
 /** Build @p l * @p r. */
 constexpr auto mul_node(Expr l, Expr r) -> Expr {
-    return wrap_fix<ExprF>(ExprF<Expr>{
-        Mul<Expr>{make_box<Expr>(std::move(l)), make_box<Expr>(std::move(r))}});
+    return smd::fixpoint::wrap_fix<ExprF>(
+        ExprF<Expr>{Mul<Expr>{smd::fixpoint::make_box<Expr>(std::move(l)),
+                              smd::fixpoint::make_box<Expr>(std::move(r))}});
 }
 
 /** Fold: evaluate an Expr tree (cata). */
 constexpr auto eval(const Expr &tree) -> int {
-    return fold_fix<int>(
+    return smd::fixpoint::fold_fix<int>(
         [](const ExprF<int> &node) -> int {
-            return std::visit(overloaded{
-                                   [](const Const<int> &c) { return c.val; },
-                                   [](const Add<int> &a) {
-                                       return *a.left + *a.right;
-                                   },
-                                   [](const Mul<int> &m) {
-                                       return *m.left * *m.right;
-                                   },
-                               },
-                               node);
+            return std::visit(
+                smd::fixpoint::overloaded{
+                    [](const Const<int> &c) { return c.val; },
+                    [](const Add<int> &a) { return *a.left + *a.right; },
+                    [](const Mul<int> &m) { return *m.left * *m.right; },
+                },
+                node);
         },
         tree);
 }
@@ -251,14 +250,13 @@ struct Zero {
 
 template <typename A>
 struct Succ {
-    Box<A> pred;
+    smd::fixpoint::Box<A> pred;
 
     // Hand-written for the same reason as Zero's above. Member-wise
     // comparison of Box<A>: Box's own operator== already null-checks
     // (box.hpp), so comparing the Box objects directly (not dereferencing)
     // is exactly what `= default` would have produced.
-    friend constexpr auto operator==(const Succ &lhs, const Succ &rhs)
-        -> bool {
+    friend constexpr auto operator==(const Succ &lhs, const Succ &rhs) -> bool {
         return lhs.pred == rhs.pred;
     }
 };
@@ -266,7 +264,7 @@ struct Succ {
 template <typename A>
 using NatF = std::variant<Zero, Succ<A>>;
 
-using Nat = Fix<NatF>;
+using Nat = smd::fixpoint::Fix<NatF>;
 ```
 
 Two things to notice. `ListF` is a *binary* template &#x2014; element type and recursion slot &#x2014; and `Fix` wants a unary one; an alias template (`template <class A> using IntListF = ListF<int, A>`) binds the payload, and alias templates are valid template-template arguments per P0522 (Spertus, Mike and Vandevoorde, Daveed, 2016). And those hand-written `operator==` bodies where `= default` ought to be: the comment records a real Clang 22 discovery &#x2014; a defaulted comparison's deleted-ness check forces completeness of self-referential functor families mid-definition; a plain friend body is only instantiated when used. Shipping code accumulates scars. The field guide keeps them visible.

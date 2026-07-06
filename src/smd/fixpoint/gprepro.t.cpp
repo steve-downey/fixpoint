@@ -4,10 +4,10 @@
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/generalized.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/dist_laws.hpp>
 #include <smd/fixpoint/fmap.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/prepro.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
@@ -21,8 +21,19 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Cofree;
-using smd::fixpoint::Cons;
 using smd::fixpoint::dist_ana;
 using smd::fixpoint::dist_cata;
 using smd::fixpoint::dist_histo;
@@ -32,23 +43,12 @@ using smd::fixpoint::gcata;
 using smd::fixpoint::gpostpro;
 using smd::fixpoint::gprepro;
 using smd::fixpoint::hoist;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::postpro;
 using smd::fixpoint::prepro;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
-using smd::fixpoint::Zero;
 using smd::fixpoint::zygo_histo_prepro;
 
 using smd::typeclass::Identity;
@@ -121,10 +121,10 @@ namespace {
 
 constexpr auto nat_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 constexpr auto nat_count_algebra_prime(const NatF<Identity<int>> &layer)
@@ -134,11 +134,12 @@ constexpr auto nat_count_algebra_prime(const NatF<Identity<int>> &layer)
 }
 
 auto sum_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 0; },
-                           [](const Cons<int, int> &c) { return c.head + *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 0; },
+            [](const Cons<int, int> &c) { return c.head + *c.tail; },
+        },
+        layer);
 }
 
 auto sum_algebra_prime(const IntListF<Identity<int>> &layer) -> int {
@@ -262,10 +263,10 @@ namespace {
 // Helper folds ignored by the degeneracy test's main algebra below.
 auto length_helper(const IntListF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Nil<int> &) { return 0; },
-                           [](const Cons<int, int> &c) { return *c.tail + 1; },
-                       },
-                       layer);
+                          [](const Nil<int> &) { return 0; },
+                          [](const Cons<int, int> &c) { return *c.tail + 1; },
+                      },
+                      layer);
 }
 
 // Degeneracy main algebra: ignores the Helper component entirely, reads
@@ -290,7 +291,7 @@ TEST_CASE("zygo_histo_prepro law: identity transformation + helper-ignored "
          std::vector<std::vector<int>>{{}, {1, 2, 3}, {5, 4, 3, 2, 1}}) {
         IntList list = list_from_vector(v);
         int via_zhp = zygo_histo_prepro<int, int>(length_helper, identity_nat{},
-                                                   degenerate_main, list);
+                                                  degenerate_main, list);
         int via_fold = fold_fix<int>(sum_algebra, list);
         CHECK(via_zhp == via_fold);
     }
@@ -356,8 +357,8 @@ constexpr auto gpostpro_constexpr_smoke() -> bool {
     return nat_to_int(nat) == 4;
 }
 
-constexpr auto zygo_histo_prepro_degenerate_main(const NatF<std::pair<int, Cofree<NatF, int>>> &layer)
-    -> int {
+constexpr auto zygo_histo_prepro_degenerate_main(
+    const NatF<std::pair<int, Cofree<NatF, int>>> &layer) -> int {
     return std::visit(
         overloaded{
             [](const Zero &) { return 0; },
@@ -374,10 +375,9 @@ constexpr auto zygo_histo_prepro_helper_ignored(const NatF<int> &) -> int {
 
 constexpr auto zygo_histo_prepro_constexpr_smoke() -> bool {
     auto nat = nat_from_int(4);
-    return (zygo_histo_prepro<int, int>(zygo_histo_prepro_helper_ignored,
-                                        identity_nat{},
-                                        zygo_histo_prepro_degenerate_main,
-                                        nat)) == 4;
+    return (zygo_histo_prepro<int, int>(
+               zygo_histo_prepro_helper_ignored, identity_nat{},
+               zygo_histo_prepro_degenerate_main, nat)) == 4;
 }
 
 } // namespace

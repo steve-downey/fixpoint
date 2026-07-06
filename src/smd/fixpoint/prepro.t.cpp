@@ -4,8 +4,8 @@
 #include <smd/fixpoint/prepro.hpp>
 #include <smd/fixpoint/prepro.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -16,25 +16,25 @@
 #include <variant>
 #include <vector>
 
-using smd::fixpoint::Cons;
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::hoist;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::postpro;
 using smd::fixpoint::prepro;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
-using smd::fixpoint::Zero;
 
 TEST_CASE("prepro - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -166,10 +166,10 @@ TEST_CASE("hoist to a different functor: NatF -> IntListF, sum equals "
 TEST_CASE("prepro law: identity_nat degenerates to fold_fix (Nat, 0..10)") {
     auto algebra = [](const NatF<int> &layer) -> int {
         return std::visit(overloaded{
-                               [](const Zero &) { return 0; },
-                               [](const Succ<int> &s) { return *s.pred + 1; },
-                           },
-                           layer);
+                              [](const Zero &) { return 0; },
+                              [](const Succ<int> &s) { return *s.pred + 1; },
+                          },
+                          layer);
     };
 
     for (int n = 0; n <= 10; ++n) {
@@ -204,11 +204,12 @@ TEST_CASE("postpro law: identity_nat degenerates to unfold_fix (Nat, "
 namespace {
 
 auto sum_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 0; },
-                           [](const Cons<int, int> &c) { return c.head + *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 0; },
+            [](const Cons<int, int> &c) { return c.head + *c.tail; },
+        },
+        layer);
 }
 
 } // namespace
@@ -277,10 +278,10 @@ constexpr auto hoist_constexpr_smoke() -> bool {
 constexpr auto prepro_constexpr_smoke() -> bool {
     auto algebra = [](const NatF<int> &layer) -> int {
         return std::visit(overloaded{
-                               [](const Zero &) { return 0; },
-                               [](const Succ<int> &s) { return *s.pred + 1; },
-                           },
-                           layer);
+                              [](const Zero &) { return 0; },
+                              [](const Succ<int> &s) { return *s.pred + 1; },
+                          },
+                          layer);
     };
     auto nat = nat_from_int(3);
     return prepro<int>(identity_nat{}, algebra, nat) == 3;

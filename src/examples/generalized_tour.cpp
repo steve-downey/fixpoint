@@ -10,9 +10,9 @@
 // driven by the matching distributive law -- and prints both, naming which
 // distributive law produced the generalized side.
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/dist_laws.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/histo.hpp>
 #include <smd/fixpoint/overloaded.hpp>
@@ -25,9 +25,18 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::cata_via_gcata;
 using smd::fixpoint::Cofree;
-using smd::fixpoint::Cons;
 using smd::fixpoint::dist_ana;
 using smd::fixpoint::dist_histo;
 using smd::fixpoint::dyna;
@@ -36,19 +45,10 @@ using smd::fixpoint::fold_fix;
 using smd::fixpoint::ghylo;
 using smd::fixpoint::histo;
 using smd::fixpoint::histo_via_gcata;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::list_from_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
 using smd::fixpoint::zygo_histo_prepro;
-using smd::fixpoint::Zero;
 
 using smd::typeclass::Identity;
 
@@ -60,10 +60,10 @@ namespace {
 
 constexpr auto nat_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 auto fib_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
@@ -105,10 +105,12 @@ struct take_while_positive_nat {
     constexpr auto operator()(const IntListF<A> &layer) const -> IntListF<A> {
         return std::visit(
             overloaded{
-                [](const smd::fixpoint::Nil<int> &n) -> IntListF<A> { return n; },
-                [](const smd::fixpoint::Cons<int, A> &c) -> IntListF<A> {
+                [](const smd::concrete::Nil<int> &n) -> IntListF<A> {
+                    return n;
+                },
+                [](const smd::concrete::Cons<int, A> &c) -> IntListF<A> {
                     if (c.head < 0) {
-                        return smd::fixpoint::Nil<int>{};
+                        return smd::concrete::Nil<int>{};
                     }
                     return c;
                 },
@@ -120,8 +122,8 @@ struct take_while_positive_nat {
 auto length_helper(const IntListF<int> &layer) -> int {
     return std::visit(
         overloaded{
-            [](const smd::fixpoint::Nil<int> &) { return 0; },
-            [](const smd::fixpoint::Cons<int, int> &c) { return *c.tail + 1; },
+            [](const smd::concrete::Nil<int> &) { return 0; },
+            [](const smd::concrete::Cons<int, int> &c) { return *c.tail + 1; },
         },
         layer);
 }
@@ -130,9 +132,9 @@ auto even_tail_length_main(
     const IntListF<std::pair<int, Cofree<IntListF, int>>> &layer) -> int {
     return std::visit(
         overloaded{
-            [](const smd::fixpoint::Nil<int> &) { return 0; },
-            [](const smd::fixpoint::Cons<int, std::pair<int, Cofree<IntListF, int>>>
-                   &c) -> int {
+            [](const smd::concrete::Nil<int> &) { return 0; },
+            [](const smd::concrete::Cons<
+                int, std::pair<int, Cofree<IntListF, int>>> &c) -> int {
                 int tail_length = c.tail->first;
                 int rest_sum = extract(c.tail->second);
                 if (tail_length % 2 == 0) {
@@ -148,7 +150,7 @@ auto even_tail_length_main(
 // match; returns false on mismatch so main() can fail loudly instead of
 // silently printing wrong output.
 auto report(const char *scheme, const char *dist_law, int specialized,
-           int generalized) -> bool {
+            int generalized) -> bool {
     std::println("{:<28} via {:<14}: specialized = {}, generalized = {}"
                  " ({})",
                  scheme, dist_law, specialized, generalized,
@@ -210,9 +212,9 @@ int main() {
     // ---------------------------------------------------------------------
     {
         IntList list = list_from_vector({3, 4, -1, 5});
-        int computed = zygo_histo_prepro<int, int>(
-            length_helper, take_while_positive_nat{}, even_tail_length_main,
-            list);
+        int computed = zygo_histo_prepro<int, int>(length_helper,
+                                                   take_while_positive_nat{},
+                                                   even_tail_length_main, list);
         all_ok &= report("zygo_histo_prepro capstone", "dist_zygo_histo",
                          /*specialized (hand-checked)=*/4, computed);
     }

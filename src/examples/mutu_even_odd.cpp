@@ -2,25 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 // Demonstrates mutu (design §7.3): is-even and is-odd on Nat (from
-// smd/fixpoint/functors.hpp), each defined in terms of the other via a
+// smd/concrete/functors.hpp), each defined in terms of the other via a
 // single mutually recursive fold (Fokkinga's banana-split construction) —
 // no auxiliary modulo arithmetic, just the base case (Zero is even, not
 // odd) and each Succ deferring to the *other* predicate on its predecessor.
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/mutu.hpp>
 
 #include <print>
 #include <utility>
 #include <variant>
 
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::mutu;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 namespace {
 
@@ -30,9 +30,7 @@ auto alg_even(const NatF<std::pair<bool, bool>> &layer) -> bool {
     return std::visit(
         overloaded{
             [](const Zero &) { return true; },
-            [](const Succ<std::pair<bool, bool>> &s) {
-                return s.pred->second;
-            },
+            [](const Succ<std::pair<bool, bool>> &s) { return s.pred->second; },
         },
         layer);
 }
@@ -42,9 +40,7 @@ auto alg_odd(const NatF<std::pair<bool, bool>> &layer) -> bool {
     return std::visit(
         overloaded{
             [](const Zero &) { return false; },
-            [](const Succ<std::pair<bool, bool>> &s) {
-                return s.pred->first;
-            },
+            [](const Succ<std::pair<bool, bool>> &s) { return s.pred->first; },
         },
         layer);
 }

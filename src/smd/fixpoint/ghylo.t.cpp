@@ -4,12 +4,12 @@
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/generalized.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/chrono.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/dist_laws.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -19,6 +19,9 @@
 
 #include <variant>
 
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::chrono;
 using smd::fixpoint::codyna;
 using smd::fixpoint::Cofree;
@@ -31,12 +34,9 @@ using smd::fixpoint::Free;
 using smd::fixpoint::ghylo;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::make_box;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::pure_free;
 using smd::fixpoint::refold;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 using smd::typeclass::Identity;
 
@@ -66,10 +66,10 @@ auto one_layer_countdown(int m) -> NatF<Free<NatF, int>> {
 // algebra shape, and codyna's cata side, which never builds a Cofree).
 constexpr auto plain_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 // Fibonacci via history (design §7.5/§9's histo-fib, reused verbatim from
@@ -127,10 +127,8 @@ TEST_CASE("ghylo law: ghylo(dist_cata, dist_ana) equals refold (Nat count)") {
 
 TEST_CASE("ghylo law: ghylo(dist_histo, dist_ana) equals dyna (Fibonacci)") {
     for (int n = 0; n <= 10; ++n) {
-        int via_ghylo =
-            (ghylo<int, Cofree<NatF, int>, NatF, Identity<int>>(
-                dist_histo<NatF>, fib_algebra, dist_ana, ana_coalgebra_prime,
-                n));
+        int via_ghylo = (ghylo<int, Cofree<NatF, int>, NatF, Identity<int>>(
+            dist_histo<NatF>, fib_algebra, dist_ana, ana_coalgebra_prime, n));
         int via_dyna = dyna<int, NatF>(fib_algebra, countdown, n);
         CHECK(via_ghylo == via_dyna);
     }
@@ -143,8 +141,8 @@ TEST_CASE("ghylo law: ghylo(dist_histo, dist_ana) equals dyna (Fibonacci)") {
 TEST_CASE("ghylo law: ghylo(dist_cata, dist_futu) equals codyna") {
     for (int n = 0; n <= 10; ++n) {
         int via_ghylo = (ghylo<int, Identity<int>, NatF, Free<NatF, int>>(
-            dist_cata, cata_algebra_prime, dist_futu<NatF>,
-            one_layer_countdown, n));
+            dist_cata, cata_algebra_prime, dist_futu<NatF>, one_layer_countdown,
+            n));
         int via_codyna =
             codyna<int, NatF>(plain_count_algebra, one_layer_countdown, n);
         CHECK(via_ghylo == via_codyna);
@@ -158,10 +156,9 @@ TEST_CASE("ghylo law: ghylo(dist_cata, dist_futu) equals codyna") {
 
 TEST_CASE("ghylo law: ghylo(dist_histo, dist_futu) equals chrono (Fibonacci)") {
     for (int n = 0; n <= 10; ++n) {
-        int via_ghylo =
-            (ghylo<int, Cofree<NatF, int>, NatF, Free<NatF, int>>(
-                dist_histo<NatF>, fib_algebra, dist_futu<NatF>,
-                one_layer_countdown, n));
+        int via_ghylo = (ghylo<int, Cofree<NatF, int>, NatF, Free<NatF, int>>(
+            dist_histo<NatF>, fib_algebra, dist_futu<NatF>, one_layer_countdown,
+            n));
         int via_chrono = chrono<int, NatF>(fib_algebra, one_layer_countdown, n);
         CHECK(via_ghylo == via_chrono);
     }

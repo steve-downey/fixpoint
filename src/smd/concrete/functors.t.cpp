@@ -1,8 +1,8 @@
-// src/smd/fixpoint/functors.t.cpp                                    -*-C++-*-
+// src/smd/concrete/functors.t.cpp                                    -*-C++-*-
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <smd/fixpoint/functors.hpp>
-#include <smd/fixpoint/functors.hpp> // Re-inclusion check
+#include <smd/concrete/functors.hpp>
+#include <smd/concrete/functors.hpp> // Re-inclusion check
 
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/overloaded.hpp>
@@ -14,37 +14,37 @@
 #include <variant>
 #include <vector>
 
-using smd::fixpoint::add_node;
-using smd::fixpoint::Const;
-using smd::fixpoint::const_node;
-using smd::fixpoint::Cons;
-using smd::fixpoint::eval;
-using smd::fixpoint::Expr;
+using smd::concrete::add_node;
+using smd::concrete::Cons;
+using smd::concrete::Const;
+using smd::concrete::const_node;
+using smd::concrete::eval;
+using smd::concrete::Expr;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::IntTree;
+using smd::concrete::IntTreeF;
+using smd::concrete::Leaf;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::ListF;
+using smd::concrete::make_leaf;
+using smd::concrete::make_node;
+using smd::concrete::make_succ;
+using smd::concrete::make_zero;
+using smd::concrete::mul_node;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Node;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::fold_fix;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::IntTree;
-using smd::fixpoint::IntTreeF;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::Leaf;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
-using smd::fixpoint::ListF;
 using smd::fixpoint::make_box;
-using smd::fixpoint::make_leaf;
-using smd::fixpoint::make_node;
-using smd::fixpoint::make_succ;
-using smd::fixpoint::make_zero;
-using smd::fixpoint::mul_node;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
-using smd::fixpoint::Node;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 namespace {
 
@@ -55,13 +55,12 @@ namespace {
 constexpr auto sum_leaves(const IntTree &t) -> int {
     return fold_fix<int>(
         [](const IntTreeF<int> &layer) -> int {
-            return std::visit(overloaded{
-                                   [](const Leaf<int> &l) { return l.value; },
-                                   [](const Node<int> &n) {
-                                       return *n.left + *n.right;
-                                   },
-                               },
-                               layer);
+            return std::visit(
+                overloaded{
+                    [](const Leaf<int> &l) { return l.value; },
+                    [](const Node<int> &n) { return *n.left + *n.right; },
+                },
+                layer);
         },
         t);
 }
@@ -173,8 +172,8 @@ TEST_CASE("functors - ExprEvalMatchesHandComputed") {
 }
 
 TEST_CASE("functors - ExprFmapSmoke") {
-    using smd::fixpoint::Add;
-    using smd::fixpoint::ExprF;
+    using smd::concrete::Add;
+    using smd::concrete::ExprF;
 
     ExprF<int> add = Add<int>{make_box<int>(2), make_box<int>(3)};
     auto mapped = layer_fmap([](int x) { return x * 10; }, add);

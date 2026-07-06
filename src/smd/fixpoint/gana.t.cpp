@@ -4,13 +4,13 @@
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/generalized.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/apo.hpp>
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/dist_laws.hpp>
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/futu.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
@@ -25,33 +25,33 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nat;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::ana_via_gana;
 using smd::fixpoint::apo;
 using smd::fixpoint::apo_via_gana;
-using smd::fixpoint::Cons;
 using smd::fixpoint::dist_apo;
 using smd::fixpoint::Fix;
 using smd::fixpoint::Free;
 using smd::fixpoint::futu;
 using smd::fixpoint::futu_via_gana;
 using smd::fixpoint::gana;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::pure_free;
 using smd::fixpoint::roll_free;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
 using smd::fixpoint::unwrap_fix;
-using smd::fixpoint::Zero;
 
 using smd::typeclass::either;
 using smd::typeclass::make_left;
@@ -99,17 +99,15 @@ auto make_insert_coalgebra(int value) {
             overloaded{
                 [&](const Nil<int> &) -> IntListF<either<IntList, IntList>> {
                     return Cons<int, either<IntList, IntList>>{
-                        value,
-                        make_box<either<IntList, IntList>>(
-                            make_left<IntList>(l))};
+                        value, make_box<either<IntList, IntList>>(
+                                   make_left<IntList>(l))};
                 },
                 [&](const Cons<int, IntList> &c)
                     -> IntListF<either<IntList, IntList>> {
                     if (value <= c.head) {
                         return Cons<int, either<IntList, IntList>>{
-                            value,
-                            make_box<either<IntList, IntList>>(
-                                make_left<IntList>(l))};
+                            value, make_box<either<IntList, IntList>>(
+                                       make_left<IntList>(l))};
                     }
                     return Cons<int, either<IntList, IntList>>{
                         c.head, make_box<either<IntList, IntList>>(
@@ -210,8 +208,7 @@ TEST_CASE("gana law: futu_via_gana equals futu (RLE fixture {{2,7},{3,1}})") {
     };
     IntList via_gana =
         futu_via_gana<IntListF>(make_rle_coalgebra(rle), std::size_t{0});
-    IntList via_futu =
-        futu<IntListF>(make_rle_coalgebra(rle), std::size_t{0});
+    IntList via_futu = futu<IntListF>(make_rle_coalgebra(rle), std::size_t{0});
 
     std::vector<int> expected{7, 7, 1, 1, 1};
     CHECK(list_to_vector(via_gana) == expected);

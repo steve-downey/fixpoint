@@ -10,9 +10,9 @@
 // or not the rest of the vector was ever touched, since multiplying by zero
 // swallows the difference.
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/elgot.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 
 #include <smd/typeclass/either.hpp>
@@ -22,11 +22,11 @@
 #include <variant>
 #include <vector>
 
-using smd::fixpoint::Cons;
+using smd::concrete::Cons;
+using smd::concrete::IntListF;
+using smd::concrete::Nil;
 using smd::fixpoint::elgot;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
 using smd::typeclass::either;
 using smd::typeclass::make_left;
@@ -38,11 +38,12 @@ namespace {
 // identity (reached only if the coalgebra runs off the end without ever
 // seeing a 0); Cons multiplies its head by the already-folded tail.
 auto product_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 1; },
-                           [](const Cons<int, int> &c) { return c.head * *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 1; },
+            [](const Cons<int, int> &c) { return c.head * *c.tail; },
+        },
+        layer);
 }
 
 } // namespace
@@ -52,8 +53,7 @@ int main() {
     std::vector<int> values{4, 3, 0, 5, 9, 2};
 
     std::size_t examined = 0;
-    auto coalgebra = [&](std::size_t i)
-                         -> either<int, IntListF<std::size_t>> {
+    auto coalgebra = [&](std::size_t i) -> either<int, IntListF<std::size_t>> {
         ++examined;
         if (i >= values.size()) {
             return make_right<int>(IntListF<std::size_t>{Nil<int>{}});
@@ -61,12 +61,12 @@ int main() {
         if (values[i] == 0) {
             return make_left<IntListF<std::size_t>>(0);
         }
-        return make_right<int>(IntListF<std::size_t>{Cons<int, std::size_t>{
-            values[i], make_box<std::size_t>(i + 1)}});
+        return make_right<int>(IntListF<std::size_t>{
+            Cons<int, std::size_t>{values[i], make_box<std::size_t>(i + 1)}});
     };
 
-    int product = elgot<int, IntListF>(product_algebra, coalgebra,
-                                       std::size_t{0});
+    int product =
+        elgot<int, IntListF>(product_algebra, coalgebra, std::size_t{0});
 
     std::println("values: {} elements", values.size());
     std::println("product (bails out at the first 0): {}", product);

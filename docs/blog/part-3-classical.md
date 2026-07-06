@@ -1,4 +1,4 @@
-<div class="abstract" id="org88ed452">
+<div class="abstract" id="orga144c53">
 <p>
 Catamorphism, anamorphism, hylomorphism: tear a structure down, build one
 up, do both at once without ever holding the structure. The classical trio
@@ -76,30 +76,31 @@ One C++ concession, recorded as a design decision: the carrier `Result` is a lea
 
 The dual runs from a seed. A *coalgebra* `Seed -> F<Seed>` produces one layer with fresh seeds in the child positions; `unfold_fix` expands them until the coalgebra stops producing children. Same three-line shape, arrows reversed: coalgebra first, then `layer_fmap` recursing into seeds, then `wrap_fix` instead of an algebra.
 
-The nat and list fixtures the rest of the series leans on are anamorphisms from ordinary C++ values. From [`src/smd/fixpoint/functors.hpp`](../../src/smd/fixpoint/functors.hpp):
+The nat and list fixtures the rest of the series leans on are anamorphisms from ordinary C++ values. From [`src/smd/concrete/functors.hpp`](../../src/smd/concrete/functors.hpp):
 
 ```cpp
 /** Unfold: build a Nat counting down from @p n (ana). */
 constexpr auto nat_from_int(int n) -> Nat {
-    return unfold_fix<NatF>(
+    return smd::fixpoint::unfold_fix<NatF>(
         [](int m) -> NatF<int> {
             if (m <= 0) {
                 return Zero{};
             }
-            return Succ<int>{make_box<int>(m - 1)};
+            return Succ<int>{smd::fixpoint::make_box<int>(m - 1)};
         },
         n);
 }
 
 /** Fold: count the Succ layers of @p nat (cata). */
 constexpr auto nat_to_int(const Nat &nat) -> int {
-    return fold_fix<int>(
+    return smd::fixpoint::fold_fix<int>(
         [](const NatF<int> &layer) -> int {
-            return std::visit(overloaded{
-                                   [](const Zero &) { return 0; },
-                                   [](const Succ<int> &s) { return *s.pred + 1; },
-                               },
-                               layer);
+            return std::visit(
+                smd::fixpoint::overloaded{
+                    [](const Zero &) { return 0; },
+                    [](const Succ<int> &s) { return *s.pred + 1; },
+                },
+                layer);
         },
         nat);
 }
@@ -110,22 +111,23 @@ constexpr auto nat_to_int(const Nat &nat) -> int {
 ```cpp
 /** Unfold: build an IntList from a std::vector<int>, front to back (ana). */
 constexpr auto list_from_vector(const std::vector<int> &v) -> IntList {
-    return unfold_fix<IntListF>(
+    return smd::fixpoint::unfold_fix<IntListF>(
         [&v](std::size_t i) -> IntListF<std::size_t> {
             if (i >= v.size()) {
                 return Nil<int>{};
             }
-            return Cons<int, std::size_t>{v[i], make_box<std::size_t>(i + 1)};
+            return Cons<int, std::size_t>{
+                v[i], smd::fixpoint::make_box<std::size_t>(i + 1)};
         },
         std::size_t{0});
 }
 
 /** Fold: collect an IntList into a std::vector<int> (cata). */
 constexpr auto list_to_vector(const IntList &list) -> std::vector<int> {
-    return fold_fix<std::vector<int>>(
+    return smd::fixpoint::fold_fix<std::vector<int>>(
         [](const IntListF<std::vector<int>> &layer) -> std::vector<int> {
             return std::visit(
-                overloaded{
+                smd::fixpoint::overloaded{
                     [](const Nil<int> &) -> std::vector<int> { return {}; },
                     [](const Cons<int, std::vector<int>> &c)
                         -> std::vector<int> {

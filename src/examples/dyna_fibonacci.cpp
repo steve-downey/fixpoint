@@ -18,20 +18,20 @@
 // nothing about what the algebra sees, only how (and whether) the
 // intermediate tree exists in memory.
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/chrono.hpp>
 #include <smd/fixpoint/cofree.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 
 #include <print>
 #include <variant>
 
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Cofree;
 using smd::fixpoint::dyna;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 namespace {
 
