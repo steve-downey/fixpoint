@@ -31,6 +31,7 @@ namespace smd::fixpoint {
 // NatF — unary naturals.
 // ---------------------------------------------------------------------
 
+// 534bcaa9-4a28-453d-83c3-37d4f479bc8c
 struct Zero {
     // Hand-written (not = default): Clang 22 eagerly instantiates a
     // defaulted comparison operator's deleted-ness check inside a class
@@ -63,11 +64,13 @@ template <typename A>
 using NatF = std::variant<Zero, Succ<A>>;
 
 using Nat = Fix<NatF>;
+// 534bcaa9-4a28-453d-83c3-37d4f479bc8c end
 
 } // namespace smd::fixpoint
 
 namespace smd::typeclass {
 
+// ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b
 template <typename A>
 struct NatFFunctorImpl {
     template <typename Fn>
@@ -97,6 +100,7 @@ struct NatFFunctorMap : Functor<NatFFunctorImpl<A>> {
 template <typename A>
 inline constexpr auto functor_typeclass<smd::fixpoint::NatF<A>> =
     NatFFunctorMap<A>{};
+// ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b end
 
 } // namespace smd::typeclass
 
@@ -110,6 +114,7 @@ constexpr auto make_succ(Nat n) -> Nat {
     return wrap_fix<NatF>(NatF<Nat>{Succ<Nat>{make_box<Nat>(std::move(n))}});
 }
 
+// 0cc54e00-8ad2-4f77-a3f1-f3562a923b37
 /** Unfold: build a Nat counting down from @p n (ana). */
 constexpr auto nat_from_int(int n) -> Nat {
     return unfold_fix<NatF>(
@@ -134,11 +139,13 @@ constexpr auto nat_to_int(const Nat &nat) -> int {
         },
         nat);
 }
+// 0cc54e00-8ad2-4f77-a3f1-f3562a923b37 end
 
 // ---------------------------------------------------------------------
 // ListF<E, ·> — element-parameterized cons-lists (design D3).
 // ---------------------------------------------------------------------
 
+// 9647fdcb-1a8f-4b77-82e6-97b5f8632788
 template <typename E>
 struct Nil {
     // Hand-written for the same reason as Zero's above (S07).
@@ -168,6 +175,7 @@ template <typename A>
 using IntListF = ListF<int, A>;
 
 using IntList = Fix<IntListF>;
+// 9647fdcb-1a8f-4b77-82e6-97b5f8632788 end
 
 } // namespace smd::fixpoint
 
@@ -209,6 +217,7 @@ inline constexpr auto functor_typeclass<smd::fixpoint::ListF<E, A>> =
 
 namespace smd::fixpoint {
 
+// f0dc904d-7ea2-4a34-b7c8-1779969b5e42
 /** Unfold: build an IntList from a std::vector<int>, front to back (ana). */
 constexpr auto list_from_vector(const std::vector<int> &v) -> IntList {
     return unfold_fix<IntListF>(
@@ -240,6 +249,7 @@ constexpr auto list_to_vector(const IntList &list) -> std::vector<int> {
         },
         list);
 }
+// f0dc904d-7ea2-4a34-b7c8-1779969b5e42 end
 
 // ---------------------------------------------------------------------
 // TreeF<E, ·> — external binary tree, payload at leaves only.
@@ -322,6 +332,7 @@ constexpr auto make_node(IntTree l, IntTree r) -> IntTree {
 // src/examples/fixpoint_tree_example.cpp).
 // ---------------------------------------------------------------------
 
+// 2c4f33dc-5a80-4afb-8254-b33bab58a0b0
 template <typename A>
 struct Const {
     int val;
@@ -341,6 +352,7 @@ template <typename A>
 using ExprF = std::variant<Const<A>, Add<A>, Mul<A>>;
 
 using Expr = Fix<ExprF>;
+// 2c4f33dc-5a80-4afb-8254-b33bab58a0b0 end
 
 } // namespace smd::fixpoint
 
@@ -390,6 +402,7 @@ inline constexpr auto functor_typeclass<smd::fixpoint::ExprF<A>> =
 
 namespace smd::fixpoint {
 
+// 5f486336-1b03-4f4a-87b9-ad169d481bd6
 /** Build a constant leaf holding @p v. */
 constexpr auto const_node(int v) -> Expr {
     return wrap_fix<ExprF>(ExprF<Expr>{Const<Expr>{v}});
@@ -424,6 +437,7 @@ constexpr auto eval(const Expr &tree) -> int {
         },
         tree);
 }
+// 5f486336-1b03-4f4a-87b9-ad169d481bd6 end
 
 } // namespace smd::fixpoint
 

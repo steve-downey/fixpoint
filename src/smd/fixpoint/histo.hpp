@@ -20,6 +20,7 @@
 
 namespace smd::fixpoint {
 
+// 5ca376cb-3a39-4e25-bbd9-999bb5096014
 /** histo :: (f (Cofree f a) -> a) -> t -> a
  * @tparam Result the fold's result/annotation type (design D5: explicit)
  * @param algebra F<Cofree<F, Result>> -> Result
@@ -32,6 +33,7 @@ constexpr auto histo(const Algebra &algebra, const Fix<F> &tree) -> Result {
     };
     return extract(fold_fix<Carrier>(combined, tree));
 }
+// 5ca376cb-3a39-4e25-bbd9-999bb5096014 end
 
 } // namespace smd::fixpoint
 

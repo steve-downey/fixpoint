@@ -16,6 +16,7 @@
 
 namespace smd::fixpoint {
 
+// 5cdab85f-88b0-477e-9da4-6766f7615a74
 /** para :: (f (t, a) -> a) -> t -> a
  *
  * Equation: para φ = φ ∘ fmapF (λc. (c, para φ c)) ∘ unfix
@@ -39,6 +40,7 @@ constexpr auto para(const Algebra &algebra, const Fix<F> &tree) -> Result {
         layer);
     return algebra(evaluated);
 }
+// 5cdab85f-88b0-477e-9da4-6766f7615a74 end
 
 } // namespace smd::fixpoint
 

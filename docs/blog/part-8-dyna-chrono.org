@@ -1,0 +1,122 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 8 - Dynamorphisms and Chronomorphisms
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Part 3's refold fused fold-after-unfold so the tree never exists. Part 7's
+histo and futu gave folds history and unfolds chunks. Compose the two ideas
+and you get dynamic programming straight from a seed: dyna, codyna, and
+chrono, where Fibonacci's memo table is a Cofree that no one ever declared.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-7-histo-futu.org][Part 7 - Histomorphisms and Futumorphisms ←]]
+#+html: </nav>
+
+* Three Fusions, One Header
+
+The compositions worth naming:
+
+#+begin_example
+dyna    = histo . ana     -- fold-with-history over a generated structure
+codyna  = cata  . futu    -- plain fold over a chunked unfold
+chrono  = histo . futu    -- history on the way up, chunks on the way down
+#+end_example
+
+Each could be written as exactly that composition --- unfold, then fold ---
+and the test suite does write them that way, as the laws that pin the
+fused versions.
+But the composition builds the whole intermediate ~Fix<F>~ and walks it
+twice.
+The header fuses each through ~refold~, so the intermediate tree /never
+exists/; the coalgebra's layers flow straight into the algebra's carrier.
+
+* dyna: The Dynamorphism
+
+From [[file:../../src/smd/fixpoint/chrono.hpp][=src/smd/fixpoint/chrono.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/chrono.hpp::d06b483b-3a00-4884-ab03-e4e882156ba2]] :lines 2- :src cpp :end "d06b483b-3a00-4884-ab03-e4e882156ba2 end"
+
+Compare with ~histo~ from Part 7: identical ~combined~ algebra, identical
+~Cofree~ carrier, identical ~extract~ at the end --- but ~refold~ where
+~fold_fix~ was, so the layers come from a coalgebra instead of an existing
+tree.
+That is the entire diff.
+The library's schemes keep composing because they are all the same three
+lines wearing different carriers.
+
+Fibonacci is the canonical demonstration.
+From [[file:../../src/examples/dyna_fibonacci.cpp][=src/examples/dyna_fibonacci.cpp=]]:
+
+#+transclude: [[file:../../src/examples/dyna_fibonacci.cpp::d89d79e8-f8eb-47a9-866f-3b9e424ea333]] :lines 2- :src cpp :end "d89d79e8-f8eb-47a9-866f-3b9e424ea333 end"
+
+Naive recursive ~fib~ is exponential because it recomputes; memoized ~fib~
+drags a table through the code.
+Here the countdown coalgebra generates ~n, n-1, ..., 0~ and the algebra
+reads ~fib(n-1)~ from its child's head and ~fib(n-2)~ from one step deeper
+in the history.
+The ~Cofree<NatF, int>~ *is* the DP table --- built by the scheme,
+indexed by structure, never named in user code.
+Linear time falls out; nobody wrote a cache.
+
+The example's header comment makes the fusion point precise: the algebra
+cannot tell ~dyna~ from ~histo~-after-~unfold_fix~.
+What it sees is identical.
+The fusion changes only whether the intermediate ~Nat~ ever occupies
+memory.
+
+* codyna and chrono: Chunks on the Way In
+
+The other two fusions take a /futu/-style coalgebra --- one that emits
+~Free~ chunks --- and the interesting engineering is the impedance match.
+~refold~ wants a one-layer-per-call coalgebra; a chunk is many layers.
+The bridge is ~unroll~:
+
+#+transclude: [[file:../../src/smd/fixpoint/chrono.hpp::65e204e3-867d-4932-a9bb-83b665f8cdbb]] :lines 2- :src cpp :end "65e204e3-867d-4932-a9bb-83b665f8cdbb end"
+
+The seed type becomes ~Free<F, Seed>~ itself, starting at
+~pure_free(seed)~.
+Each ~refold~ step peels exactly one layer: a ~Pure~ leaf calls the real
+coalgebra for a fresh chunk; a ~Roll~ layer yields its top, leaving the
+children --- still chunks --- for the next steps.
+The chunk is consumed lazily, one layer per demand, which is precisely
+what a fused pipeline needs and precisely what ~futu~'s own worker (which
+resolves whole chunks eagerly) does not do.
+~chrono~ [cite:@kmett2009fieldguide] then stacks both extensions --- Cofree
+carrier up, Free chunks down --- and its body is, once more, the same
+three lines.
+
+* Where the Streak Stands
+
+Every scheme so far obeys the same recipe: pick a carrier (plain, pair,
+either, Cofree, Free), adjust the three-line worker, prove the degeneracy
+law.
+The recipe has been so uniform that the next two parts are each a
+deliberate break from it.
+Part 9 removes the one ingredient every scheme has depended on --- the
+Functor instance itself.
+Part 10 moves the short-circuit power from the carrier into the
+(co)algebra's return type.
+After that, Part 11 explains /why/ the recipe kept working: the carriers
+were comonads and monads all along, and the recipe is one theorem.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-9-mendler.org][Next: Part 9 - Mendler Style →]]
+#+html: </nav>
+
+* References
+
+Kmett, Edward (2009). *Recursion Schemes: A Field Guide (Redux)*, The
+Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/> ---
+including the dynamorphism and chronomorphism entries.
+
+Uustalu, Tarmo and Vene, Varmo (1999). *Primitive (Co)Recursion and
+Course-of-Value (Co)Iteration, Categorically*, Informatica 10(1).

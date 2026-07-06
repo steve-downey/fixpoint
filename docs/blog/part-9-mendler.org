@@ -1,0 +1,130 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 9 - Mendler Style
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Every scheme so far leaned on one hook: the Functor instance that maps the
+recursive call over a layer. Mendler-style recursion removes it. The
+algebra receives the recursive call itself as an argument and applies it
+where it chooses --- no fmap, no typeclass lookup, no instance required.
+What it costs is a guarantee C++ cannot express.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-8-dyna-chrono.org][Part 8 - Dynamorphisms and Chronomorphisms ←]]
+#+html: </nav>
+
+* Inverting the Contract
+
+A ~fold_fix~ algebra is passive: by the time it runs, ~layer_fmap~ has
+already folded every child, and the algebra sees only results.
+A Mendler algebra [cite:@mendler1991inductive] is active: it receives the
+/unevaluated/ layer --- children still trees --- plus the recursive call
+~recurse~ as an explicit callable argument, and it decides which children
+to fold, in what order, or whether to fold them at all.
+
+The scheme shrinks accordingly.
+From [[file:../../src/smd/fixpoint/mendler.hpp][=src/smd/fixpoint/mendler.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/mendler.hpp::d0e3c395-8b95-4d27-a3f4-c9e324b00e0b]] :lines 2- :src cpp :end "d0e3c395-8b95-4d27-a3f4-c9e324b00e0b end"
+
+That is the whole of ~mcata~: build the partially-applied recursive call,
+unwrap one layer, hand both to the algebra.
+No ~layer_fmap~ anywhere --- which means *no ~functor_typeclass~ instance
+is ever looked up*.
+~mcata~ compiles and runs over any base functor, instanced or not.
+For a one-off functor in a test, or a functor whose ~fmap~ would be
+awkward to state, that is the entire sales pitch.
+
+Evaluation, Mendler style, from
+[[file:../../src/examples/mendler_eval.cpp][=src/examples/mendler_eval.cpp=]]:
+
+#+transclude: [[file:../../src/examples/mendler_eval.cpp::205a652d-1975-4836-8344-14f9f762c8fd]] :lines 2- :src cpp :end "205a652d-1975-4836-8344-14f9f762c8fd end"
+
+Same answer as Part 1's ~eval~, different division of labor: the
+recursion is applied /by the algebra/, at ~recurse(*a.left)~ and
+~recurse(*a.right)~, rather than before the algebra runs.
+
+* What the Types No Longer Prove
+
+The literature type of a Mendler algebra is rank-2 polymorphic:
+
+#+begin_example
+mcata :: (forall y. (y -> c) -> f y -> c) -> Fix f -> c
+#+end_example
+
+That ~forall y~ is doing real work.
+The algebra receives an ~f y~ for an /abstract/ ~y~ it knows nothing
+about; the only operation available on a child is the ~y -> c~ it was
+handed.
+Termination and abstraction come out as theorems: the algebra /cannot/
+express anything with a child except folding it
+[cite:@uustalu1999mendler].
+
+C++ has no rank-2 polymorphism, and the header is candid about the
+consequence: here the layer is concretely ~ExprF<Expr>~, children are
+plain ~Expr~ values, and a mischievous algebra could ignore ~recurse~ and
+walk a child by hand with ~unwrap_fix~.
+Nothing stops it.
+The guarantee decays into a discipline --- "~recurse~ is the only thing
+you may do with a child" --- and the example's every branch observes it.
+This is the honest shape of the whole series' translation project:
+Haskell's types make illegal states unrepresentable; the C++ transcription
+sometimes only makes them unidiomatic, and the difference belongs in the
+documentation, not under the rug.
+
+* mhisto: History Without the Annotation
+
+The course-of-values variant adds one more callable:
+
+#+transclude: [[file:../../src/smd/fixpoint/mendler.hpp::24b61364-25c7-43a5-b18b-842bf88b0022]] :lines 2- :src cpp :end "24b61364-25c7-43a5-b18b-842bf88b0022 end"
+
+~unroll~ is just ~unwrap_fix~, passed in as an argument: the algebra may
+peel layers off any child /without/ committing to fold it.
+Look back at what Part 7's ~histo~ had to build --- a full ~Cofree~
+annotation of every node, deep copies and all --- to give its algebra
+history.
+~mhisto~ gets the same expressive power by lending the algebra a
+flashlight instead of photocopying the archive: the "history" is the tree
+itself, read on demand.
+The trade is memoization: histo's ~Cofree~ head at each node is computed
+once; an ~mhisto~ algebra that re-recurses into the same child pays each
+time.
+Coin change wants histo; a scheme that peeks one layer ahead wants
+~mhisto~.
+
+* Where This Sits in the Catalog
+
+Mendler style is the catalog's control group.
+Every other fold in this series is ~gcata~ at some comonad --- that is
+Part 11's theorem --- but ~mcata~ stands outside the theorem, because it
+never engages the functor machinery the theorem quantifies over.
+It is what recursion looks like when you strip the framework to bare
+metal: one knot-tying type, one partially-applied recursive call, and an
+algebra trusted to use it.
+Kmett's library ships the same pair under the same names
+[cite:@kmett-recursion-schemes], and for the same reason: sometimes the
+instance is the expensive part.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-10-elgot.org][Next: Part 10 - Elgot Algebras →]]
+#+html: </nav>
+
+* References
+
+Mendler, Nax Paul (1991). *Inductive Types and Type Constraints in the
+Second-Order Lambda Calculus*, Annals of Pure and Applied Logic 51.
+
+Uustalu, Tarmo and Vene, Varmo (1999). *Mendler-style Inductive Types,
+Categorically*, Nordic Journal of Computing 6(3).
+
+Kmett, Edward (2011--). *recursion-schemes*, Hackage,
+<https://hackage.haskell.org/package/recursion-schemes>.

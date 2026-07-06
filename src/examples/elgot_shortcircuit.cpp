@@ -47,6 +47,7 @@ auto product_algebra(const IntListF<int> &layer) -> int {
 
 } // namespace
 
+// 5e2768c7-a257-4616-aef1-6d7634d818a2
 int main() {
     std::vector<int> values{4, 3, 0, 5, 9, 2};
 
@@ -71,3 +72,4 @@ int main() {
     std::println("product (bails out at the first 0): {}", product);
     std::println("elements examined: {} / {}", examined, values.size());
 }
+// 5e2768c7-a257-4616-aef1-6d7634d818a2 end

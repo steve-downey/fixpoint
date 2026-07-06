@@ -10,7 +10,7 @@ uv.lock
 /.install/
 /installtest/.build/
 /.emacs.d/eln-cache/
-/.emacs.d/elpa-31.0.50/
+/.emacs.d/elpa-*/
 /.emacs.d/elpa/
 *.deps
 *.html

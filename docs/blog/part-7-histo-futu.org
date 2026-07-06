@@ -1,0 +1,151 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 7 - Histomorphisms and Futumorphisms
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Coin-change dynamic programming needs ~minCoins(n-1)~, ~minCoins(n-4)~, and
+~minCoins(n-5)~ at once; a plain fold sees only its immediate child.
+Run-length decoding wants to emit a whole run of list cells in one step; a
+plain unfold emits exactly one layer per call. Course-of-values recursion
+fixes both, and the carriers that do it --- Cofree and Free --- are the
+most interesting data structures in the library.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-6-prepro-postpro.org][Part 6 - Natural Transformations: hoist, prepro, postpro ←]]
+#+html: </nav>
+
+* Cofree: A Tree Annotated With Its Own Past
+
+The pair carrier of Part 5 gave a fold one extra value per child.
+Course-of-values recursion [cite:@uustalu1999primitive] needs /every/
+value ever computed below a child.
+The carrier for that is the Cofree comonad: the same shape as the tree
+being folded, but every node also holds an annotation.
+From [[file:../../src/smd/fixpoint/cofree.hpp][=src/smd/fixpoint/cofree.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/cofree.hpp::bfa61c28-7fe2-46f9-8ca6-1006b3348836]] :lines 2- :src cpp :end "bfa61c28-7fe2-46f9-8ca6-1006b3348836 end"
+
+Notice that this compiles for exactly the reason ~Fix~ did.
+~F~'s recursive positions are boxed, so ~F<Cofree<F, A>>~ is a complete
+type while ~Cofree<F, A>~ is still being defined --- the Part 1 trick,
+paying its second dividend.
+(And the hand-written ~operator==~ is the Part 1 war story again, at the
+type where Clang's eager completeness check actually fired.)
+
+* histo: Fold With Total Recall
+
+From [[file:../../src/smd/fixpoint/histo.hpp][=src/smd/fixpoint/histo.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/histo.hpp::5ca376cb-3a39-4e25-bbd9-999bb5096014]] :lines 2- :src cpp :end "5ca376cb-3a39-4e25-bbd9-999bb5096014 end"
+
+Four lines, and the same construction as zygo: a ~fold_fix~ at a richer
+carrier.
+The combined algebra runs the user's algebra, then stores the layer
+/itself/ as the new node's tail --- so each child position accumulates its
+entire annotated history as the fold climbs.
+The user's algebra receives ~F<Cofree<F, Result>>~: at every child, the
+head is that child's result, and the tail goes all the way down.
+~extract~ at the root throws the scaffolding away.
+
+The classic use is dynamic programming where the recurrence skips levels.
+From [[file:../../src/examples/histo_coin_change.cpp][=src/examples/histo_coin_change.cpp=]]:
+
+#+transclude: [[file:../../src/examples/histo_coin_change.cpp::7a78616c-c66c-4ffd-ab18-e192aac2d913]] :lines 2- :src cpp :end "7a78616c-c66c-4ffd-ab18-e192aac2d913 end"
+
+~minCoins(n)~ needs ~minCoins(n-1)~, ~minCoins(n-4)~, ~minCoins(n-5)~.
+The predecessor's head is the first; ~look_back~ walks the history 3 and 4
+more steps for the others.
+Nothing is ever recomputed --- the history /is/ the memo table, built by
+the fold itself, no map, no mutable array.
+The program prints ~minCoins(8) = 2~ (4+4) and ~minCoins(12) = 3~ (4+4+4),
+the cases where a greedy or naive-recursive formulation goes wrong or goes
+exponential.
+
+* Free: Computation Chunks With Seeds at the Leaves
+
+Dualize the annotation idea.
+Cofree is /always/ a node, /plus/ an annotation at every level.
+Its mirror is /either/ a value /or/ a layer of more structure --- the Free
+monad.
+From [[file:../../src/smd/fixpoint/free.hpp][=src/smd/fixpoint/free.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/free.hpp::11de0b77-f3c3-413b-9949-5bc28a2430c2]] :lines 2- :src cpp :end "11de0b77-f3c3-413b-9949-5bc28a2430c2 end"
+
+Read ~Free<F, Seed>~ as "a chunk of tree, with fresh seeds where I stopped
+building."
+~pure_free~ is a seed; ~roll_free~ is one more layer of chunk.
+Cofree is the cofree /comonad/ over F and Free the free /monad/ --- the
+library registers exactly those instances, and Part 11 spends them.
+
+* futu: Unfold Several Layers per Step
+
+An ~unfold_fix~ coalgebra returns ~F<Seed>~: one layer, seeds under it.
+A ~futu~ coalgebra returns ~F<Free<F, Seed>>~: one layer whose children
+are whole /chunks/ [cite:@uustalu1999primitive].
+From [[file:../../src/smd/fixpoint/futu.hpp][=src/smd/fixpoint/futu.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/futu.hpp::e0f553ab-ab72-44c9-b21c-ab1aff17751a]] :lines 2- :src cpp :end "e0f553ab-ab72-44c9-b21c-ab1aff17751a end"
+
+The worker walks a chunk: a ~Pure~ leaf resumes the coalgebra at its seed;
+a ~Roll~ layer becomes real tree, one ~wrap_fix~ per layer, recursing into
+child chunks.
+~futu~ itself is ~unfold_fix~ with the worker spliced in where the plain
+recursive call was.
+
+Run-length decoding is the shape made obvious, from
+[[file:../../src/examples/futu_rle_decode.cpp][=src/examples/futu_rle_decode.cpp=]]:
+
+#+transclude: [[file:../../src/examples/futu_rle_decode.cpp::5108825f-15af-4371-a949-3ecb9e370b8d]] :lines 2- :src cpp :end "5108825f-15af-4371-a949-3ecb9e370b8d end"
+
+One coalgebra call sees ~(count, value)~ and emits ~count~ ~Cons~ layers
+as a single nested-~roll_free~ chunk, with the ~Pure~ leaf carrying the
+index of the next pair.
+~[(2,7), (3,1)]~ decodes to ~[7, 7, 1, 1, 1]~ with three coalgebra calls,
+not five.
+A plain unfold would need seed bookkeeping --- "which pair, how many
+emitted so far" --- to fake what the chunk states directly.
+
+* The Symmetry Ledger
+
+The catalog is now symmetric three levels deep, and it is worth writing
+the ledger down:
+
+| fold side                          | unfold side                     |
+|------------------------------------+---------------------------------|
+| ~fold_fix~ --- child's result      | ~unfold_fix~ --- one seed       |
+| ~para~ --- result + original (pair) | ~apo~ --- seed or subtree (either) |
+| ~histo~ --- full history (Cofree)  | ~futu~ --- full chunk (Free)    |
+
+Products and annotations on the left; sums and chunks on the right.
+Pair generalizes to Cofree, either generalizes to Free --- and each right
+column entry is the categorical dual of its left neighbor.
+This table is not a mnemonic; it is a theorem, and Part 11 proves it in
+code: every left entry is ~gcata~ at a comonad, every right entry ~gana~
+at a monad.
+But first, the fused forms --- what happens when a histo runs directly on
+a seed --- and two schemes that step outside the functor framework
+entirely.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-8-dyna-chrono.org][Next: Part 8 - Dynamorphisms and Chronomorphisms →]]
+#+html: </nav>
+
+* References
+
+Uustalu, Tarmo and Vene, Varmo (1999). *Primitive (Co)Recursion and
+Course-of-Value (Co)Iteration, Categorically*, Informatica 10(1).
+
+Vene, Varmo (2000). *Categorical Programming with Inductive and
+Coinductive Types*, PhD thesis, University of Tartu.
+
+Kmett, Edward (2009). *Recursion Schemes: A Field Guide (Redux)*, The
+Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/>.

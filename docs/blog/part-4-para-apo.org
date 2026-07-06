@@ -1,0 +1,149 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 4 - Paramorphisms and Apomorphisms
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+A fold that can still see the tree it is consuming, and an unfold that can
+stop expanding and graft a finished subtree in place. Paramorphism and
+apomorphism are the first proper duals in the catalog, and their carriers
+--- ~std::pair~ and a project ~either~ --- are the product and coproduct
+the rest of the series is built from.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-3-classical.org][Part 3 - Fold, Unfold, Refold ←]]
+#+html: </nav>
+
+* para: A Fold That Remembers the Original
+
+~fold_fix~ has amnesia by design.
+By the time the algebra sees an ~Add~, the children are already strings or
+ints; what they /were/ is gone.
+Usually that is the point.
+Sometimes it is the problem: a pretty-printer that wants minimal
+parentheses needs each child's rendered string *and* its original shape ---
+parenthesize the rendering only if the original was an ~Add~ under a
+~Mul~.
+
+The paramorphism [cite:@meertens1992paramorphisms] hands the algebra both.
+From [[file:../../src/smd/fixpoint/para.hpp][=src/smd/fixpoint/para.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/para.hpp::5cdab85f-88b0-477e-9da4-6766f7615a74]] :lines 2- :src cpp :end "5cdab85f-88b0-477e-9da4-6766f7615a74 end"
+
+The delta against ~fold_fix~ is one lambda: instead of mapping children to
+~Result~, it maps them to ~std::pair<Fix<F>, Result>~ --- the original
+subtree first, the fold result second.
+The algebra's argument type ~F<pair<Fix<F>, Result>>~ says exactly what is
+available at each child: everything.
+
+The pretty-printer, from
+[[file:../../src/examples/para_pretty_print.cpp][=src/examples/para_pretty_print.cpp=]]:
+
+#+transclude: [[file:../../src/examples/para_pretty_print.cpp::bcdeef00-3342-4245-aca3-f4a63d366637]] :lines 2- :src cpp :end "bcdeef00-3342-4245-aca3-f4a63d366637 end"
+
+The ~Mul~ case is the payoff line: ~is_add(child.first)~ interrogates the
+original subtree; ~child.second~ is the already-rendered string it wraps
+or passes through.
+The program prints ~2 * 3 + 4~ for one association and ~2 * (3 + 4)~ for
+the other --- parentheses exactly where meaning requires them, nowhere
+else.
+
+Degeneracy law: ignore ~.first~ everywhere and ~para~ /is/ ~fold_fix~.
+The test suite states that literally, and every scheme from here on has a
+law of the same shape --- forget the extra power, recover the simpler
+scheme.
+
+* apo: An Unfold That Can Stop Early
+
+Now dualize.
+~para~'s algebra receives, alongside each result, the original subtree ---
+a product.
+~apo~'s coalgebra returns, at each child position, /either/ a finished
+subtree to graft /or/ a seed to keep unfolding --- a coproduct
+[cite:@uustalu1999primitive] [cite:@vene2000categorical].
+From [[file:../../src/smd/fixpoint/apo.hpp][=src/smd/fixpoint/apo.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/apo.hpp::6956f079-e2ee-4707-9d9e-79082548afef]] :lines 2- :src cpp :end "6956f079-e2ee-4707-9d9e-79082548afef end"
+
+The worker ~match~-es each child: Left returns its subtree as-is --- no
+recursion --- and Right recurses like ~unfold_fix~.
+Note what the doc comment promises about references: a coalgebra may
+return ~either<const Fix<F>&, Seed>~, and the graft copies exactly once,
+at the graft point.
+The zero-copy graft falls out of ~match~ never asking which instantiation
+it holds.
+
+The motivating example is ordered insertion into a sorted list.
+Unfold the output list element by element while the input's head is
+smaller; the moment the insertion point appears, emit the new value and
+graft the /entire untouched remainder/ with Left.
+From [[file:../../src/examples/apo_sorted_insert.cpp][=src/examples/apo_sorted_insert.cpp=]]:
+
+#+transclude: [[file:../../src/examples/apo_sorted_insert.cpp::e0098ed1-a5bf-4681-8dfb-8cd06ee73e5d]] :lines 2- :src cpp :end "e0098ed1-a5bf-4681-8dfb-8cd06ee73e5d end"
+
+A plain ~unfold_fix~ cannot express "and the rest is what it already was"
+--- it must walk to the end, rebuilding.
+~apo~ says it in one ~make_left~.
+
+* either: The Sum the Library Actually Wanted
+
+That Left/Right vocabulary is a project type, and it exists because the
+obvious candidate failed.
+From [[file:../../src/smd/typeclass/either.hpp][=src/smd/typeclass/either.hpp=]]:
+
+#+transclude: [[file:../../src/smd/typeclass/either.hpp::8cd8e50e-209b-4b8b-8979-06952416c53e]] :lines 2- :src cpp :end "8cd8e50e-209b-4b8b-8979-06952416c53e end"
+
+~std::expected~ was considered and rejected, and the decision log is
+specific.
+Its sides are asymmetric: the error side needs the ~unexpected~ wrapper,
+error-side mapping is spelled differently, and above all
+~expected<T, T>~ --- which arises /naturally/ here, an apo whose Seed is
+itself ~Fix<F>~, as in the insert above --- forces tag-only construction
+and ambushes generic code.
+~either~ makes ~Left~ and ~Right~ distinct wrapper types on *both* sides,
+so ~either<T, T>~ constructs and compares without ceremony.
+
+The side convention is fixed once, library-wide, matching the Haskell
+sources: *Left stops, Right continues*.
+Apo: Left = graft this subtree.
+Elgot (Part 10): Left = here is the final answer.
+The monad instance is right-biased, ~pure~ is ~make_right~, and Part 11
+will lean on exactly that when ~apo~ is recovered from the generalized
+unfold.
+
+One more symmetry worth seeing now: the design treats ~std::pair~ and
+~either~ as proper duals --- product and coproduct --- with matched
+vocabulary on each side: ~fanout~ builds toward a pair as ~fanin~ matches
+away from an either, and the value slot sits second in both (~pair~'s
+env-comonad ~extract~ is ~.second~; ~either~'s monadic ~pure~ is
+~make_right~).
+~para~ rides the pair; ~apo~ rides the either.
+The duality is not decoration --- in Part 11 it becomes the actual
+mechanism, when ~dist_para~ (pair side) and ~dist_apo~ (either side) sit
+in the same slot of ~gcata~ and ~gana~ respectively.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-5-zygo-mutu.org][Next: Part 5 - Zygomorphisms and Mutumorphisms →]]
+#+html: </nav>
+
+* References
+
+Meertens, Lambert (1992). *Paramorphisms*, Formal Aspects of Computing
+4(5).
+
+Uustalu, Tarmo and Vene, Varmo (1999). *Primitive (Co)Recursion and
+Course-of-Value (Co)Iteration, Categorically*, Informatica 10(1).
+
+Vene, Varmo (2000). *Categorical Programming with Inductive and
+Coinductive Types*, PhD thesis, University of Tartu.
+
+Kilpeläinen, Peter et al. (2025). *std::optional<T&>*, WG21 P2988R12,
+<https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2988r12.pdf>.

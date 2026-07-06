@@ -55,6 +55,7 @@ constexpr auto unroll(const Coalgebra &coalgebra, const Free<F, Seed> &chunk)
         chunk.node);
 }
 
+// d06b483b-3a00-4884-ab03-e4e882156ba2
 /** dyna :: (f (Cofree f b) -> b) -> (a -> f a) -> a -> b
  * histo . ana, fused: never builds the intermediate Fix<F>.
  * @param algebra F<Cofree<F, Result>> -> Result
@@ -70,7 +71,9 @@ constexpr auto dyna(const Algebra &algebra, const Coalgebra &coalgebra,
     };
     return extract(refold<Carrier, F>(combined, coalgebra, seed));
 }
+// d06b483b-3a00-4884-ab03-e4e882156ba2 end
 
+// 65e204e3-867d-4932-a9bb-83b665f8cdbb
 /** codyna :: (f b -> b) -> (a -> f (Free f a)) -> a -> b
  * cata . futu, fused: never builds the intermediate Fix<F>.
  * @param algebra F<Result> -> Result
@@ -103,6 +106,7 @@ constexpr auto chrono(const Algebra &algebra, const Coalgebra &coalgebra,
     return extract(
         refold<Carrier, F>(combined, unroll_step, pure_free<F>(seed)));
 }
+// 65e204e3-867d-4932-a9bb-83b665f8cdbb end
 
 } // namespace smd::fixpoint
 

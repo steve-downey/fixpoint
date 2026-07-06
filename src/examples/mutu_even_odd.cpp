@@ -24,6 +24,7 @@ using smd::fixpoint::Zero;
 
 namespace {
 
+// 7d5665ed-eaff-44c4-949e-fa924eae785c
 // alg_a: is-even. A Succ is even iff its predecessor is odd (.second).
 auto alg_even(const NatF<std::pair<bool, bool>> &layer) -> bool {
     return std::visit(
@@ -47,6 +48,7 @@ auto alg_odd(const NatF<std::pair<bool, bool>> &layer) -> bool {
         },
         layer);
 }
+// 7d5665ed-eaff-44c4-949e-fa924eae785c end
 
 } // namespace
 

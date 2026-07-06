@@ -37,6 +37,7 @@
 
 namespace smd::fixpoint {
 
+// e780b556-5251-4f23-8b5a-5634e36439a9
 /** elgot :: (f a -> a) -> (b -> Either a (f b)) -> b -> a
  *
  * @tparam Result the fold's carrier (design D5: explicit)
@@ -61,7 +62,9 @@ constexpr auto elgot(const Algebra &algebra, const Coalgebra &coalgebra,
             return algebra(evaluated);
         });
 }
+// e780b556-5251-4f23-8b5a-5634e36439a9 end
 
+// 47505502-2ee0-4088-8753-3bf71df74360
 /** coelgot :: ((a, f b) -> b) -> (a -> f a) -> a -> b
  *
  * @tparam Result the fold's carrier (design D5: explicit)
@@ -82,6 +85,7 @@ constexpr auto coelgot(const Algebra &algebra, const Coalgebra &coalgebra,
         layer);
     return algebra(seed, evaluated);
 }
+// 47505502-2ee0-4088-8753-3bf71df74360 end
 
 } // namespace smd::fixpoint
 

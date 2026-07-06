@@ -25,6 +25,7 @@ using smd::fixpoint::zygo;
 
 namespace {
 
+// 5b5399fc-2b3b-4c0c-81de-4a2529bada66
 // Helper algebra: F<Helper> -> Helper, Helper = int (subtree height).
 auto height(const IntTreeF<int> &layer) -> int {
     return std::visit(overloaded{
@@ -54,6 +55,7 @@ auto is_balanced(const IntTreeF<std::pair<int, bool>> &layer) -> bool {
         },
         layer);
 }
+// 5b5399fc-2b3b-4c0c-81de-4a2529bada66 end
 
 } // namespace
 

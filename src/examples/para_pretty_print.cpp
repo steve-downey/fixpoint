@@ -30,6 +30,7 @@ using smd::fixpoint::unwrap_fix;
 
 namespace {
 
+// bcdeef00-3342-4245-aca3-f4a63d366637
 /** True when @p e's top-level node is Add — the only shape that needs
  * parenthesizing, and only when it appears directly under a Mul.
  */
@@ -67,6 +68,7 @@ auto pretty = [](const ExprF<std::pair<Expr, std::string>> &layer)
         },
         layer);
 };
+// bcdeef00-3342-4245-aca3-f4a63d366637 end
 
 } // namespace
 

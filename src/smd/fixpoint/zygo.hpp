@@ -20,6 +20,7 @@
 
 namespace smd::fixpoint {
 
+// 8dabefad-cac0-4d6d-96d6-57deadc9c82c
 /** zygo :: (f b -> b) -> (f (b, a) -> a) -> t -> a
  *
  * Equation: zygo f g = second ∘ fold_fix(λx. pair(f(fmapF(first, x)), g(x)))
@@ -51,6 +52,7 @@ constexpr auto zygo(const HelperAlg &helper, const MainAlg &main,
     };
     return fold_fix<Carrier>(combined, tree).second;
 }
+// 8dabefad-cac0-4d6d-96d6-57deadc9c82c end
 
 } // namespace smd::fixpoint
 

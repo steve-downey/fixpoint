@@ -22,6 +22,7 @@ namespace smd::typeclass {
 // - Dispatch happens through a provided object or functor_typeclass<Concrete>.
 // - Keep lookup explicit through typeclass objects, not ADL overloads.
 
+// 706adf06-4443-4dab-94fe-34f71a497511
 /** CRTP base for Functor instances.
  * `Impl` must provide `fmap(f, container)`; `replace` is derived from it.
  */
@@ -44,6 +45,7 @@ struct Functor : protected Impl {
  */
 template <class T>
 inline constexpr auto functor_typeclass = std::false_type{};
+// 706adf06-4443-4dab-94fe-34f71a497511 end
 
 template <class VALUE_TYPE>
 struct OptionalFunctorImpl {

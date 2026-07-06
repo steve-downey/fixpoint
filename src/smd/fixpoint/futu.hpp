@@ -35,6 +35,7 @@ namespace smd::fixpoint {
 template <template <class> class F, class Coalgebra, class Seed>
 constexpr auto futu(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F>;
 
+// e0f553ab-ab72-44c9-b21c-ab1aff17751a
 /** Implementation detail of futu: unrolls one Free<F, Seed> chunk (as
  * emitted by a single coalgebra step) into a Fix<F> subtree. Pure s
  * resumes futu at s; a Roll layer is unrolled one F-layer at a time,
@@ -72,6 +73,7 @@ constexpr auto futu(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
         layer);
     return wrap_fix<F>(std::move(expanded));
 }
+// e0f553ab-ab72-44c9-b21c-ab1aff17751a end
 
 } // namespace smd::fixpoint
 

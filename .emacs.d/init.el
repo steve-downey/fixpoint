@@ -171,3 +171,5 @@
 (use-package with-editor)
 
 (use-package citeproc :ensure t :after org)
+
+(use-package ox-gfm :ensure t :after org)

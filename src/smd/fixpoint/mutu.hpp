@@ -15,6 +15,7 @@
 
 namespace smd::fixpoint {
 
+// 039f26eb-8473-4ebb-bb47-36de2dfe9a1a
 /** mutu :: (f (a, b) -> a) -> (f (a, b) -> b) -> t -> (a, b)
  *
  * Equation: mutu f g = fold_fix(λx. pair(f(x), g(x)))
@@ -33,6 +34,7 @@ constexpr auto mutu(const AlgA &alg_a, const AlgB &alg_b,
     };
     return fold_fix<Carrier>(combined, tree);
 }
+// 039f26eb-8473-4ebb-bb47-36de2dfe9a1a end
 
 } // namespace smd::fixpoint
 

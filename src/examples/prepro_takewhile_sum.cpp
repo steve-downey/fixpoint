@@ -25,6 +25,7 @@ using smd::fixpoint::prepro;
 
 namespace {
 
+// b46e1d07-0c11-4acb-ae54-673564092c5b
 // The natural transformation: IntListF<A> -> IntListF<A> for every A. Must
 // have a templated call operator (design §4) — it runs at F<Fix<F>> during
 // prepro's cumulative hoisting, not at the algebra's concrete carrier.
@@ -53,6 +54,7 @@ auto sum_algebra(const IntListF<int> &layer) -> int {
                        },
                        layer);
 }
+// b46e1d07-0c11-4acb-ae54-673564092c5b end
 
 void print_sum(const std::vector<int> &v) {
     IntList list = list_from_vector(v);

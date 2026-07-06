@@ -28,6 +28,7 @@
 
 namespace smd::fixpoint {
 
+// 11de0b77-f3c3-413b-9949-5bc28a2430c2
 /** Free<F, A>: a Pure value of type A, or one F-layer of further Free
  * computations (a Roll).
  * @tparam F unary template functor (the base functor being sequenced)
@@ -66,6 +67,7 @@ template <template <class> class F, class A>
 constexpr auto is_pure(const Free<F, A> &f) -> bool {
     return std::holds_alternative<A>(f.node);
 }
+// 11de0b77-f3c3-413b-9949-5bc28a2430c2 end
 
 } // namespace smd::fixpoint
 

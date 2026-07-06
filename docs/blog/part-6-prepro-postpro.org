@@ -1,0 +1,135 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 6 - Natural Transformations: hoist, prepro, postpro
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+So far the algebras have decided what to compute; the /shape/ of the tree
+was taken as given. A natural transformation rewrites the shape itself,
+one layer at a time, uniformly at every type --- and Fokkinga's
+prepromorphism and postpromorphism fuse that rewriting into a fold on the
+way down, or an unfold on the way out. Take-while disappears into the sum
+that consumes it.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-5-zygo-mutu.org][Part 5 - Zygomorphisms and Mutumorphisms ←]]
+#+html: </nav>
+
+* What "Natural" Buys You
+
+A natural transformation between functors is a function
+~e : F<X> -> G<X>~ that works /for every X/ --- it may rearrange the
+layer's structure, but it cannot look at the ~X~ s, so it cannot care
+whether the children are subtrees, seeds, or finished results.
+In C++ that "for every X" is a polymorphic function object with a
+*templated* call operator.
+The header is emphatic about this, because the failure mode is nasty: a
+lambda with a concrete layer parameter type-checks at one call site and
+then ~prepro~ applies the transformation at a /different/ instantiation
+--- whole subtrees, not carriers --- and it fails to compile, or worse,
+silently picks another overload.
+The example fixture shows the required shape:
+
+#+transclude: [[file:../../src/examples/prepro_takewhile_sum.cpp::b46e1d07-0c11-4acb-ae54-673564092c5b]] :lines 2- :src cpp :end "b46e1d07-0c11-4acb-ae54-673564092c5b end"
+
+~take_while_positive~ rewrites one list layer: a ~Cons~ with a negative
+head becomes ~Nil~; everything else passes through.
+Templated over ~A~, so it applies at any element type --- which is
+exactly the license ~prepro~ needs.
+
+* hoist: Retag Every Layer
+
+The simplest consumer of a natural transformation rewrites a whole tree.
+From [[file:../../src/smd/fixpoint/prepro.hpp][=src/smd/fixpoint/prepro.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/prepro.hpp::74b7324d-22d6-4878-8ef3-2296f458e040]] :lines 2- :src cpp :end "74b7324d-22d6-4878-8ef3-2296f458e040 end"
+
+~hoist~ is a ~fold_fix~ whose algebra is "transform the layer, wrap it
+again" --- so it can even change the functor, ~Fix<F>~ to ~Fix<G>~.
+The endo case ~hoist<F>(e, t)~ --- same functor, rewritten layers --- is
+the workhorse; the target functor is named explicitly because nothing
+about ~e~ (a polymorphic object, remember) lets C++ deduce it.
+
+* prepro: The Rewrite Fused Into the Fold
+
+Now fuse.
+~prepro~ folds a tree, but on the way down it applies ~e~ to each child's
+/entire subtree/ before recursing:
+
+#+transclude: [[file:../../src/smd/fixpoint/prepro.hpp::11ac7e58-1f08-4e63-89cf-0df6341b8d8d]] :lines 2- :src cpp :end "11ac7e58-1f08-4e63-89cf-0df6341b8d8d end"
+
+The body is ~fold_fix~ with one insertion: ~hoist<F>(e, child)~ ahead of
+the recursive call.
+The effect is *cumulative*: a node at depth ~k~ has passed through ~e~
+once per ancestor by the time the algebra sees it.
+For take-while, cumulativity is the semantics you want --- once any
+ancestor's rewrite truncated the list, everything below the cut is
+already gone, and the summing algebra never sees a single dropped
+element:
+
+#+begin_example
+sum(take_while(>=0, [3, 4, -1, 5])) = 7
+#+end_example
+
+No separate filtering pass, no intermediate list.
+The full program is
+[[file:../../src/examples/prepro_takewhile_sum.cpp][=src/examples/prepro_takewhile_sum.cpp=]].
+
+The header's cumulative-cost note deserves its moment: each step
+re-hoists the whole remaining subtree, so this literal transcription of
+Fokkinga's equation [cite:@fokkinga1992law] does O(depth) passes over
+deep nodes.
+The library documents the cost instead of optimizing it away --- the
+transcription /is/ the product; fusion belongs to a different layer of
+the story (and Part 11's ~gprepro~ shows where it would live).
+
+* postpro: The Mirror
+
+The dual rewrites on the way /out/ of an unfold:
+
+#+transclude: [[file:../../src/smd/fixpoint/prepro.hpp::f293b1e2-9012-417e-983e-1ba1ed258125]] :lines 2- :src cpp :end "f293b1e2-9012-417e-983e-1ba1ed258125 end"
+
+~unfold_fix~ with the same one-line insertion, mirrored:
+~hoist<F>(e, ...)~ wraps the /result/ of the recursive unfold, so each
+freshly built subtree is rewritten before being grafted into its parent.
+Where ~prepro~'s transformation gates what the algebra ever sees,
+~postpro~'s gates what the final tree ever contains --- an unfold that
+generates candidates and a transformation that prunes or normalizes them,
+running interleaved rather than as passes.
+
+Degeneracy, as always, pins the pair down: with the identity
+transformation, ~prepro~ is ~fold_fix~ and ~postpro~ is ~unfold_fix~,
+and the test suite says so verbatim.
+
+* The Shape of the Delta
+
+Worth pausing on how small these were.
+~para~ was ~fold_fix~ with a pair in the lambda.
+~zygo~ was ~fold_fix~ with a pair carrier and a projection.
+~prepro~ is ~fold_fix~ with a ~hoist~ before the recursive call;
+~postpro~ is ~unfold_fix~ with a ~hoist~ after it.
+Every extension so far is the classical scheme's three-line body plus one
+move.
+The next part breaks that streak: when the algebra needs /all/ of
+history, the carrier stops being a pair and becomes a data structure of
+its own.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-7-histo-futu.org][Next: Part 7 - Histomorphisms and Futumorphisms →]]
+#+html: </nav>
+
+* References
+
+Fokkinga, Maarten M. (1992). *Law and Order in Algorithmics*, PhD thesis,
+University of Twente.
+
+Kmett, Edward (2009). *Recursion Schemes: A Field Guide (Redux)*, The
+Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/>.

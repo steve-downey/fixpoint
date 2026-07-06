@@ -1,0 +1,164 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 11 - Distributive Laws and the Generalized Schemes
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Ten parts of schemes, each "fold_fix with a richer carrier". Here is the
+theorem behind the pattern: every fold in the catalog is one construction
+--- gcata --- instantiated at a comonad, every unfold is gana at a monad,
+and the only scheme-specific ingredient is a distributive law that pushes
+the functor through the (co)monad. The proof is executable and ships as an
+example.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-10-elgot.org][Part 10 - Elgot Algebras ←]]
+#+html: </nav>
+
+* The Carriers Were (Co)monads All Along
+
+Line up the fold carriers this series has used: ~Result~ bare, then
+~pair<Fix<F>, Result>~ (para), ~pair<Helper, Result>~ (zygo),
+~Cofree<F, Result>~ (histo).
+Each is a comonad ~W~ applied to ~Result~ --- the Identity comonad, the
+env comonad twice, Cofree.
+The unfold carriers: ~Seed~ bare (Identity monad), ~either<Fix<F>, Seed>~
+(apo --- either's right-biased monad), ~Free<F, Seed>~ (futu).
+Monads, every one.
+The library registered exactly these ~comonad_typeclass~ and
+~monad_typeclass~ instances back in their own parts, quietly.
+
+Uustalu, Vene, and Pardo made the pattern a theorem
+[cite:@uustalu2001recursion]: a fold with carrier ~W<Result>~ needs only
+one scheme-specific ingredient --- a /distributive law/ of the functor
+over the comonad, ~dist : F<W<X>> -> W<F<X>>~ for every ~X~.
+Kmett's library packages that as ~gcata~/~gana~
+[cite:@kmett-recursion-schemes]; Hinze, Wu, and Gibbons later unified
+further [cite:@hinze2013unifying].
+This library transcribes the whole apparatus.
+
+* The Laws Themselves
+
+A distributive law is another polymorphic function object --- Part 6's
+natural transformation, one level up.
+The simplest two, from
+[[file:../../src/smd/fixpoint/dist_laws.hpp][=src/smd/fixpoint/dist_laws.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/dist_laws.hpp::610b65ff-c051-4654-be28-2300b099c197]] :lines 2- :src cpp :end "610b65ff-c051-4654-be28-2300b099c197 end"
+
+~dist_cata~ pushes Identity out of a layer; ~dist_ana~ pushes it in.
+(The ~dist_ana~ comment preserves a real bug hunt: ~Identity{x}~ with CTAD
+silently /copies/ an ~x~ that is already an ~Identity~ instead of nesting
+it --- the deduction-guide copy candidate, the same reason ~vector{v}~
+copies.
+Naming the template argument sidesteps CTAD.
+Deviations like this are logged, not patched over.)
+
+The interesting law is histo's:
+
+#+transclude: [[file:../../src/smd/fixpoint/dist_laws.hpp::f96a7eef-2e16-4dce-b8b4-f507cbd743ca]] :lines 2- :src cpp :end "f96a7eef-2e16-4dce-b8b4-f507cbd743ca end"
+
+~F<Cofree<F,A>> -> Cofree<F, F<A>>~: heads out, tails redistributed,
+recursively.
+Note it is a variable /template/, called ~dist_histo<F>(layer)~ with ~F~
+explicit --- a genuine C++ deduction limit, recorded as a deviation: GCC
+cannot deduce a template-template parameter back out of an
+already-elaborated alias application.
+The full roster --- ~dist_zygo(helper)~, ~dist_para<F>~, ~dist_apo~,
+~dist_futu<F>~, ~dist_gapo(coalg)~ --- lives in the same header, each side
+of Part 4's pair/either duality getting its mirror-image law.
+
+* gcata: One Fold to Rule Them
+
+From [[file:../../src/smd/fixpoint/generalized.hpp][=src/smd/fixpoint/generalized.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::25f4fc8f-7775-4c47-b2ea-7960f0dbedac]] :lines 2- :src cpp :end "25f4fc8f-7775-4c47-b2ea-7960f0dbedac end"
+
+The worker ~c : Fix<F> -> W<F<WResult>>~ is the equation
+~c = k ∘ fmapF(duplicate ∘ fmapW g ∘ c) ∘ unfix~ made into a struct, and
+the struct-ness is itself a lesson: ~c~ recurses into itself through a
+lambda, and a deduced return type cannot be used before its own deduction
+completes --- so the return type ~C~ is computed /up front/, from
+~Result~/~WResult~/~F~/~Dist~ alone, and the worker is a named type
+recursing via ~(*this)~.
+Every self-recursive helper in this codebase independently rediscovered
+that discipline; the header comments cite the trail.
+
+One subtlety the comment documents: only /one/ ~comonad_typeclass~ lookup
+happens, keyed on ~WResult~, even though the worker needs
+~extract~/~duplicate~/~fmap~ at other instantiations along the way.
+That works because every comonad instance in the library keeps its
+operations generic over their element type --- the instance's keying type
+pins the /shape/ (which comonad), not the element.
+A design invariant, discovered the hard way and then enforced everywhere.
+
+The recoveries are almost embarrassing in their brevity:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::e34a7536-66fe-42a4-b83b-63b606224eda]] :lines 2- :src cpp :end "e34a7536-66fe-42a4-b83b-63b606224eda end"
+
+~histo~, ~zygo~, ~para~: their algebras pass through /unchanged/, because
+their carriers were already exactly ~W<Result>~ for the right ~W~.
+Only ~cata~ needs a shim --- its plain algebra never knew about the
+Identity wrappers.
+The catalog's folds were ~gcata~ instances all along; the recovery
+functions just say so in the type system.
+
+* gana and ghylo: The Mirror and the Fusion
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::ceed4381-6731-4b6d-9415-7685ce4e2730]] :lines 2- :src cpp :end "ceed4381-6731-4b6d-9415-7685ce4e2730 end"
+
+~gana~ mirrors ~gcata~ arrow for arrow: monad for comonad, ~pure~ for
+~extract~, ~join~ for ~duplicate~, the distributive law flipped to
+~M<F<X>> -> F<M<X>>~.
+~ana_via_gana~, ~apo_via_gana~, and ~futu_via_gana~ recover the unfolds
+exactly as their fold counterparts did --- apo and futu passing their
+coalgebras straight through.
+
+~ghylo~ composes both halves:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::70f74abb-92b4-4ee2-9023-820b89366ebc]] :lines 2- :src cpp :end "70f74abb-92b4-4ee2-9023-820b89366ebc end"
+
+The header is candid: this shipped /materializing/ --- ~gcata~ after
+~gana~, intermediate tree and all --- because it passed every recovery
+law on the first attempt and performance is an explicit non-goal.
+An honest engineering judgment, written where users will read it.
+
+* The Proof Runs
+
+The example
+[[file:../../src/examples/generalized_tour.cpp][=src/examples/generalized_tour.cpp=]]
+computes each answer twice --- classical scheme and generalized recovery
+--- and exits nonzero on any mismatch:
+
+#+transclude: [[file:../../src/examples/generalized_tour.cpp::29af561b-71b7-4353-9e4b-079584058b77]] :lines 2- :src cpp :end "29af561b-71b7-4353-9e4b-079584058b77 end"
+
+~fold_fix~ against ~dist_cata~, Fibonacci-by-histo against
+~dist_histo~, ~dyna~ against a ~ghylo~ wired from ~dist_histo~ plus
+~dist_ana~.
+Three schemes from ten parts of this series, reconstructed before your
+eyes from a distributive law and a (co)monad each.
+One reveal remains: what happens when one ~W~ is not enough, and two
+comonads have to be composed.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-12-capstone.org][Next: Part 12 - The Capstone: zygoHistoPrepro →]]
+#+html: </nav>
+
+* References
+
+Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). *Recursion Schemes
+from Comonads*, Nordic Journal of Computing 8(3).
+
+Hinze, Ralf, Wu, Nicolas, and Gibbons, Jeremy (2013). *Unifying Structured
+Recursion Schemes*, ICFP '13.
+
+Kmett, Edward (2011--). *recursion-schemes*, Hackage,
+<https://hackage.haskell.org/package/recursion-schemes>.

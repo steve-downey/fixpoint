@@ -1,0 +1,118 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 10 - Elgot Algebras
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Multiply a list of integers. The instant you see a zero, the answer is
+zero --- so why examine the rest? A hylomorphism has no way to say "stop
+generating"; an Elgot algebra gives the coalgebra exactly that veto, and
+its dual gives the algebra the seed that produced each layer.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-9-mendler.org][Part 9 - Mendler Style ←]]
+#+html: </nav>
+
+* elgot: The Coalgebra's Veto
+
+~refold~'s coalgebra must always answer with a layer; the recursion stops
+only when a layer has no children.
+An Elgot coalgebra [cite:@elgot1975monadic] [cite:@adamek2006elgot]
+answers with an ~either~: *Left, a finished result --- stop here, fold
+nothing below*; *Right, one more layer --- continue*.
+Part 4's convention, doing hylomorphism duty.
+From [[file:../../src/smd/fixpoint/elgot.hpp][=src/smd/fixpoint/elgot.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/elgot.hpp::e780b556-5251-4f23-8b5a-5634e36439a9]] :lines 2- :src cpp :end "e780b556-5251-4f23-8b5a-5634e36439a9 end"
+
+~refold~ with a ~match~ wrapped around the step: Left returns the answer
+directly --- note that the algebra is never called, not even once, if the
+/first/ seed short-circuits; Right proceeds exactly as ~refold~ would.
+
+The example is the zero-in-a-product bailout, from
+[[file:../../src/examples/elgot_shortcircuit.cpp][=src/examples/elgot_shortcircuit.cpp=]]:
+
+#+transclude: [[file:../../src/examples/elgot_shortcircuit.cpp::5e2768c7-a257-4616-aef1-6d7634d818a2]] :lines 2- :src cpp :end "5e2768c7-a257-4616-aef1-6d7634d818a2 end"
+
+The output is the interesting part:
+
+#+begin_example
+values: 6 elements
+product (bails out at the first 0): 0
+elements examined: 3 / 6
+#+end_example
+
+The examined-count is not decoration --- it is the /only/ observable
+evidence of the short-circuit.
+The product alone proves nothing: multiplying by zero swallows whether
+the tail was visited.
+The header makes the same point about testing, and it generalizes: a
+plausible off-by-one --- expand one extra layer, then discard it ---
+still gets every numeric answer right, so the test suite counts coalgebra
+invocations instead of trusting outputs.
+When a scheme's contract is about /work avoided/, test the work, not the
+answer.
+
+* coelgot: The Algebra Gets the Seed
+
+Dualize once more.
+Where ~elgot~ strengthens the coalgebra, ~coelgot~ strengthens the
+algebra: alongside the already-folded children, it receives /the seed
+that produced the current layer/:
+
+#+transclude: [[file:../../src/smd/fixpoint/elgot.hpp::47505502-2ee0-4088-8753-3bf71df74360]] :lines 2- :src cpp :end "47505502-2ee0-4088-8753-3bf71df74360 end"
+
+No short-circuit here --- the extra power is context, not control.
+It is ~para~'s move transplanted to hylomorphisms: ~para~'s algebra saw
+the original subtree next to each result; ~coelgot~'s sees the original
+/seed/ next to the folded layer, in a refold where no subtree ever
+exists to show.
+
+One implementation note earns its comment: ~coalgebra(seed)~ is bound to
+a local before the ~fmap~.
+A careless transcription that calls ~psi~ twice --- once to build the
+layer, once inside the fold --- would be invisible to every test with a
+pure coalgebra and would silently double the cost, and the side effects,
+of an impure one.
+The elgot/coelgot pair is small; the discipline in the comments is most
+of its value.
+
+* The Pattern Completing
+
+Count the extra-power moves the catalog has made:
+
+- give the *algebra* more input: para (subtree), zygo (helper), histo
+  (history), coelgot (seed);
+- give the *coalgebra* more output: apo (graft-or-seed), futu (chunk),
+  elgot (answer-or-layer).
+
+Every one is "same three-line worker, richer type at one position", and
+each side's riches line up with the other's --- products and annotations
+feeding algebras, sums and chunks flowing from coalgebras.
+The catalog is complete except for the reveal: Part 11 shows the one
+construction all the algebra-side schemes are instances of, the one all
+the coalgebra-side schemes are instances of, and the single moving part
+--- a distributive law --- that selects among them.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-11-generalized.org][Next: Part 11 - Distributive Laws and the Generalized Schemes →]]
+#+html: </nav>
+
+* References
+
+Elgot, Calvin C. (1975). *Monadic Computation and Iterative Algebraic
+Theories*, Logic Colloquium '73.
+
+Adámek, Jiří, Milius, Stefan, and Velebil, Jiří (2006). *Elgot Algebras*,
+Logical Methods in Computer Science 2(5:4).
+
+Kmett, Edward (2009). *Recursion Schemes: A Field Guide (Redux)*, The
+Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/>.
