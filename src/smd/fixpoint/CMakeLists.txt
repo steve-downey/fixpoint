@@ -75,6 +75,7 @@ if(FIXPOINT_ENABLE_TESTING)
             gana.t.cpp
             ghylo.t.cpp
             gprepro.t.cpp
+            unregistered_functor.t.cpp
             schemes.t.cpp
     )
 

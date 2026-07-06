@@ -262,9 +262,11 @@ template <class Result, template <class> class F, class Functor, class Algebra>
 constexpr auto histo_via_gcata_with(const Functor &functor,
                                     const Algebra &algebra, const Fix<F> &tree)
     -> Result {
+    // Cofree's comonad itself consults the functor (its tail is an F-layer),
+    // so thread it too via cofree_comonad_with -- histo then needs no
+    // registered functor anywhere.
     return gcata_with<Result, Cofree<F, Result>>(
-        functor, smd::typeclass::comonad_typeclass<Cofree<F, Result>>,
-        dist_histo<F>, algebra, tree);
+        functor, cofree_comonad_with<F>(functor), dist_histo<F>, algebra, tree);
 }
 
 /** zygo_via_gcata threading an explicit functor. */
@@ -556,8 +558,10 @@ constexpr auto futu_via_gana_with(const Functor &functor,
                                   const Coalgebra &coalgebra, const Seed &seed)
     -> Fix<F> {
     using MSeed = smd::fixpoint::Free<F, Seed>;
-    return gana_with<F, MSeed>(functor,
-                               smd::typeclass::monad_typeclass<MSeed>,
+    // Free's monad itself consults the functor (bind recurses through Roll
+    // F-layers), so thread it too via free_monad_with -- futu then needs no
+    // registered functor anywhere.
+    return gana_with<F, MSeed>(functor, free_monad_with<F>(functor),
                                dist_futu<F>, coalgebra, seed);
 }
 

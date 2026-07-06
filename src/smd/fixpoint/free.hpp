@@ -67,6 +67,64 @@ constexpr auto is_pure(const Free<F, A> &f) -> bool {
     return std::holds_alternative<A>(f.node);
 }
 
+/** A Free monad instance that threads an explicit functor @p Functor (design
+ * D12) rather than looking it up. Behaves like monad_typeclass<Free<F,·>>
+ * (free.hpp), but `bind` recurses through Roll layers via `layer_fmap(functor,
+ * ...)` instead of the global registry -- so the generalized `_with` schemes
+ * whose carrier is a Free (futu) need no registered functor. The dual of
+ * CofreeComonadWith (cofree.hpp): the monad, which itself uses the functor,
+ * carries it explicitly. `pure` uses no functor; `join`/`fmap` derive from
+ * `bind`. Construct via `free_monad_with<F>(functor)`. */
+template <template <class> class F, class Functor>
+struct FreeMonadWith {
+    const Functor &functor;
+
+    template <class X>
+    constexpr auto pure(X &&x) const -> Free<F, std::remove_cvref_t<X>> {
+        return pure_free<F>(std::forward<X>(x));
+    }
+
+    template <class X, class Fn>
+    constexpr auto bind(const Free<F, X> &m, Fn &&fn) const
+        -> std::remove_cvref_t<std::invoke_result_t<Fn, const X &>> {
+        using ResultFree =
+            std::remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
+        return std::visit(
+            overloaded{
+                [&](const X &a) -> ResultFree { return std::invoke(fn, a); },
+                [&](const F<Free<F, X>> &layer) -> ResultFree {
+                    auto mapped = layer_fmap(
+                        functor,
+                        [this, &fn](const Free<F, X> &child) -> ResultFree {
+                            return this->bind(child, fn);
+                        },
+                        layer);
+                    return roll_free<F>(std::move(mapped));
+                },
+            },
+            m.node);
+    }
+
+    template <class MMA>
+    constexpr auto join(const MMA &mma) const {
+        return this->bind(mma, [](const auto &inner) { return inner; });
+    }
+
+    template <class Fn, class MA>
+    constexpr auto fmap(Fn &&fn, const MA &ma) const {
+        return this->bind(ma, [this, &fn](const auto &a) {
+            return this->pure(std::invoke(fn, a));
+        });
+    }
+};
+
+/** Factory for FreeMonadWith: `free_monad_with<F>(functor)`. */
+template <template <class> class F, class Functor>
+constexpr auto free_monad_with(const Functor &functor)
+    -> FreeMonadWith<F, Functor> {
+    return FreeMonadWith<F, Functor>{functor};
+}
+
 } // namespace smd::fixpoint
 
 namespace smd::typeclass {

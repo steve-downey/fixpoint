@@ -63,6 +63,60 @@ constexpr auto unwrap_cofree(const Cofree<F, A> &c) -> const F<Cofree<F, A>> & {
     return c.tail;
 }
 
+/** A Cofree comonad instance that threads an explicit functor @p Functor
+ * (design D12) rather than looking it up. Behaves exactly like
+ * comonad_typeclass<Cofree<F,·>> (cofree.hpp), but `duplicate`/`fmap` recurse
+ * through the tail via `layer_fmap(functor, ...)` instead of the global
+ * registry -- so the generalized `_with` schemes whose carrier is a Cofree
+ * (histo, zygo_histo_prepro) need no registered functor at all. This is the
+ * "recursive instance threads another instance" resolution: the comonad,
+ * which itself uses the functor, carries it explicitly. Construct via
+ * `cofree_comonad_with<F>(functor)`. `extract` uses no functor.
+ *
+ * A plain struct (not the Comonad CRTP base): the generalized workers use
+ * only extract/duplicate/fmap, not the derived `extend`. */
+template <template <class> class F, class Functor>
+struct CofreeComonadWith {
+    const Functor &functor;
+
+    template <class X>
+    constexpr auto extract(const Cofree<F, X> &c) const -> const X & {
+        return c.head;
+    }
+
+    template <class X>
+    constexpr auto duplicate(const Cofree<F, X> &c) const
+        -> Cofree<F, Cofree<F, X>> {
+        auto mapped_tail = layer_fmap(
+            functor,
+            [this](const Cofree<F, X> &child) -> Cofree<F, Cofree<F, X>> {
+                return this->duplicate(child);
+            },
+            c.tail);
+        return Cofree<F, Cofree<F, X>>{c, std::move(mapped_tail)};
+    }
+
+    template <class Fn, class X>
+    constexpr auto fmap(Fn &&fn, const Cofree<F, X> &c) const
+        -> Cofree<F, std::remove_cvref_t<std::invoke_result_t<Fn, const X &>>> {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
+        auto mapped_tail = layer_fmap(
+            functor,
+            [this, &fn](const Cofree<F, X> &child) -> Cofree<F, B> {
+                return this->fmap(fn, child);
+            },
+            c.tail);
+        return Cofree<F, B>{std::invoke(fn, c.head), std::move(mapped_tail)};
+    }
+};
+
+/** Factory for CofreeComonadWith: `cofree_comonad_with<F>(functor)`. */
+template <template <class> class F, class Functor>
+constexpr auto cofree_comonad_with(const Functor &functor)
+    -> CofreeComonadWith<F, Functor> {
+    return CofreeComonadWith<F, Functor>{functor};
+}
+
 } // namespace smd::fixpoint
 
 namespace smd::typeclass {
@@ -147,7 +201,7 @@ struct CofreeComonadImpl {
                          const smd::fixpoint::Cofree<F, X> &c)
         -> smd::fixpoint::Cofree<
             F, remove_cvref_t<std::invoke_result_t<Fn, const X &>>> {
-        using B = remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
         auto mapped_tail = smd::fixpoint::layer_fmap(
             [&self, &fn](const smd::fixpoint::Cofree<F, X> &child)
                 -> smd::fixpoint::Cofree<F, B> {
