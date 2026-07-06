@@ -52,7 +52,11 @@ namespace detail {
  * unevaluated context of `functor_maps_to`. */
 template <class R>
 struct yields {
-    R operator()(auto &&) const;
+    // Given a body (never instantiated -- only used in the unevaluated context
+    // of functor_maps_to) so it is not "declared but not defined": with an
+    // internal-linkage layer type (e.g. an anonymous-namespace test functor)
+    // an undefined member would trip Clang's -Wundefined-internal.
+    R operator()(auto &&) const { return R{}; }
 };
 } // namespace detail
 

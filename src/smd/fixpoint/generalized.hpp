@@ -1040,6 +1040,55 @@ constexpr auto dist_zygo_histo(HelperAlg helper)
     return dist_zygo_histo_t<F, HelperAlg>{std::move(helper)};
 }
 
+/** The composed comonad `pair<Helper, Cofree<F,X>>` threading an explicit
+ * functor (design D12): ZygoHistoComonadImpl's shape, but its internal Cofree
+ * comonad operations go through `cofree_comonad_with<F>(functor)` instead of
+ * the global registry -- so zygo_histo_prepro_with needs no registered functor
+ * even though its carrier embeds a Cofree. */
+template <template <class> class F, class Helper, class Functor>
+struct ZygoHistoComonadWith {
+    const Functor &functor;
+
+    template <class Y>
+    constexpr auto extract(const std::pair<Helper, Cofree<F, Y>> &w) const
+        -> const Y & {
+        return smd::fixpoint::extract(w.second);
+    }
+
+    template <class Y>
+    constexpr auto duplicate(const std::pair<Helper, Cofree<F, Y>> &w) const
+        -> std::pair<Helper, Cofree<F, std::pair<Helper, Cofree<F, Y>>>> {
+        const Helper &env = w.first;
+        auto cofree_c = cofree_comonad_with<F>(functor);
+        auto duplicated_cofree = cofree_c.duplicate(w.second);
+        auto reattached = cofree_c.fmap(
+            [&env](const Cofree<F, Y> &c)
+                -> std::pair<Helper, Cofree<F, Y>> {
+                return std::pair<Helper, Cofree<F, Y>>{env, c};
+            },
+            duplicated_cofree);
+        return std::pair<Helper,
+                         Cofree<F, std::pair<Helper, Cofree<F, Y>>>>{
+            env, std::move(reattached)};
+    }
+
+    template <class Fn, class Y>
+    constexpr auto fmap(Fn &&fn,
+                        const std::pair<Helper, Cofree<F, Y>> &w) const {
+        using Z = std::remove_cvref_t<std::invoke_result_t<Fn, const Y &>>;
+        auto cofree_c = cofree_comonad_with<F>(functor);
+        return std::pair<Helper, Cofree<F, Z>>{
+            w.first, cofree_c.fmap(std::forward<Fn>(fn), w.second)};
+    }
+};
+
+/** Factory: `zygo_histo_comonad_with<F, Helper>(functor)`. */
+template <template <class> class F, class Helper, class Functor>
+constexpr auto zygo_histo_comonad_with(const Functor &functor)
+    -> ZygoHistoComonadWith<F, Helper, Functor> {
+    return ZygoHistoComonadWith<F, Helper, Functor>{functor};
+}
+
 // ---------------------------------------------------------------------
 // zygo_histo_prepro -- Kmett's famous capstone (design §7.11).
 // ---------------------------------------------------------------------
@@ -1083,8 +1132,11 @@ constexpr auto zygo_histo_prepro_with(const Functor &functor,
                                       const MainAlg &g, const Fix<F> &tree)
     -> Result {
     using WResult = std::pair<Helper, Cofree<F, Result>>;
+    // The composed comonad embeds a Cofree (which consults the functor), so
+    // thread it too via zygo_histo_comonad_with -- the capstone then needs no
+    // registered functor anywhere.
     return gprepro_with<Result, WResult>(
-        functor, smd::typeclass::comonad_typeclass<WResult>,
+        functor, zygo_histo_comonad_with<F, Helper>(functor),
         dist_zygo_histo<F>(f), e, g, tree);
 }
 

@@ -24,23 +24,20 @@
 
 #include <functional>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
-namespace {
+// Named namespace (external linkage): UNat is baked into library template
+// instantiations (Free<UNat, ...>, Cofree<UNat, ...>), so an anonymous
+// namespace would trip -Wsubobject-linkage.
+namespace unreg {
 
 // A Peano-style base functor deliberately WITHOUT any functor_typeclass<UNat>
 // specialization anywhere in the program.
-struct UZero {
-    friend constexpr auto operator==(const UZero &, const UZero &)
-        -> bool = default;
-};
+struct UZero {};
 template <class A>
 struct USucc {
     smd::fixpoint::Box<A> pred;
-    friend constexpr auto operator==(const USucc &lhs, const USucc &rhs)
-        -> bool {
-        return lhs.pred == rhs.pred;
-    }
 };
 template <class A>
 using UNat = std::variant<UZero, USucc<A>>;
@@ -80,6 +77,14 @@ constexpr auto u_of_depth(int depth) -> UFix {
     return n;
 }
 
+// Endo identity natural transformation (generic over any layer).
+struct identity_nat {
+    template <class Layer>
+    constexpr auto operator()(const Layer &l) const -> Layer {
+        return l;
+    }
+};
+
 // F<int> -> int Succ-counter (plain fold algebra).
 constexpr auto count_alg(const UNat<int> &layer) -> int {
     return std::visit(smd::fixpoint::overloaded{
@@ -89,7 +94,9 @@ constexpr auto count_alg(const UNat<int> &layer) -> int {
                       layer);
 }
 
-} // namespace
+} // namespace unreg
+
+using namespace unreg;
 
 TEST_CASE("unregistered functor: fold_fix_with counts UNat") {
     using smd::fixpoint::fold_fix_with;
@@ -143,5 +150,31 @@ TEST_CASE("unregistered functor: futu_via_gana_with (Free carrier)") {
     for (int d = 0; d < 8; ++d) {
         UFix built = futu_via_gana_with<UNat>(u_functor, one_layer, d);
         CHECK(fold_fix_with<int>(u_functor, count_alg, built) == d);
+    }
+}
+
+TEST_CASE("unregistered functor: zygo_histo_prepro_with (composed comonad)") {
+    using smd::fixpoint::Cofree;
+    using smd::fixpoint::extract;
+    using smd::fixpoint::zygo_histo_prepro_with;
+    // Degenerate capstone: helper ignored, identity transform, main reads only
+    // the Cofree via extract -> counts. Exercises the composed comonad's
+    // threaded (through cofree_comonad_with) duplicate/fmap over UNat.
+    auto helper_ignored = [](const UNat<int> &) -> int { return 0; };
+    auto degenerate_main =
+        [](const UNat<std::pair<int, Cofree<UNat, int>>> &layer) -> int {
+        return std::visit(
+            smd::fixpoint::overloaded{
+                [](const UZero &) { return 0; },
+                [](const USucc<std::pair<int, Cofree<UNat, int>>> &s) -> int {
+                    return extract(s.pred->second) + 1;
+                },
+            },
+            layer);
+    };
+    for (int d = 0; d < 8; ++d) {
+        CHECK((zygo_histo_prepro_with<int, int>(u_functor, helper_ignored,
+                                                identity_nat{}, degenerate_main,
+                                                u_of_depth(d))) == d);
     }
 }
