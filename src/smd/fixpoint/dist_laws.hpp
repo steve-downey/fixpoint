@@ -54,6 +54,7 @@ namespace smd::fixpoint {
 // dist_cata :: f (Identity a) -> Identity (f a)
 // ---------------------------------------------------------------------
 
+// 610b65ff-c051-4654-be28-2300b099c197
 /** distCata :: f (Identity a) -> Identity (f a)
  * Design §7.9's own worked transcription, verbatim.
  */
@@ -100,6 +101,7 @@ struct dist_ana_t {
     }
 };
 inline constexpr dist_ana_t dist_ana{};
+// 610b65ff-c051-4654-be28-2300b099c197 end
 
 // ---------------------------------------------------------------------
 // dist_histo :: f (Cofree f a) -> Cofree f (f a)
@@ -135,6 +137,7 @@ inline constexpr dist_ana_t dist_ana{};
  * bound at the struct level, `A` deduces normally from the argument (same
  * fix as dist_para_t below).
  */
+// f96a7eef-2e16-4dce-b8b4-f507cbd743ca
 template <template <class> class F>
 struct dist_histo_t {
     template <class A>
@@ -153,6 +156,7 @@ struct dist_histo_t {
 
 template <template <class> class F>
 inline constexpr dist_histo_t<F> dist_histo{};
+// f96a7eef-2e16-4dce-b8b4-f507cbd743ca end
 
 // ---------------------------------------------------------------------
 // dist_futu :: Free f (f a) -> f (Free f a)

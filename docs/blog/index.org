@@ -1,0 +1,79 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+options: html5-fancy:t
+#+TITLE: Recursion Schemes in C++26 — Blog Series Index
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+* Overview
+
+A field guide to the recursion-schemes menagerie, implemented in C++26 as
+the ~smd::fixpoint~ library: the full Kmett catalog --- folds, unfolds,
+refolds, course-of-values recursion, Mendler style, Elgot algebras, and
+the comonadic/monadic generalizations --- built on one fixpoint type, a
+constexpr ~Box~, and typeclass objects.
+Every post transcludes the shipping code and a runnable example; every
+scheme is pinned by the degeneracy laws in its test file.
+
+* Blog Posts
+
+** [[file:part-0-intro.org][Part 0 — Why a Field Guide?]]
+What recursion schemes separate, where they come from, and the roadmap
+for the series.
+
+** [[file:part-1-fixpoint.org][Part 1 — Fix and Box: Tying the Knot]]
+The fixpoint type, and the trick that makes ~Fix<F> ≅ F<Fix<F>>~ legal
+C++: boxing is the functor's responsibility.
+
+** [[file:part-2-typeclasses.org][Part 2 — Typeclass Objects and layer_fmap]]
+Functor as a variable-template registry of instance objects, and the
+three lookup modes: implicit, NTTP-pinned, explicit-object.
+
+** [[file:part-3-classical.org][Part 3 — Fold, Unfold, Refold]]
+Catamorphism, anamorphism, hylomorphism under descriptive names, and why
+~cata~ is deprecated.
+
+** [[file:part-4-para-apo.org][Part 4 — Paramorphisms and Apomorphisms]]
+Folds that see the original subtree; unfolds that graft finished
+subtrees; the ~either~ type and Left-stops/Right-continues.
+
+** [[file:part-5-zygo-mutu.org][Part 5 — Zygomorphisms and Mutumorphisms]]
+A fold consulting a helper fold, two folds as peers, and the
+banana-split pair carrier underneath both.
+
+** [[file:part-6-prepro-postpro.org][Part 6 — Natural Transformations: hoist, prepro, postpro]]
+Rewriting every layer, and fusing the rewrite into folds and unfolds.
+
+** [[file:part-7-histo-futu.org][Part 7 — Histomorphisms and Futumorphisms]]
+Course-of-values recursion: Cofree histories for folds, Free chunks for
+unfolds, coin change and run-length decoding.
+
+** [[file:part-8-dyna-chrono.org][Part 8 — Dynamorphisms and Chronomorphisms]]
+The fused forms: dynamic programming from a seed, Fibonacci with the
+memo table as a comonad.
+
+** [[file:part-9-mendler.org][Part 9 — Mendler Style]]
+Folds with no Functor instance: the algebra receives the recursive call,
+and a rank-2 guarantee becomes a discipline.
+
+** [[file:part-10-elgot.org][Part 10 — Elgot Algebras]]
+Refolds where the coalgebra can stop with an answer, the dual where the
+algebra sees the seed, and testing the work instead of the answer.
+
+** [[file:part-11-generalized.org][Part 11 — Distributive Laws and the Generalized Schemes]]
+The reveal: gcata and gana subsume the catalog, one distributive law per
+scheme, with the executable proof.
+
+** [[file:part-12-capstone.org][Part 12 — The Capstone: zygoHistoPrepro]]
+Composing comonads: zygo + histo + prepro in one pass, and the dedicated
+EnvT-style instance the generic pair could not provide.
+
+** [[file:part-13-conclusion.org][Part 13 — Conclusion]]
+The catalog in review, the ledger of what C++ pushed back on, and where
+the trail continues.
+
+* Table of Contents
+
+#+toc: headlines 1

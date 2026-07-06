@@ -1,0 +1,228 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 1 - Fix and Box: Tying the Knot
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+A recursive type that names itself is ordinary. A type that is the fixed
+point of a *non-recursive* template is the foundation every recursion scheme
+stands on. The type equation ~Fix<F> ≅ F<Fix<F>>~ looks like it cannot
+possibly compile --- the trick that makes it legal C++ is deciding, once and
+for all, whose job the indirection is.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-0-intro.org][Part 0 - Why a Field Guide? ←]]
+#+html: </nav>
+
+* The Shape of One Layer
+
+I want an arithmetic expression tree: constants, addition, multiplication.
+The usual C++ move is a class hierarchy, or a ~std::variant~ that names
+itself through a ~unique_ptr~.
+Both weld the recursion into the type.
+
+Instead, I describe /one layer/ of the tree, with a type parameter ~A~
+standing wherever a child would go.
+From [[file:../../src/smd/fixpoint/functors.hpp][=src/smd/fixpoint/functors.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::2c4f33dc-5a80-4afb-8254-b33bab58a0b0]] :lines 2- :src cpp :end "2c4f33dc-5a80-4afb-8254-b33bab58a0b0 end"
+
+~ExprF~ never mentions ~ExprF~.
+When ~A~ is ~int~, an ~ExprF<int>~ is one layer whose children are already
+integers.
+When ~A~ is the full tree type, the children are subtrees.
+This parameterization --- the /base functor/ --- is the whole idea
+[cite:@milewski2013falgebras] [cite:@milewski2017falgebras].
+Everything else in this series is machinery for choosing what to put in that
+~A~ slot.
+
+* Fix: The Knot
+
+The tree type is the fixed point of the layer template.
+From [[file:../../src/smd/fixpoint/fix.hpp][=src/smd/fixpoint/fix.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/fix.hpp::57d4bd6e-c8c7-4806-afd3-2e42aec8ae27]] :lines 2- :src cpp :end "57d4bd6e-c8c7-4806-afd3-2e42aec8ae27 end"
+
+~Fix~ takes a template-template parameter --- the unary base functor --- and
+plugs the resulting type back into itself: a ~Fix<F>~ holds one layer
+~F<Fix<F>>~, /by value/.
+The isomorphism boundary is two trivial functions:
+
+#+transclude: [[file:../../src/smd/fixpoint/fix.hpp::53775b7e-8a78-4b79-885b-046f6232d7a3]] :lines 2- :src cpp :end "53775b7e-8a78-4b79-885b-046f6232d7a3 end"
+
+~wrap_fix~ packs a layer; ~unwrap_fix~ exposes it.
+Neither does work.
+They exist so the type system can watch the recursion cross the boundary,
+one layer at a time --- this is iso-recursion, not equi-recursion, and the
+explicitness is a feature.
+Every scheme in this series is a dance of ~unwrap_fix~, ~fmap~, and
+~wrap_fix~.
+
+* The Magic Trick
+
+Stare at that member declaration.
+
+#+begin_src cpp
+template <template <typename> class F>
+struct Fix {
+    F<Fix<F>> inner;
+};
+#+end_src
+
+At the point ~inner~ is declared, ~Fix<F>~ is still an incomplete type ---
+the compiler is in the middle of defining it.
+Instantiating ~F~ at an incomplete type, and holding the result *by value*,
+should be a hard error for any ~F~ that stores its argument directly.
+~Succ<A>~ with an ~A pred;~ member would demand the size of ~Fix<NatF>~
+while computing the size of ~Fix<NatF>~.
+Infinite regress; the compiler gives up at the template instantiation depth
+limit.
+
+The trick is a division of responsibility, stated once in the design and
+obeyed everywhere:
+
+#+begin_quote
+Boxing is the functor's responsibility.
+Recursive positions inside base functor alternatives hold ~Box<A>~.
+Consequently ~F<X>~ is a complete type for incomplete ~X~.
+#+end_quote
+
+Look back at ~ExprF~: the children are ~Box<A> left, right;~ --- never a bare
+~A~.
+A ~Box<A>~ contains only an ~A*~, and C++ has always been happy to point at
+an incomplete type.
+So ~ExprF<Fix<ExprF>>~ is a complete type --- its size is known, its members
+are pointers --- even while ~Fix<ExprF>~ itself is still being defined.
+The knot ties.
+
+That is the entire magic.
+Not a compiler extension, not a clever metaprogram --- a convention about
+who owns the indirection.
+The functor boxes; ~Fix~, ~Cofree~ (Part 7), and ~Free~ (Part 7) all get to
+contain their own layers by value because of it.
+
+* Box: The Indirection That Survives constexpr
+
+~Box~ could almost be ~std::unique_ptr~, except trees are values here ---
+they copy, they compare, and they fold at compile time.
+From [[file:../../src/smd/fixpoint/box.hpp][=src/smd/fixpoint/box.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/box.hpp::a1f81cb9-ebb3-4872-9549-03ca140c61b2]] :lines 2- :src cpp :end "a1f81cb9-ebb3-4872-9549-03ca140c61b2 end"
+
+Three properties earn ~Box~ its place.
+
+*Deep-copy value semantics.*
+Copying a ~Box~ copies the pointee.
+Copying a tree copies the tree.
+No sharing, no reference counting, no surprises about who mutated what.
+The library accepts the copies deliberately --- performance tuning is an
+explicit non-goal of the design, correctness of the transcription is the
+goal.
+
+*constexpr capability.*
+The allocation uses raw ~new~/~delete~, which are usable in constant
+evaluation for transient allocations since C++20.
+This is why every scheme in the library can carry a ~static_assert~ that
+folds a small tree at compile time.
+The fixpoint machinery is a compile-time library that also works at run
+time, not the other way around.
+
+*Nullability by default.*
+A default-constructed ~Box~ is null.
+That looks like a concession, and it is --- the C++26 alternative
+~std::indirect~ [cite:@p3019] has the right semantics but an explicit
+default constructor, which blocks aggregate-initialized storage.
+The header's comment records the trade honestly: ~Box~ is a workaround the
+library keeps for consistency and its nullable default.
+
+The maker function completes the vocabulary:
+
+#+transclude: [[file:../../src/smd/fixpoint/box.hpp::45a64b08-8217-4baf-b19b-146434de1e44]] :lines 2- :src cpp :end "45a64b08-8217-4baf-b19b-146434de1e44 end"
+
+* Composition, Not Inheritance
+
+Eric Niebler's classic translation of this pattern
+[cite:@niebler2013falgebras] ties the knot with inheritance:
+~struct Fix : F<Fix<F>> {}~.
+That satisfies the same equation, and unwrapping becomes an upcast.
+But is-a is stronger than the math requires.
+Inheritance implies substitutability --- any function taking ~F<Fix<F>>~
+would accept a ~Fix<F>~ --- and that uninvited conversion can ambush
+overload resolution.
+The single-member composition here says exactly what is true: a ~Fix<F>~
+/contains/ one layer.
+Nothing more is promised, so nothing more can go wrong.
+
+* Smart Constructors, and a Tree at Last
+
+Building nodes through ~wrap_fix~ and ~make_box~ by hand is ceremony.
+The functor header ships constructors that hide it:
+
+#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::5f486336-1b03-4f4a-87b9-ad169d481bd6]] :lines 2- :src cpp :end "5f486336-1b03-4f4a-87b9-ad169d481bd6 end"
+
+The ~eval~ at the end is a preview: it consumes the tree with ~fold_fix~,
+the catamorphism, and its per-node logic never mentions recursion.
+Part 3 takes it apart.
+The runnable example
+[[file:../../src/examples/fixpoint_tree_example.cpp][=src/examples/fixpoint_tree_example.cpp=]]
+is the whole program:
+
+#+transclude: [[file:../../src/examples/fixpoint_tree_example.cpp::7a31aed8-07e7-4c69-afad-4f5fcb2e08f8]] :lines 2- :src cpp :end "7a31aed8-07e7-4c69-afad-4f5fcb2e08f8 end"
+
+No tree-walking code anywhere in it.
+That absence is the product this library sells.
+
+* The Rest of the Bestiary
+
+The same header defines the other base functors the series uses:
+~NatF~ (Peano naturals --- ~Zero~ or ~Succ~), ~ListF<E, ·>~ (cons lists
+carrying payload type ~E~), and ~TreeF<E, ·>~ (leaf-valued binary trees).
+
+#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::534bcaa9-4a28-453d-83c3-37d4f479bc8c]] :lines 2- :src cpp :end "534bcaa9-4a28-453d-83c3-37d4f479bc8c end"
+
+Two things to notice.
+~ListF~ is a /binary/ template --- element type and recursion slot --- and
+~Fix~ wants a unary one; an alias template
+(~template <class A> using IntListF = ListF<int, A>~) binds the payload,
+and alias templates are valid template-template arguments per P0522
+[cite:@p0522].
+And those hand-written ~operator==~ bodies where ~= default~ ought to be:
+the comment records a real Clang 22 discovery --- a defaulted comparison's
+deleted-ness check forces completeness of self-referential functor families
+mid-definition; a plain friend body is only instantiated when used.
+Shipping code accumulates scars.
+The field guide keeps them visible.
+
+Next: the ~fmap~ that every scheme leans on, and the typeclass machinery
+that finds it.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-2-typeclasses.org][Next: Part 2 - Typeclass Objects and layer_fmap →]]
+#+html: </nav>
+
+* References
+
+Milewski, Bartosz (2013). *Understanding F-Algebras*,
+<https://bartoszmilewski.com/2013/06/10/understanding-f-algebras/>.
+
+Milewski, Bartosz (2017). *F-Algebras*, Category Theory for Programmers,
+chapter 24, <https://bartoszmilewski.com/2017/02/28/f-algebras/>.
+
+Niebler, Eric (2013). *F-Algebras and C++*,
+<http://ericniebler.com/2013/07/16/f-algebras-and-c/>.
+
+Bhosale, Jagrut, Catmur, Ed, and Berne, Jonathan (2024). *Indirect and
+Polymorphic: Vocabulary Types for Composite Class Design*, WG21 P3019,
+<https://wg21.link/P3019>.
+
+Spertus, Mike and Vandevoorde, Daveed (2016). *Matching of template
+template-arguments excludes compatible templates*, WG21 P0522,
+<https://wg21.link/P0522>.

@@ -1,0 +1,153 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 3 - Fold, Unfold, Refold
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Catamorphism, anamorphism, hylomorphism: tear a structure down, build one
+up, do both at once without ever holding the structure. The classical trio
+from the bananas paper, each a ten-line function template, and the naming
+argument for calling them ~fold_fix~, ~unfold_fix~, and ~refold~ instead.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-2-typeclasses.org][Part 2 - Typeclass Objects and layer_fmap ←]]
+#+html: </nav>
+
+* The Algebra Handles One Layer
+
+An /F-algebra/ is a function ~F<Result> -> Result~: it consumes one layer
+whose child positions already hold finished results
+[cite:@meijer1991bananas].
+The ~eval~ from Part 1 is built on exactly such an algebra --- an
+~ExprF<int> -> int~ where an ~Add~'s children are already ~int~ s.
+The algebra adds; it never recurses; it cannot even express recursion,
+because its argument type has no subtrees in it.
+That typing discipline is the design's whole safety story: the shape of the
+algebra's argument /proves/ the recursion has already happened.
+
+The fold supplies that recursion, once, for every algebra anyone will ever
+write.
+
+* fold_fix: The Catamorphism
+
+From [[file:../../src/smd/fixpoint/recursion_schemes.hpp][=src/smd/fixpoint/recursion_schemes.hpp=]],
+the typeclass-lookup forms of all three classical schemes:
+
+#+transclude: [[file:../../src/smd/fixpoint/recursion_schemes.hpp::45dcc85d-d409-475c-9a43-85451e28e55b]] :lines 2- :src cpp :end "45dcc85d-d409-475c-9a43-85451e28e55b end"
+
+Read ~fold_fix~ inside out.
+~unwrap_fix~ exposes the root layer, ~F<Fix<F>>~ --- children are subtrees.
+~layer_fmap~ applies the bracketed lambda at every child position, and the
+lambda is the recursive call; the result is ~F<Result>~ --- children are
+now finished values.
+The algebra combines them.
+Three lines of body, and it is the equation ~cata φ = φ ∘ fmap (cata φ) ∘
+unfix~ transcribed with the names this library uses.
+
+One C++ concession, recorded as a design decision: the carrier ~Result~ is
+a leading, /explicit/ template parameter.
+Haskell infers the carrier from the algebra; C++ cannot infer a type
+through a recursive call that returns it.
+You write ~fold_fix<int>(algebra, tree)~ and everything else deduces.
+Every scheme in the series inherits this convention, so I will not mention
+it again.
+
+* unfold_fix: The Anamorphism
+
+The dual runs from a seed.
+A /coalgebra/ ~Seed -> F<Seed>~ produces one layer with fresh seeds in the
+child positions; ~unfold_fix~ expands them until the coalgebra stops
+producing children.
+Same three-line shape, arrows reversed: coalgebra first, then ~layer_fmap~
+recursing into seeds, then ~wrap_fix~ instead of an algebra.
+
+The nat and list fixtures the rest of the series leans on are anamorphisms
+from ordinary C++ values.
+From [[file:../../src/smd/fixpoint/functors.hpp][=src/smd/fixpoint/functors.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::0cc54e00-8ad2-4f77-a3f1-f3562a923b37]] :lines 2- :src cpp :end "0cc54e00-8ad2-4f77-a3f1-f3562a923b37 end"
+
+~nat_from_int~ unfolds a countdown; ~nat_to_int~ folds it back.
+The list versions are the same pair at a different functor:
+
+#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::f0dc904d-7ea2-4a34-b7c8-1779969b5e42]] :lines 2- :src cpp :end "f0dc904d-7ea2-4a34-b7c8-1779969b5e42 end"
+
+Termination is the programmer's promise, not the type system's.
+A coalgebra that always returns a ~Succ~ unfolds forever.
+The Haskell original has the same property; corecursion is productive, not
+guaranteed finite.
+
+* refold: The Hylomorphism
+
+Unfold a tree, immediately fold it: the composition is so common it earns a
+fusion.
+~refold~ interleaves the two so the intermediate ~Fix<F>~ /never exists/ ---
+where ~fold_fix~ unwraps an existing layer, ~refold~ asks the coalgebra to
+produce one; where ~unfold_fix~ wraps, ~refold~ hands the layer straight to
+the algebra.
+Look back at the transclusion above: ~refold~'s body is ~fold_fix~'s body
+with ~unwrap_fix(tree)~ replaced by ~coalgebra(seed)~.
+The defining law, which the test suite pins:
+
+#+begin_example
+refold<R, F>(alg, coalg, seed) == fold_fix<R>(alg, unfold_fix<F>(coalg, seed))
+#+end_example
+
+Same answer, no tree.
+Everything in Part 8 --- dynamic programming straight from a seed --- is
+this idea wearing a comonad.
+
+* The Explicit-fmap Escape Hatch
+
+The same header keeps an older overload family that takes ~fmap~ as an
+ordinary function argument instead of consulting the typeclass registry:
+
+#+transclude: [[file:../../src/smd/fixpoint/recursion_schemes.hpp::902e4b06-04f3-45a0-9866-0ec5ab32a09f]] :lines 2- :src cpp :end "902e4b06-04f3-45a0-9866-0ec5ab32a09f end"
+
+These predate ~layer_fmap~ and stay for two reasons.
+The existing tests depend on them.
+And they remain the zero-machinery path for a one-off functor that will
+never earn a ~functor_typeclass~ instance --- mode 3 of Part 2, before
+mode 3 existed.
+
+* Why Not cata?
+
+The library deliberately renamed the trio, and deprecated ~cata~ rather
+than keep it as a synonym.
+The reasoning, from the decision log: /catamorphism/, /anamorphism/, and
+/hylomorphism/ are precise terms, but they are jargon most C++ programmers
+have no reason to know, and these three schemes are the ones ordinary code
+meets first.
+Haskell's ~data-fix~ [cite:@data-fix] reached the same conclusion ---
+~foldFix~, ~unfoldFix~, ~refold~ --- and this library follows it exactly.
+The schemes still to come keep their literature names (~para~, ~zygo~,
+~histo~, ...) because they are terms of art with no adequate descriptive
+equivalents; a "helper-consulting fold" tells you less than /zygomorphism/
+once you know the word.
+Descriptive names for the common; precise names for the precise.
+
+The classical trio is the baseline.
+Every scheme from here on is one of these three with a more interesting
+carrier --- and the series ends, in Parts 11 and 12, by making that
+sentence a theorem.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-4-para-apo.org][Next: Part 4 - Paramorphisms and Apomorphisms →]]
+#+html: </nav>
+
+* References
+
+Meijer, Erik, Fokkinga, Maarten, and Paterson, Ross (1991). *Functional
+Programming with Bananas, Lenses, Envelopes and Barbed Wire*, FPCA '91,
+Springer LNCS 523.
+
+Kholomiov, Anton and Kmett, Edward. *data-fix: Fixpoint data types*,
+Hackage, <https://hackage.haskell.org/package/data-fix>.

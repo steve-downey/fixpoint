@@ -32,6 +32,7 @@
 
 namespace smd::fixpoint {
 
+// 74b7324d-22d6-4878-8ef3-2296f458e040
 /** hoist :: (forall x. f x -> g x) -> Fix f -> Fix g
  *
  * Equation: hoist e = fold_fix(wrap_fix<G> ∘ e)
@@ -55,7 +56,9 @@ constexpr auto hoist(const Nat &e, const Fix<F> &tree) -> Fix<G> {
         },
         tree);
 }
+// 74b7324d-22d6-4878-8ef3-2296f458e040 end
 
+// 11ac7e58-1f08-4e63-89cf-0df6341b8d8d
 /** prepro (Fokkinga) :: (forall x. f x -> f x) -> (f a -> a) -> Fix f -> a
  *
  * Equation: prepro e φ = φ ∘ fmapF (prepro e φ ∘ hoist<F>(e)) ∘ unfix
@@ -91,7 +94,9 @@ constexpr auto prepro(const Nat &e, const Algebra &algebra,
         layer);
     return algebra(evaluated);
 }
+// 11ac7e58-1f08-4e63-89cf-0df6341b8d8d end
 
+// f293b1e2-9012-417e-983e-1ba1ed258125
 /** postpro :: (forall x. f x -> f x) -> (a -> f a) -> a -> Fix f
  *
  * Equation: postpro e ψ = fix ∘ fmapF (hoist<F>(e) ∘ postpro e ψ) ∘ ψ
@@ -117,6 +122,7 @@ constexpr auto postpro(const Nat &e, const Coalgebra &coalgebra,
         layer);
     return wrap_fix<F>(std::move(expanded));
 }
+// f293b1e2-9012-417e-983e-1ba1ed258125 end
 
 } // namespace smd::fixpoint
 

@@ -332,6 +332,31 @@ ORGFILES := $(wildcard *.org)
 
 -include $(ORGFILES:%.org=%.html.deps)
 
+BLOG_ORGFILES := $(wildcard docs/blog/*.org)
+
+docs/blog/%.md : docs/blog/%.org
+	$(EMACS) --init-directory=.emacs.d/ \
+	--batch --load .emacs.d/init.el  \
+	-f package-initialize \
+	--eval "(setq enable-local-variables :all)" \
+	--visit $< \
+	--eval "(org-transclusion-mode t)" \
+	--eval "(require 'ox-gfm)" \
+	--eval "(org-export-to-file 'gfm \"$(abspath $@)\")"
+	echo $@ : \\ > $@.deps
+	echo "  $<" \\ >> $@.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
+
+-include $(BLOG_ORGFILES:.org=.md.deps)
+
+.PHONY: blog-md
+blog-md: $(BLOG_ORGFILES:.org=.md) ## convert docs/blog/*.org to GFM markdown
+
+.PHONY: clean-blog-md
+clean-blog-md:
+	-rm -f $(BLOG_ORGFILES:.org=.md) $(BLOG_ORGFILES:.org=.md.deps)
+clean: clean-blog-md
+
 %-slides.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
 	--batch --load .emacs.d/init.el  \

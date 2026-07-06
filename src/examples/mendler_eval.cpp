@@ -37,6 +37,7 @@ using smd::fixpoint::overloaded;
 
 namespace {
 
+// 205a652d-1975-4836-8344-14f9f762c8fd
 // The Mendler algebra: (Recurse, const ExprF<Expr>&) -> int. `recurse` is
 // `mcata Φ` partially applied (const Expr& -> int) — closed over by mcata
 // itself, never named as a type (design §7.7's pitfall: keep it a plain
@@ -54,6 +55,7 @@ auto eval_via_mcata = [](auto recurse, const ExprF<Expr> &layer) -> int {
         },
         layer);
 };
+// 205a652d-1975-4836-8344-14f9f762c8fd end
 
 } // namespace
 

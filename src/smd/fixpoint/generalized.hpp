@@ -64,6 +64,7 @@ namespace smd::fixpoint {
  * handoffs' discovery) -- so the single lookup object's methods already
  * work for any X, including X = WResult or X = F<WResult> here.
  */
+// 25f4fc8f-7775-4c47-b2ea-7960f0dbedac
 template <class Result, class WResult, template <class> class F, class Dist,
           class GAlgebra>
 struct gcata_worker_t {
@@ -109,6 +110,7 @@ constexpr auto gcata(const Dist &dist, const GAlgebra &algebra,
     return algebra(
         smd::typeclass::comonad_typeclass<WResult>.extract(worker(tree)));
 }
+// 25f4fc8f-7775-4c47-b2ea-7960f0dbedac end
 
 // ---------------------------------------------------------------------
 // Recovery functions (design §9): thin wrappers pinning gcata to each
@@ -119,6 +121,7 @@ constexpr auto gcata(const Dist &dist, const GAlgebra &algebra,
 // (design D8).
 // ---------------------------------------------------------------------
 
+// e34a7536-66fe-42a4-b83b-63b606224eda
 /** cata_via_gcata: `gcata(dist_cata, ...)` recovers fold_fix.
  *
  * fold_fix's plain algebra is `F<Result> -> Result`; gcata's own algebra
@@ -186,6 +189,7 @@ constexpr auto para_via_gcata(const Algebra &algebra, const Fix<F> &tree)
     return gcata<Result, std::pair<Fix<F>, Result>>(dist_para<F>, algebra,
                                                      tree);
 }
+// e34a7536-66fe-42a4-b83b-63b606224eda end
 
 // ---------------------------------------------------------------------
 // gana :: Monad m => (forall x. m (f x) -> f (m x))
@@ -228,6 +232,7 @@ constexpr auto para_via_gcata(const Algebra &algebra, const Fix<F> &tree)
  * `join` just produced (`MSeed` itself), so `layer_fmap` dispatches
  * correctly with no separate lookup.
  */
+// ceed4381-6731-4b6d-9415-7685ce4e2730
 template <template <class> class F, class MSeed, class Dist, class GCoalgebra>
 struct gana_worker_t {
     const Dist &dist;
@@ -274,6 +279,7 @@ constexpr auto gana(const Dist &dist, const GCoalgebra &coalgebra,
     return worker(
         smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
 }
+// ceed4381-6731-4b6d-9415-7685ce4e2730 end
 
 // ---------------------------------------------------------------------
 // gana recovery functions (design §9): thin wrappers pinning gana to each
@@ -373,6 +379,7 @@ constexpr auto futu_via_gana(const Coalgebra &coalgebra, const Seed &seed)
 // carry over unchanged), so no fusion attempt was needed this step.
 // ---------------------------------------------------------------------
 
+// 70f74abb-92b4-4ee2-9023-820b89366ebc
 /** ghylo :: (Comonad w, Monad m) =>
  *   (forall x. f (w x) -> w (f x)) -> (f (w a) -> a)
  *   -> (forall x. m (f x) -> f (m x)) -> (b -> f (m b)) -> b -> a
@@ -402,6 +409,7 @@ constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
     return gcata<Result, WResult>(
         w_dist, algebra, gana<F, MSeed>(m_dist, coalgebra, seed));
 }
+// 70f74abb-92b4-4ee2-9023-820b89366ebc end
 
 // ---------------------------------------------------------------------
 // gprepro :: Comonad w => dist -> (forall x. f x -> f x)
@@ -426,6 +434,7 @@ constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
  * (Nat/e plays no part in either type, only in *which* subtree gets folded
  * at each recursive step).
  */
+// 49128f37-fc96-4a14-9162-c384c06ec067
 template <class Result, class WResult, template <class> class F, class Dist,
           class Nat, class GAlgebra>
 struct gprepro_worker_t {
@@ -481,6 +490,7 @@ constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
     return algebra(
         smd::typeclass::comonad_typeclass<WResult>.extract(worker(tree)));
 }
+// 49128f37-fc96-4a14-9162-c384c06ec067 end
 
 // ---------------------------------------------------------------------
 // gpostpro :: Monad m => dist -> (forall x. f x -> f x)
@@ -592,6 +602,7 @@ namespace smd::typeclass {
  * or dropping it (`extract`), exactly as `EnvT`'s own `Functor`/`Comonad`
  * instances do.
  */
+// 30ef7d6e-fd4b-4ef9-8e98-872e5f1dfe88
 template <template <class> class F, class Helper, class X>
 struct ZygoHistoComonadImpl {
     template <class Y>
@@ -654,6 +665,7 @@ template <template <class> class F, class Helper, class X>
 inline constexpr auto
     comonad_typeclass<std::pair<Helper, smd::fixpoint::Cofree<F, X>>> =
         ZygoHistoComonadMap<F, Helper, X>{};
+// 30ef7d6e-fd4b-4ef9-8e98-872e5f1dfe88 end
 
 } // namespace smd::typeclass
 
@@ -682,6 +694,7 @@ namespace smd::fixpoint {
  * and the per-call element type `X` both deduce normally from the argument
  * once `F` is bound, mirroring `dist_histo_t`'s own `A`.
  */
+// b830487f-689d-498c-ada1-47728dba1581
 template <template <class> class F, class HelperAlg>
 struct dist_zygo_histo_t {
     HelperAlg helper;
@@ -716,11 +729,13 @@ constexpr auto dist_zygo_histo(HelperAlg helper)
     -> dist_zygo_histo_t<F, HelperAlg> {
     return dist_zygo_histo_t<F, HelperAlg>{std::move(helper)};
 }
+// b830487f-689d-498c-ada1-47728dba1581 end
 
 // ---------------------------------------------------------------------
 // zygo_histo_prepro -- Kmett's famous capstone (design §7.11).
 // ---------------------------------------------------------------------
 
+// 4bdc612f-bf67-40a5-8f3d-e276ffed7e41
 /** zygo_histo_prepro :: (f b -> b) -> (forall x. f x -> f x)
  *                     -> (f (EnvT b (Cofree f) a) -> a) -> t -> a
  *
@@ -748,6 +763,7 @@ constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
     using WResult = std::pair<Helper, Cofree<F, Result>>;
     return gprepro<Result, WResult>(dist_zygo_histo<F>(f), e, g, tree);
 }
+// 4bdc612f-bf67-40a5-8f3d-e276ffed7e41 end
 
 } // namespace smd::fixpoint
 

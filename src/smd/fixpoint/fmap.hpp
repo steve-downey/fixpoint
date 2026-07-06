@@ -35,6 +35,7 @@ namespace smd::fixpoint {
 //      code (tests above all) that wants the machinery without owning, or
 //      risking an ODR clash on, the global specialization.
 
+// d1f5f4d6-a17a-47c6-b5cb-b97d08a0af6b
 /** Concept satisfied by a functor typeclass *object* — anything exposing an
  * `fmap(fn, layer)` member. Disambiguates the explicit-object overload
  * (mode 3, instance first) from the implicit/pinned lookup form. */
@@ -65,7 +66,9 @@ template <class Layer,
 constexpr auto layer_fmap(Fn &&fn, const Layer &layer) {
     return Typeclass.fmap(std::forward<Fn>(fn), layer);
 }
+// d1f5f4d6-a17a-47c6-b5cb-b97d08a0af6b end
 
+// c7e66aa1-1de1-4776-97d1-dc831115749a
 /** Mode 3 (explicit object): apply the functor object @p tc directly instead
  * of consulting the global registry. The typeclass object is the first
  * argument — it threads ahead of the data it maps over, so a scheme can
@@ -78,6 +81,7 @@ template <class Typeclass, class Fn, class Layer>
 constexpr auto layer_fmap(const Typeclass &tc, Fn &&fn, const Layer &layer) {
     return tc.fmap(std::forward<Fn>(fn), layer);
 }
+// c7e66aa1-1de1-4776-97d1-dc831115749a end
 
 } // namespace smd::fixpoint
 

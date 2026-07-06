@@ -1,0 +1,138 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 5 - Zygomorphisms and Mutumorphisms
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+Is this tree height-balanced? The predicate needs each subtree's height ---
+a different fold --- at every step. Running two folds over one tree, where
+one consults the other or each consults the other, is Fokkinga's territory:
+the zygomorphism and the mutumorphism, both delivered by one pair-carrier
+trick.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-4-para-apo.org][Part 4 - Paramorphisms and Apomorphisms ←]]
+#+html: </nav>
+
+* The Problem That Needs a Helper
+
+A tree is height-balanced when, at every node, the children's heights
+differ by at most one and the children are themselves balanced.
+Try to write that as a plain ~fold_fix~ with carrier ~bool~ and you hit a
+wall immediately: "balanced" at a node needs the children's /heights/, and
+a ~bool~ carrier has already thrown them away.
+
+You could widen the carrier to ~pair<int, bool>~ by hand and maintain both
+in one algebra.
+That works --- and the zygomorphism [cite:@fokkinga1992law] is exactly that
+construction, packaged so the two concerns stay separate: a /helper/
+algebra that knows only about heights, and a /main/ algebra that consults
+the helper's answer at each child.
+
+* zygo: A Fold With a Sidecar
+
+From [[file:../../src/smd/fixpoint/zygo.hpp][=src/smd/fixpoint/zygo.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/zygo.hpp::8dabefad-cac0-4d6d-96d6-57deadc9c82c]] :lines 2- :src cpp :end "8dabefad-cac0-4d6d-96d6-57deadc9c82c end"
+
+The implementation is a single ~fold_fix~ with carrier
+~std::pair<Helper, Result>~.
+At each layer the combined algebra does two jobs: project the helper
+component out of every child (that inner ~layer_fmap~) and run the helper
+algebra on the projection; run the main algebra on the full pair layer.
+Then ~.second~ discards the scaffolding at the root.
+
+Note the comment defending that inner ~layer_fmap~: it is a second map
+over an already-mapped layer, and it is /inherent/ --- the helper algebra's
+argument type is ~F<Helper>~, not ~F<pair<Helper, Result>>~, so the
+projection has to happen.
+The design log calls this out as a pitfall precisely because it looks like
+a fusion opportunity and is not one.
+
+Slot convention, fixed by decision: *helper first, main second*.
+The opposite of ~para~'s pair --- and deliberately so; ~para~'s pair is
+"original, result" while zygo's is "context, value", and Part 11's
+~dist_zygo~ depends on this order.
+The value slot is ~.second~ in both, which is the same convention that
+makes ~std::pair~'s env comonad extract ~.second~.
+
+The example, from
+[[file:../../src/examples/zygo_balanced.cpp][=src/examples/zygo_balanced.cpp=]]:
+
+#+transclude: [[file:../../src/examples/zygo_balanced.cpp::5b5399fc-2b3b-4c0c-81de-4a2529bada66]] :lines 2- :src cpp :end "5b5399fc-2b3b-4c0c-81de-4a2529bada66 end"
+
+~height~ never heard of balance; ~is_balanced~ never computes a height.
+The call is ~zygo<bool, int>(height, is_balanced, tree)~ --- one traversal,
+both facts, each algebra minding its own business.
+
+* mutu: Two Folds as Peers
+
+Drop the hierarchy.
+In a mutumorphism [cite:@fokkinga1992law] neither fold is the helper: each
+sees /both/ results at every child, and either can be the one you keep ---
+or keep both.
+From [[file:../../src/smd/fixpoint/mutu.hpp][=src/smd/fixpoint/mutu.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/mutu.hpp::039f26eb-8473-4ebb-bb47-36de2dfe9a1a]] :lines 2- :src cpp :end "039f26eb-8473-4ebb-bb47-36de2dfe9a1a end"
+
+Compare with zygo's body.
+No projection ~fmap~ --- both algebras take the same ~F<pair<A, B>>~ layer
+directly.
+This is the /banana-split theorem/ made executable: two folds over the same
+structure are one fold with a pair carrier, ~⟨f, g⟩~ pairing the algebras.
+Zygo is what you get when one component additionally forgets the other;
+mutu is the symmetric original.
+
+The classic demonstration is even/odd on Peano naturals, each defined by
+deferring to the other, from
+[[file:../../src/examples/mutu_even_odd.cpp][=src/examples/mutu_even_odd.cpp=]]:
+
+#+transclude: [[file:../../src/examples/mutu_even_odd.cpp::7d5665ed-eaff-44c4-949e-fa924eae785c]] :lines 2- :src cpp :end "7d5665ed-eaff-44c4-949e-fa924eae785c end"
+
+~Succ(n)~ is even iff ~n~ is odd; ~Succ(n)~ is odd iff ~n~ is even; ~Zero~
+seeds the base cases.
+No arithmetic anywhere --- the mutual recursion /is/ the definition, and
+~mutu~ runs both in one pass, returning the pair.
+
+* One Trick, Three Schemes
+
+Step back and the pattern of this post is a single idea.
+~fold_fix~ with a product carrier subsumes:
+
+- *mutu*: carrier ~pair<A, B>~, algebras see everything, return the pair.
+- *zygo*: mutu where the helper ignores the main component --- add one
+  projection, return ~.second~.
+- *para* (last part): zygo where the helper is the identity algebra ---
+  the "helper fold" that rebuilds the original subtree.
+
+Each degeneracy is a law in the test suite: mutu with a second algebra
+nobody reads is ~fold_fix~; zygo consulted only for its own result is
+~fold_fix~; para ignoring originals is ~fold_fix~.
+The pair is doing all the work, which raises the right suspicion --- if a
+/product/ carrier buys context on the way up, what does the matching
+structure on the unfold side buy?
+Part 4 answered with ~either~.
+And what if the context a fold needs is not one helper value but the
+entire history of everything below?
+That is Part 7, and the pair will not be enough.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-6-prepro-postpro.org][Next: Part 6 - Natural Transformations: hoist, prepro, postpro →]]
+#+html: </nav>
+
+* References
+
+Fokkinga, Maarten M. (1992). *Law and Order in Algorithmics*, PhD thesis,
+University of Twente.
+
+Meijer, Erik, Fokkinga, Maarten, and Paterson, Ross (1991). *Functional
+Programming with Bananas, Lenses, Envelopes and Barbed Wire*, FPCA '91 ---
+the banana-split theorem.

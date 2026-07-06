@@ -35,6 +35,7 @@ using smd::fixpoint::roll_free;
 
 namespace {
 
+// 5108825f-15af-4371-a949-3ecb9e370b8d
 using IndexFree = Free<IntListF, std::size_t>;
 
 // Builds `count` further Cons(value) layers, then a Pure leaf holding
@@ -62,6 +63,7 @@ auto make_rle_coalgebra(const std::vector<std::pair<int, int>> &pairs) {
             make_box<IndexFree>(build_run_tail(value, count - 1, i + 1))};
     };
 }
+// 5108825f-15af-4371-a949-3ecb9e370b8d end
 
 void print_pairs(const std::vector<std::pair<int, int>> &pairs) {
     std::print("input: [");

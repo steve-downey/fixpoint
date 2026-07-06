@@ -35,6 +35,7 @@ using smd::fixpoint::Zero;
 
 namespace {
 
+// d89d79e8-f8eb-47a9-866f-3b9e424ea333
 // The ana half: counts down from n to 0. Seed and layer element type are
 // both plain int — no Free chunk, unlike futu/codyna/chrono's coalgebras.
 auto countdown(int m) -> NatF<int> {
@@ -69,6 +70,7 @@ auto fib_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
 }
 
 auto fib(int n) -> int { return dyna<int, NatF>(fib_algebra, countdown, n); }
+// d89d79e8-f8eb-47a9-866f-3b9e424ea333 end
 
 } // namespace
 

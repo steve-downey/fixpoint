@@ -38,6 +38,7 @@ using smd::fixpoint::Zero;
 
 namespace {
 
+// 7a78616c-c66c-4ffd-ab18-e192aac2d913
 using History = Cofree<NatF, int>; // annotates each Nat node with minCoins
 
 // Step `steps` layers further back through an already-computed history.
@@ -82,6 +83,7 @@ auto min_coins_algebra(const NatF<History> &layer) -> int {
         },
         layer);
 }
+// 7a78616c-c66c-4ffd-ab18-e192aac2d913 end
 
 auto min_coins(int n) -> int {
     Nat nat = nat_from_int(n);

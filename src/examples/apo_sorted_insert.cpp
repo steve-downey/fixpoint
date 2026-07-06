@@ -33,6 +33,7 @@ using smd::typeclass::make_right;
 
 namespace {
 
+// e0098ed1-a5bf-4681-8dfb-8cd06ee73e5d
 /** Coalgebra for inserting @p value into an already-sorted IntList. Seed =
  * the remaining sublist still to be scanned. Left grafts the *current*
  * seed list (untouched) once the insertion point is found or the list
@@ -68,6 +69,7 @@ auto make_insert_coalgebra(int value) {
             layer);
     };
 }
+// e0098ed1-a5bf-4681-8dfb-8cd06ee73e5d end
 
 void print_vector(const char *label, const std::vector<int> &v) {
     std::print("{}: [", label);

@@ -1,0 +1,136 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+bibliography: references.bib
+#+TITLE: Recursion Schemes in C++26: Part 12 - The Capstone: zygoHistoPrepro
+#+AUTHOR: Steve Downey
+#+DATE: 2026-07-05
+
+#+begin_abstract
+"Can I have a zygomorphism, a histomorphism, and a prepromorphism at the
+same time?" Kmett's zygoHistoPrepro answers by composition: transform the
+generalized fold with a natural transformation, compose the env comonad
+onto Cofree, write one distributive law, done. This part builds it, and
+meets the one place where the generic machinery genuinely could not serve
+--- the composed comonad needed its own instance, and the reason is worth
+the whole part.
+#+end_abstract
+
+#+MACRO: TEASER_END
+{{TEASER_END}}
+#+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-11-generalized.org][Part 11 - Distributive Laws and the Generalized Schemes ←]]
+#+html: </nav>
+
+* gprepro: Part 6's Delta, One Level Up
+
+Part 6 observed that ~prepro~ is ~fold_fix~ with one insertion ---
+~hoist<F>(e, child)~ before the recursive call.
+~gprepro~ makes the same insertion in ~gcata~'s worker.
+From [[file:../../src/smd/fixpoint/generalized.hpp][=src/smd/fixpoint/generalized.hpp=]]:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::49128f37-fc96-4a14-9162-c384c06ec067]] :lines 2- :src cpp :end "49128f37-fc96-4a14-9162-c384c06ec067 end"
+
+Diff it against Part 11's ~gcata_worker_t~: one expression changed,
+~(*this)(hoist<F>(e, child))~ where ~(*this)(child)~ was.
+The degeneracy laws triangulate it: identity transformation recovers
+~gcata~; ~dist_cata~ recovers ~prepro~; both at once recover ~fold_fix~.
+(~gpostpro~ mirrors the splice on ~gana~'s side --- hoist each recursive
+/result/ before grafting --- completing the dual pair.)
+
+With ~gprepro~ in hand, Kmett's capstone is a two-liner:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::4bdc612f-bf67-40a5-8f3d-e276ffed7e41]] :lines 2- :src cpp :end "4bdc612f-bf67-40a5-8f3d-e276ffed7e41 end"
+
+The composed comonad is ~W<X> = std::pair<Helper, Cofree<F, X>>~ ---
+Haskell's ~EnvT Helper (Cofree F)~: zygo's env layer wrapped around
+histo's Cofree.
+A zygomorphism, a histomorphism, and a prepromorphism, one pass.
+Everything interesting is in the two ingredients that make the two-liner
+legal.
+
+* The Distributive Law for a Composed Comonad
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::b830487f-689d-498c-ada1-47728dba1581]] :lines 2- :src cpp :end "b830487f-689d-498c-ada1-47728dba1581 end"
+
+~dist_zygo_histo~ is a factory (it closes over the helper algebra, as
+~dist_zygo~ did) transcribing Kmett's ~distZygoT~: fold the helper
+components out of the layer with ~f~, redistribute the Cofree components
+with ~dist_histo<F>~, pair the results.
+A distributive law for a composed comonad is the two component laws,
+composed.
+It lives here rather than in ~dist_laws.hpp~ deliberately --- it is
+capstone-specific, and the library keeps one-off machinery next to its
+one use.
+
+* The Thin Ice: Why the Generic Pair Instance Is Wrong
+
+Here is the part worth the price of admission.
+The library already has a comonad instance for ~std::pair<B, A>~ --- the
+env comonad, serving zygo and para since Part 11.
+~W<X> = pair<Helper, Cofree<F, X>>~ /is/ a pair.
+Why not let the generic instance serve?
+
+Because it computes the wrong ~duplicate~.
+The generic pair instance re-nests the /pair/ layer:
+~duplicate(pair<B, X>)~ is ~pair<B, pair<B, X>>~.
+For the composed comonad, ~W<W<X>>~ must be
+~pair<Helper, Cofree<F, pair<Helper, Cofree<F, X>>>>~ --- the duplication
+has to happen /inside the Cofree/, re-annotating every node of the
+history with the environment re-attached.
+Same outer type, different nesting, and only one of them is the ~EnvT~
+comonad.
+The dedicated instance does what Haskell's ~EnvT~ does: run Cofree's own
+~duplicate~, then ~fmap~ the environment back onto every position:
+
+#+transclude: [[file:../../src/smd/fixpoint/generalized.hpp::30ef7d6e-fd4b-4ef9-8e98-872e5f1dfe88]] :lines 2- :src cpp :end "30ef7d6e-fd4b-4ef9-8e98-872e5f1dfe88 end"
+
+The registration is a partial specialization keyed on
+~pair<Helper, Cofree<F, X>>~ --- strictly more specialized than the
+generic ~pair<B, A>~, so it wins exactly when the value slot is a Cofree
+and never otherwise.
+Zygo's and para's pairs still use the generic instance, untouched.
+This is the typeclass-object machinery of Part 2 earning its keep under
+real load: two lawful comonad structures on the same C++ type,
+disambiguated by specialization order, no newtype wrapper required ---
+where Haskell /must/ wrap in ~EnvT~ to select the instance, the C++
+registry selects by type structure.
+(Whether that is a feature or a hazard is a fair fight; the header calls
+it "thin ice" and documents which side it skated to.)
+
+* The Capstone Computes
+
+From [[file:../../src/examples/generalized_tour.cpp][=src/examples/generalized_tour.cpp=]],
+the fourth section:
+
+#+transclude: [[file:../../src/examples/generalized_tour.cpp::c75ad0ce-3964-4b44-b368-a244f294d623]] :lines 2- :src cpp :end "c75ad0ce-3964-4b44-b368-a244f294d623 end"
+
+The fixture computation: helper folds each tail's remaining length,
+the transformation truncates at the first negative
+(take-while-positive, Part 6's own fixture), and the main algebra keeps
+a head only when its tail's length is even --- consulting the helper
+(zygo), the history (histo), and the pre-transformed structure (prepro)
+in one algebra.
+~[3, 4, -1, 5]~ truncates to ~[3, 4]~; only ~4~ survives the even-length
+test; the answer is ~4~, against a hand-checked expectation --- because
+there /is/ no specialized scheme to compare with.
+This computation exists only because the composition machinery makes it
+expressible.
+That is the capstone's real claim: not that it reproduces the catalog,
+but that the catalog's pieces compose into schemes nobody bothered to
+name.
+
+#+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
+[[file:index.org][↑ Series Index]] | [[file:part-13-conclusion.org][Next: Part 13 - Conclusion →]]
+#+html: </nav>
+
+* References
+
+Kmett, Edward (2009). *Recursion Schemes: A Field Guide (Redux)*, The
+Comonad.Reader --- zygoHistoPrepro's origin,
+<http://comonad.com/reader/2009/recursion-schemes/>.
+
+Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). *Recursion Schemes
+from Comonads*, Nordic Journal of Computing 8(3).

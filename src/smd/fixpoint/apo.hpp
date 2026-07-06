@@ -18,6 +18,7 @@
 
 namespace smd::fixpoint {
 
+// 6956f079-e2ee-4707-9d9e-79082548afef
 /** apo :: (a -> f (Either t a)) -> a -> t
  *
  * Equation: apo ψ = fix ∘ fmapF (either id (apo ψ)) ∘ ψ
@@ -48,6 +49,7 @@ constexpr auto apo(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
         layer);
     return wrap_fix<F>(std::move(expanded));
 }
+// 6956f079-e2ee-4707-9d9e-79082548afef end
 
 } // namespace smd::fixpoint
 

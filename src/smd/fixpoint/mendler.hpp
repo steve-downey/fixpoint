@@ -34,6 +34,7 @@
 
 namespace smd::fixpoint {
 
+// d0e3c395-8b95-4d27-a3f4-c9e324b00e0b
 /** mcata :: (forall y. (y -> c) -> f y -> c) -> Fix f -> c
  * @tparam Result the fold's result type (design D5: explicit)
  * @param phi   called as phi(recurse, layer): `recurse` is a callable
@@ -49,7 +50,9 @@ constexpr auto mcata(const MAlgebra &phi, const Fix<F> &tree) -> Result {
     };
     return phi(recurse, unwrap_fix(tree));
 }
+// d0e3c395-8b95-4d27-a3f4-c9e324b00e0b end
 
+// 24b61364-25c7-43a5-b18b-842bf88b0022
 /** mhisto :: (forall y. (y -> c) -> (y -> f y) -> f y -> c) -> Fix f -> c
  * @tparam Result the fold's result type (design D5: explicit)
  * @param phi   called as phi(recurse, unroll, layer): `recurse` is
@@ -72,6 +75,7 @@ constexpr auto mhisto(const MAlgebra &phi, const Fix<F> &tree) -> Result {
     };
     return phi(recurse, unroll, unwrap_fix(tree));
 }
+// 24b61364-25c7-43a5-b18b-842bf88b0022 end
 
 } // namespace smd::fixpoint
 

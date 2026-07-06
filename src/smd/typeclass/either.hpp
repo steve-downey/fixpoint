@@ -125,6 +125,7 @@ struct Right<R &> {
     }
 };
 
+// 8cd8e50e-209b-4b8b-8979-06952416c53e
 /** Symmetric sum type: exactly one of `Left<L>` (stop) or `Right<R>`
  * (continue). `Left`/`Right` are distinct wrapper types on *both* sides, so
  * `either<T, T>` constructs and compares unambiguously — the failure mode
@@ -157,6 +158,7 @@ template <class L, class R>
 constexpr auto make_right(R v) -> either<L, R> {
     return either<L, R>{std::variant<Left<L>, Right<R>>{Right<R>{v}}};
 }
+// 8cd8e50e-209b-4b8b-8979-06952416c53e end
 
 /** True when `e` holds the stop (Left) side. */
 template <class L, class R>

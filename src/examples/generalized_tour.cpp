@@ -161,6 +161,7 @@ auto report(const char *scheme, const char *dist_law, int specialized,
 int main() {
     bool all_ok = true;
 
+    // 29af561b-71b7-4353-9e4b-079584058b77
     // ---------------------------------------------------------------------
     // 1. fold_fix vs cata_via_gcata(dist_cata) -- Nat count, n = 5.
     // ---------------------------------------------------------------------
@@ -194,7 +195,9 @@ int main() {
         all_ok &= report("dyna / ghylo-as-dyna", "histo+ana", specialized,
                          generalized);
     }
+    // 29af561b-71b7-4353-9e4b-079584058b77 end
 
+    // c75ad0ce-3964-4b44-b368-a244f294d623
     // ---------------------------------------------------------------------
     // 4. zygo_histo_prepro capstone -- helper (remaining length) + one-step
     //    Cofree history + a prepro pass (take-while-positive), driven by the
@@ -213,6 +216,7 @@ int main() {
         all_ok &= report("zygo_histo_prepro capstone", "dist_zygo_histo",
                          /*specialized (hand-checked)=*/4, computed);
     }
+    // c75ad0ce-3964-4b44-b368-a244f294d623 end
 
     return all_ok ? 0 : 1;
 }

@@ -8,6 +8,7 @@
 
 namespace smd::fixpoint {
 
+// 902e4b06-04f3-45a0-9866-0ec5ab32a09f
 template <typename Result, template <typename> class F, typename Algebra,
           typename FMap>
 constexpr auto fold_fix(const Algebra &algebra, const FMap &fmap_fn,
@@ -46,6 +47,7 @@ constexpr auto refold(const Algebra &algebra, const Coalgebra &coalgebra,
         layer);
     return algebra(evaluated);
 }
+// 902e4b06-04f3-45a0-9866-0ec5ab32a09f end
 
 template <typename Result, template <typename> class F, typename Algebra,
           typename FMap>
@@ -59,6 +61,7 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 // smd::typeclass::functor_typeclass via layer_fmap (design §4) instead of
 // taking an explicit fmap_fn.
 
+// 45dcc85d-d409-475c-9a43-85451e28e55b
 template <typename Result, template <typename> class F, typename Algebra>
 constexpr auto fold_fix(const Algebra &algebra, const Fix<F> &tree)
     -> Result {
@@ -95,6 +98,7 @@ constexpr auto refold(const Algebra &algebra, const Coalgebra &coalgebra,
         layer);
     return algebra(evaluated);
 }
+// 45dcc85d-d409-475c-9a43-85451e28e55b end
 
 } // namespace smd::fixpoint
 

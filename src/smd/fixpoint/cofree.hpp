@@ -26,6 +26,7 @@
 
 namespace smd::fixpoint {
 
+// bfa61c28-7fe2-46f9-8ca6-1006b3348836
 /** Cofree<F, A>: an F-tree where every node is annotated with an A.
  * @tparam F unary template functor (the base functor being annotated)
  * @tparam A the annotation/history type at each node
@@ -62,6 +63,7 @@ template <template <class> class F, class A>
 constexpr auto unwrap_cofree(const Cofree<F, A> &c) -> const F<Cofree<F, A>> & {
     return c.tail;
 }
+// bfa61c28-7fe2-46f9-8ca6-1006b3348836 end
 
 } // namespace smd::fixpoint
 
