@@ -217,23 +217,34 @@ functor-threaded overloads on every dist law
 (cata/histo/zygo/para via gcata_with; ana/apo/futu via gana_with). Every scheme
 is validated with an element-generic unregistered functor.
 
-**Finding — the contract's reach depends on the carrier's comonad/monad.** A
-recovery honors the unregistered-functor contract *fully* only if its carrier's
+**The contract's reach and the recursive-instance problem (solved).** A
+recovery honors the unregistered-functor contract fully only if its carrier's
 comonad/monad does not itself consult the functor. Identity (cata/ana),
-pair-env (zygo/para), and either (apo) do not → fully unregistered. **Cofree**
-(histo, zygo_histo_prepro) and **Free** (futu) *do* — their instances
-`layer_fmap` via lookup — so in those the registered functor still serves the
-comonad/monad internals. Fully unregistering them needs functor-threaded
-Cofree-comonad / Free-monad instances: the same "recursive instance threads
-another instance" problem as the Free/Cofree *functor* instances themselves.
-This is the natural next boundary, not a gap in the pattern.
+pair-env (zygo/para), and either (apo) do not. **Cofree** (histo,
+zygo_histo_prepro) and **Free** (futu) *do* — their instances `layer_fmap` via
+lookup. This is the "recursive instance threads another instance" problem, and
+it is now resolved: the instances that use the functor carry it explicitly.
+
+- `cofree_comonad_with<F>(functor)` (cofree.hpp) — a Cofree comonad whose
+  duplicate/fmap recurse via `layer_fmap(functor, ...)`.
+- `free_monad_with<F>(functor)` (free.hpp) — the dual; bind recurses through
+  Roll layers via `layer_fmap(functor, ...)`; join/fmap derive from bind.
+- `zygo_histo_comonad_with<F, Helper>(functor)` (generalized.hpp) — the
+  composed `pair<Helper, Cofree<F,X>>` comonad, using `cofree_comonad_with`
+  internally.
+
+`histo_via_gcata_with`, `futu_via_gana_with`, and `zygo_histo_prepro_with`
+thread these, so **every** scheme now runs over a base functor with no
+`functor_typeclass` specialization anywhere. `unregistered_functor.t.cpp`
+proves it with `UNat` (a Peano functor never registered): `fold_fix_with`,
+`histo_via_gcata_with`, `futu_via_gana_with`, and `zygo_histo_prepro_with` all
+green — any fallback to lookup would be `std::false_type` and fail to compile.
 
 ## Open follow-ons
 
-1. Functor-threaded Cofree-comonad / Free-monad instances (to fully unregister
-   histo/futu/zygo_histo_prepro) — the recursive-instance threading problem.
-2. Decide the element-generic-instance question (Finding 4) for the library
+1. Decide the element-generic-instance question (Finding 4) for the library
    functor instances (registered instances are per-element-type;
-   thread-by-value needs element-generic).
-3. Reconcile the Monoid contract example with the finger-tree companion's
+   thread-by-value needs element-generic — as `UNat`'s single element-generic
+   functor object shows).
+2. Reconcile the Monoid contract example with the finger-tree companion's
    Monoid before treating any monoid shape here as settled.
