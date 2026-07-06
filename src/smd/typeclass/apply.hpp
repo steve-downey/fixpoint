@@ -112,15 +112,13 @@ auto apply_chain(SELF &&self, ACCUMULATED &&accumulated,
 
 } // namespace detail
 
-// Applicative pattern invariants:
-// - Minimal required operations are pure and apply.
-// - invoke is derived from pure/apply via terminating partial application,
-//   but an Impl may provide a custom invoke for different semantics or
-//   efficiency.
-// - Derived operations (lift/ap/zip_with/discard_*) live on that object.
-// - Dispatch happens through a provided object or
-//   applicative_typeclass<Concrete>.
-// - Do not introduce hidden alternate semantics without a distinct map/type.
+// See the typeclass contract in detail/typeclass_base.hpp.
+// Applicative-specific: the primitives are pure and apply. invoke is
+// derived from them via terminating partial application, but an Impl
+// may override invoke for different semantics or efficiency. Other
+// ops (lift/ap/map/zip_with/discard_*) are derived. Structurally
+// chains onto Functor (via applicative_functor_adapter) to expose
+// fmap/replace.
 
 /** Adapter: supplies a single-argument `fmap` so an Applicative can also
  * serve as a Functor base, defined as `self.invoke(fn, x)` so it defers to

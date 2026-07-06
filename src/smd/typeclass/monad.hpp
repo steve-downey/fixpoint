@@ -14,6 +14,8 @@
 
 namespace smd::typeclass {
 
+// See the typeclass contract in detail/typeclass_base.hpp.
+
 /** Adapter: supplies `pure` (delegated to Impl) and synthesizes `apply` from
  * `bind` + `pure` so a Monad can also serve as an Applicative base.
  * ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)

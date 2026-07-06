@@ -16,11 +16,10 @@
 
 namespace smd::typeclass {
 
-// Functor pattern invariants:
-// - Instances are single lookup objects that provide fmap(F, T).
-// - replace is a derived object operation implemented from fmap.
-// - Dispatch happens through a provided object or functor_typeclass<Concrete>.
-// - Keep lookup explicit through typeclass objects, not ADL overloads.
+// See the typeclass contract in detail/typeclass_base.hpp.
+// Functor-specific: the primitive is fmap(f, container); replace is
+// derived from it. Functor is the base of the structural enrichment
+// chain (Applicative, Monad build on it).
 
 // 706adf06-4443-4dab-94fe-34f71a497511
 /** CRTP base for Functor instances.
