@@ -254,6 +254,42 @@ constexpr auto para_via_gcata(const Algebra &algebra, const Fix<F> &tree)
                                                      tree);
 }
 
+// gcata-side `_with` recovery functions (design D12): thread the functor,
+// look up the canonical comonad for each carrier.
+
+/** histo_via_gcata threading an explicit functor. */
+template <class Result, template <class> class F, class Functor, class Algebra>
+constexpr auto histo_via_gcata_with(const Functor &functor,
+                                    const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
+    return gcata_with<Result, Cofree<F, Result>>(
+        functor, smd::typeclass::comonad_typeclass<Cofree<F, Result>>,
+        dist_histo<F>, algebra, tree);
+}
+
+/** zygo_via_gcata threading an explicit functor. */
+template <class Result, class Helper, template <class> class F, class Functor,
+          class HelperAlg, class MainAlg>
+constexpr auto zygo_via_gcata_with(const Functor &functor,
+                                   const HelperAlg &helper, const MainAlg &main,
+                                   const Fix<F> &tree) -> Result {
+    return gcata_with<Result, std::pair<Helper, Result>>(
+        functor,
+        smd::typeclass::comonad_typeclass<std::pair<Helper, Result>>,
+        dist_zygo(helper), main, tree);
+}
+
+/** para_via_gcata threading an explicit functor. */
+template <class Result, template <class> class F, class Functor, class Algebra>
+constexpr auto para_via_gcata_with(const Functor &functor,
+                                   const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
+    return gcata_with<Result, std::pair<Fix<F>, Result>>(
+        functor,
+        smd::typeclass::comonad_typeclass<std::pair<Fix<F>, Result>>,
+        dist_para<F>, algebra, tree);
+}
+
 // ---------------------------------------------------------------------
 // gana :: Monad m => (forall x. m (f x) -> f (m x))
 //                  -> (a -> f (m a)) -> a -> t
@@ -493,6 +529,36 @@ constexpr auto futu_via_gana(const Coalgebra &coalgebra, const Seed &seed)
     -> Fix<F> {
     using MSeed = smd::fixpoint::Free<F, Seed>;
     return gana<F, MSeed>(dist_futu<F>, coalgebra, seed);
+}
+
+// gana-side `_with` recovery functions (design D12): thread the functor, look
+// up the canonical monad for each carrier.
+
+/** apo_via_gana threading an explicit functor. The dist_apo wrapper is a
+ * two-argument callable `(functor, e)` matching the worker's `dist(functor,
+ * m)` call, with X = MSeed still pinned explicitly. */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto apo_via_gana_with(const Functor &functor,
+                                 const Coalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    using MSeed = smd::typeclass::either<Fix<F>, Seed>;
+    auto dist_apo_x = [](const auto &fn, const auto &e) {
+        return dist_apo.template operator()<MSeed>(fn, e);
+    };
+    return gana_with<F, MSeed>(functor,
+                               smd::typeclass::monad_typeclass<MSeed>,
+                               dist_apo_x, coalgebra, seed);
+}
+
+/** futu_via_gana threading an explicit functor. */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto futu_via_gana_with(const Functor &functor,
+                                  const Coalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    using MSeed = smd::fixpoint::Free<F, Seed>;
+    return gana_with<F, MSeed>(functor,
+                               smd::typeclass::monad_typeclass<MSeed>,
+                               dist_futu<F>, coalgebra, seed);
 }
 
 // ---------------------------------------------------------------------
@@ -933,6 +999,29 @@ struct dist_zygo_histo_t {
         return std::pair<Helper, Cofree<F, F<X>>>{helper(helper_layer),
                                                    dist_histo<F>(w_layer)};
     }
+
+    // Functor-threaded form (design D12). Arity-distinguished; threads the
+    // functor into both projections and into the inner dist_histo<F>.
+    template <class Functor, class Helper, class X>
+    constexpr auto
+    operator()(const Functor &functor,
+               const F<std::pair<Helper, Cofree<F, X>>> &l) const
+        -> std::pair<Helper, Cofree<F, F<X>>> {
+        auto helper_layer = layer_fmap(
+            functor,
+            [](const std::pair<Helper, Cofree<F, X>> &p) -> Helper {
+                return p.first;
+            },
+            l);
+        auto w_layer = layer_fmap(
+            functor,
+            [](const std::pair<Helper, Cofree<F, X>> &p) -> Cofree<F, X> {
+                return p.second;
+            },
+            l);
+        return std::pair<Helper, Cofree<F, F<X>>>{
+            helper(helper_layer), dist_histo<F>(functor, w_layer)};
+    }
 };
 
 /** distZygoHisto :: (f b -> b) -> f (EnvT b (Cofree f) a)
@@ -977,6 +1066,22 @@ constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
     -> Result {
     using WResult = std::pair<Helper, Cofree<F, Result>>;
     return gprepro<Result, WResult>(dist_zygo_histo<F>(f), e, g, tree);
+}
+
+/** zygo_histo_prepro threading an explicit functor (design D12). Kmett's
+ * capstone as gprepro_with over the composed comonad `pair<Helper,
+ * Cofree<F,X>>` (looked up -- its specialization is canonical) with the
+ * functor-threaded `dist_zygo_histo<F>(f)`. */
+template <class Result, class Helper, template <class> class F, class Functor,
+          class HelperAlg, class Nat, class MainAlg>
+constexpr auto zygo_histo_prepro_with(const Functor &functor,
+                                      const HelperAlg &f, const Nat &e,
+                                      const MainAlg &g, const Fix<F> &tree)
+    -> Result {
+    using WResult = std::pair<Helper, Cofree<F, Result>>;
+    return gprepro_with<Result, WResult>(
+        functor, smd::typeclass::comonad_typeclass<WResult>,
+        dist_zygo_histo<F>(f), e, g, tree);
 }
 
 } // namespace smd::fixpoint

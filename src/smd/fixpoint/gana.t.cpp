@@ -30,6 +30,8 @@
 using smd::fixpoint::ana_via_gana;
 using smd::fixpoint::ana_via_gana_with;
 using smd::fixpoint::apo;
+using smd::fixpoint::apo_via_gana_with;
+using smd::fixpoint::futu_via_gana_with;
 using smd::fixpoint::apo_via_gana;
 using smd::fixpoint::Cons;
 using smd::fixpoint::dist_apo;
@@ -115,6 +117,33 @@ TEST_CASE("gana_with: ana_via_gana_with matches unfold_fix (unregistered "
         Nat via_gana_with = ana_via_gana_with<NatF>(generic_nat, countdown, n);
         Nat via_unfold = unfold_fix<NatF>(countdown, n);
         CHECK(nat_to_int(via_gana_with) == nat_to_int(via_unfold));
+    }
+}
+
+// gana-side recovery _with functions (design D12). apo's either monad never
+// consults the functor (unregistered contract honored fully); futu's Free
+// monad consults it via lookup internally -- the real NatF instance serves
+// those internals, so the result is correct.
+TEST_CASE("gana_with recovery: apo/futu via gana_with match unfold_fix") {
+    auto either_countdown = [](int n) -> NatF<either<Nat, int>> {
+        if (n <= 0) {
+            return Zero{};
+        }
+        return Succ<either<Nat, int>>{
+            make_box<either<Nat, int>>(make_right<Nat>(n - 1))};
+    };
+    auto free_countdown = [](int m) -> NatF<Free<NatF, int>> {
+        return layer_fmap(
+            [](int child) -> Free<NatF, int> { return pure_free<NatF>(child); },
+            countdown(m));
+    };
+    for (int n = 0; n <= 10; ++n) {
+        CHECK(nat_to_int(
+                  apo_via_gana_with<NatF>(generic_nat, either_countdown, n)) ==
+              nat_to_int(unfold_fix<NatF>(countdown, n)));
+        CHECK(nat_to_int(
+                  futu_via_gana_with<NatF>(generic_nat, free_countdown, n)) ==
+              nat_to_int(unfold_fix<NatF>(countdown, n)));
     }
 }
 

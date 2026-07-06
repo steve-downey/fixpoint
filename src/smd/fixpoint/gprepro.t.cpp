@@ -54,6 +54,7 @@ using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
 using smd::fixpoint::Zero;
 using smd::fixpoint::zygo_histo_prepro;
+using smd::fixpoint::zygo_histo_prepro_with;
 
 using smd::typeclass::comonad_typeclass;
 using smd::typeclass::Identity;
@@ -314,6 +315,33 @@ TEST_CASE("gpostpro law: gpostpro(dist_ana, e, psi') equals postpro(e, psi) "
     std::vector<int> expected{1, 3, 2, 3, 3};
     CHECK(list_to_vector(via_gpostpro) == expected);
     CHECK(list_to_vector(via_gpostpro) == list_to_vector(via_postpro));
+}
+
+// zygo_histo_prepro_with (design D12): the capstone, threading an unregistered
+// functor. The composed comonad embeds Cofree, which consults the functor via
+// lookup internally (the real NatF instance serves those internals); the
+// worker + dist_zygo_histo threading uses the passed functor. Degenerate
+// (helper ignored, identity transform, Cofree via extract only) -> count == n.
+TEST_CASE("zygo_histo_prepro_with: degenerates to the Succ count "
+          "(unregistered functor)") {
+    auto helper_ignored = [](const NatF<int> &) -> int { return 0; };
+    auto degenerate_main =
+        [](const NatF<std::pair<int, Cofree<NatF, int>>> &layer) -> int {
+        return std::visit(
+            overloaded{
+                [](const Zero &) { return 0; },
+                [](const Succ<std::pair<int, Cofree<NatF, int>>> &s) -> int {
+                    return extract(s.pred->second) + 1;
+                },
+            },
+            layer);
+    };
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK((zygo_histo_prepro_with<int, int>(generic_nat, helper_ignored,
+                                                identity_nat{}, degenerate_main,
+                                                nat)) == n);
+    }
 }
 
 // ---------------------------------------------------------------------

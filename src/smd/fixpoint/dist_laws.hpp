@@ -173,6 +173,22 @@ struct dist_histo_t {
             l);
         return Cofree<F, F<A>>{std::move(head), std::move(tail)};
     }
+
+    // Functor-threaded form (design D12). Arity-distinguished.
+    template <class Functor, class A>
+    constexpr auto operator()(const Functor &functor,
+                              const F<Cofree<F, A>> &l) const
+        -> Cofree<F, F<A>> {
+        auto head = layer_fmap(
+            functor, [](const Cofree<F, A> &c) { return extract(c); }, l);
+        auto tail = layer_fmap(
+            functor,
+            [this, &functor](const Cofree<F, A> &c) -> Cofree<F, F<A>> {
+                return (*this)(functor, c.tail);
+            },
+            l);
+        return Cofree<F, F<A>>{std::move(head), std::move(tail)};
+    }
 };
 
 template <template <class> class F>
@@ -222,6 +238,32 @@ struct dist_futu_t {
             },
             chunk.node);
     }
+
+    // Functor-threaded form (design D12). Arity-distinguished.
+    template <class Functor, class A>
+    constexpr auto operator()(const Functor &functor,
+                              const Free<F, F<A>> &chunk) const
+        -> F<Free<F, A>> {
+        return std::visit(
+            overloaded{
+                [&functor](const F<A> &layer) -> F<Free<F, A>> {
+                    return layer_fmap(
+                        functor, [](const A &x) { return pure_free<F>(x); },
+                        layer);
+                },
+                [this, &functor](const F<Free<F, F<A>>> &layer)
+                    -> F<Free<F, A>> {
+                    return layer_fmap(
+                        functor,
+                        [this, &functor](const Free<F, F<A>> &child)
+                            -> Free<F, A> {
+                            return roll_free<F>((*this)(functor, child));
+                        },
+                        layer);
+                },
+            },
+            chunk.node);
+    }
 };
 
 template <template <class> class F>
@@ -246,6 +288,16 @@ struct dist_zygo_t {
         auto helper_layer =
             layer_fmap([](const auto &p) { return p.first; }, l);
         auto x_layer = layer_fmap([](const auto &p) { return p.second; }, l);
+        return std::pair{helper(helper_layer), std::move(x_layer)};
+    }
+
+    // Functor-threaded form (design D12). Arity-distinguished.
+    template <class Functor, class Layer>
+    constexpr auto operator()(const Functor &functor, const Layer &l) const {
+        auto helper_layer =
+            layer_fmap(functor, [](const auto &p) { return p.first; }, l);
+        auto x_layer =
+            layer_fmap(functor, [](const auto &p) { return p.second; }, l);
         return std::pair{helper(helper_layer), std::move(x_layer)};
     }
 };
@@ -294,6 +346,22 @@ struct dist_para_t {
         return std::pair<Fix<F>, F<X>>{wrap_fix<F>(std::move(b_layer)),
                                        std::move(x_layer)};
     }
+
+    // Functor-threaded form (design D12). Arity-distinguished.
+    template <class Functor, class X>
+    constexpr auto operator()(const Functor &functor,
+                              const F<std::pair<Fix<F>, X>> &l) const
+        -> std::pair<Fix<F>, F<X>> {
+        auto b_layer = layer_fmap(
+            functor,
+            [](const std::pair<Fix<F>, X> &p) -> Fix<F> { return p.first; },
+            l);
+        auto x_layer = layer_fmap(
+            functor,
+            [](const std::pair<Fix<F>, X> &p) -> X { return p.second; }, l);
+        return std::pair<Fix<F>, F<X>>{wrap_fix<F>(std::move(b_layer)),
+                                       std::move(x_layer)};
+    }
 };
 
 template <template <class> class F>
@@ -337,6 +405,32 @@ struct dist_apo_t {
             },
             [](const R &layer) {
                 return layer_fmap(
+                    [](const auto &x) {
+                        return smd::typeclass::make_right<L>(x);
+                    },
+                    layer);
+            });
+    }
+
+    // Functor-threaded form (design D12): X still explicit (leading), the
+    // functor is the first *runtime* argument. Called as
+    // `dist_apo.template operator()<X>(functor, e)`. Arity-distinguished.
+    template <class X, class Functor, class L, class R>
+    constexpr auto operator()(const Functor &functor,
+                              const smd::typeclass::either<L, R> &e) const {
+        return smd::typeclass::match(
+            e,
+            [&functor](const L &t) {
+                return layer_fmap(
+                    functor,
+                    [](const auto &child) {
+                        return smd::typeclass::make_left<X>(child);
+                    },
+                    unwrap_fix(t));
+            },
+            [&functor](const R &layer) {
+                return layer_fmap(
+                    functor,
                     [](const auto &x) {
                         return smd::typeclass::make_right<L>(x);
                     },

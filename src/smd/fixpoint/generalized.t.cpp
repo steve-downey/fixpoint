@@ -32,6 +32,9 @@ using smd::fixpoint::fold_fix;
 using smd::fixpoint::gcata;
 using smd::fixpoint::histo;
 using smd::fixpoint::histo_via_gcata;
+using smd::fixpoint::histo_via_gcata_with;
+using smd::fixpoint::para_via_gcata_with;
+using smd::fixpoint::zygo_via_gcata_with;
 using smd::fixpoint::IntList;
 using smd::fixpoint::IntListF;
 using smd::fixpoint::IntTree;
@@ -162,6 +165,48 @@ auto fib_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
 }
 
 } // namespace
+
+// *_via_gcata_with (design D12): threading generic_nat (unregistered) matches
+// the lookup recovery functions. para/zygo carriers (pair-env comonad) never
+// consult the functor, so they honor the unregistered contract fully; histo's
+// Cofree comonad consults the functor internally via lookup -- here the real
+// NatF instance still serves those internals, so the result is correct (fully
+// unregistering histo would need a functor-threaded Cofree comonad).
+TEST_CASE("gcata_with recovery: histo/para/zygo via gcata_with match lookup") {
+    auto para_algebra = [](const NatF<std::pair<Nat, int>> &layer) -> int {
+        return std::visit(
+            overloaded{[](const Zero &) { return 0; },
+                       [](const Succ<std::pair<Nat, int>> &s) {
+                           return s.pred->second + 1;
+                       }},
+            layer);
+    };
+    auto zygo_helper = [](const NatF<int> &layer) -> int {
+        return std::visit(overloaded{[](const Zero &) { return 0; },
+                                     [](const Succ<int> &s) {
+                                         return *s.pred + 1;
+                                     }},
+                          layer);
+    };
+    auto zygo_main = [](const NatF<std::pair<int, int>> &layer) -> int {
+        return std::visit(overloaded{[](const Zero &) { return 0; },
+                                     [](const Succ<std::pair<int, int>> &s) {
+                                         return s.pred->second + 1;
+                                     }},
+                          layer);
+    };
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        // histo: matches the lookup recovery (fib(n)).
+        CHECK(histo_via_gcata_with<int>(generic_nat, fib_algebra, nat) ==
+              histo_via_gcata<int>(fib_algebra, nat));
+        // para/zygo algebras both project only the fold result (+1 per Succ),
+        // so they degenerate to the Succ count == n.
+        CHECK(para_via_gcata_with<int>(generic_nat, para_algebra, nat) == n);
+        CHECK((zygo_via_gcata_with<int, int>(generic_nat, zygo_helper,
+                                             zygo_main, nat)) == n);
+    }
+}
 
 TEST_CASE("gcata law: histo_via_gcata equals histo (Fibonacci, 0..10)") {
     for (int n = 0; n <= 10; ++n) {
