@@ -631,6 +631,47 @@ constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
         smd::typeclass::comonad_typeclass<WResult>.extract(worker(tree)));
 }
 
+/** Worker for gprepro_with: gcata_worker_with_t's shape with the hoist_with
+ * splice (design D12). Threads functor + comonad, hoists each child subtree
+ * through the threaded functor, and calls the dist law functor-threaded. */
+template <class Result, class WResult, template <class> class F, class Functor,
+          class Comonad, class Dist, class Nat, class GAlgebra>
+struct gprepro_worker_with_t {
+    const Functor &functor;
+    const Comonad &comonad;
+    const Dist &dist;
+    const Nat &e;
+    const GAlgebra &algebra;
+
+    using WWR = decltype(comonad.duplicate(std::declval<WResult>()));
+    using C = decltype(dist(functor, std::declval<F<WWR>>()));
+
+    constexpr auto operator()(const Fix<F> &t) const -> C {
+        return dist(
+            functor,
+            layer_fmap(functor,
+                       [this](const Fix<F> &child) -> WWR {
+                           return comonad.duplicate(comonad.fmap(
+                               algebra,
+                               (*this)(hoist_with<F>(functor, e, child))));
+                       },
+                       unwrap_fix(t)));
+    }
+};
+
+/** gprepro threading an explicit functor and comonad instance (design D12). */
+template <class Result, class WResult, template <class> class F, class Functor,
+          class Comonad, class Dist, class Nat, class GAlgebra>
+constexpr auto gprepro_with(const Functor &functor, const Comonad &comonad,
+                            const Dist &dist, const Nat &e,
+                            const GAlgebra &algebra, const Fix<F> &tree)
+    -> Result {
+    gprepro_worker_with_t<Result, WResult, F, Functor, Comonad, Dist, Nat,
+                          GAlgebra>
+        worker{functor, comonad, dist, e, algebra};
+    return algebra(comonad.extract(worker(tree)));
+}
+
 // ---------------------------------------------------------------------
 // gpostpro :: Monad m => dist -> (forall x. f x -> f x)
 //                     -> (a -> f (m a)) -> a -> t
@@ -696,6 +737,46 @@ constexpr auto gpostpro(const Dist &dist, const Nat &e,
                                                               coalgebra};
     return worker(
         smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
+}
+
+/** Worker for gpostpro_with: gana_worker_with_t's shape with the hoist_with
+ * splice (design D12), dual to gprepro_worker_with_t. Threads functor +
+ * monad, uses monad.fmap for fmapM, hoists each recursive result through the
+ * threaded functor, and calls the dist law functor-threaded. */
+template <template <class> class F, class MSeed, class Functor, class Monad,
+          class Dist, class Nat, class GCoalgebra>
+struct gpostpro_worker_with_t {
+    const Functor &functor;
+    const Monad &monad;
+    const Dist &dist;
+    const Nat &e;
+    const GCoalgebra &coalgebra;
+
+    using MFMS = decltype(monad.pure(std::declval<F<MSeed>>()));
+    using MMS = decltype(monad.pure(std::declval<MSeed>()));
+
+    constexpr auto operator()(const MFMS &m) const -> Fix<F> {
+        return wrap_fix<F>(layer_fmap(
+            functor,
+            [this](const MMS &mms) -> Fix<F> {
+                auto joined = monad.join(mms);
+                auto next = monad.fmap(coalgebra, joined);
+                return hoist_with<F>(functor, e, (*this)(next));
+            },
+            dist(functor, m)));
+    }
+};
+
+/** gpostpro threading an explicit functor and monad instance (design D12). */
+template <template <class> class F, class MSeed, class Functor, class Monad,
+          class Dist, class Nat, class GCoalgebra, class Seed>
+constexpr auto gpostpro_with(const Functor &functor, const Monad &monad,
+                             const Dist &dist, const Nat &e,
+                             const GCoalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    gpostpro_worker_with_t<F, MSeed, Functor, Monad, Dist, Nat, GCoalgebra>
+        worker{functor, monad, dist, e, coalgebra};
+    return worker(monad.pure(coalgebra(seed)));
 }
 
 } // namespace smd::fixpoint

@@ -17,6 +17,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstddef>
+#include <functional>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -30,7 +32,9 @@ using smd::fixpoint::extract;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::gcata;
 using smd::fixpoint::gpostpro;
+using smd::fixpoint::gpostpro_with;
 using smd::fixpoint::gprepro;
+using smd::fixpoint::gprepro_with;
 using smd::fixpoint::hoist;
 using smd::fixpoint::IntList;
 using smd::fixpoint::IntListF;
@@ -51,9 +55,31 @@ using smd::fixpoint::unfold_fix;
 using smd::fixpoint::Zero;
 using smd::fixpoint::zygo_histo_prepro;
 
+using smd::typeclass::comonad_typeclass;
 using smd::typeclass::Identity;
+using smd::typeclass::monad_typeclass;
 
 TEST_CASE("gprepro - HeaderIsIdempotent") { REQUIRE(true); }
+
+namespace {
+// Element-generic NatF functor, deliberately NOT registered -- exercises
+// gprepro_with / gpostpro_with with an unregistered functor.
+struct GenericNatFunctor {
+    template <class Fn, class A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat{};
+} // namespace
 
 // ---------------------------------------------------------------------
 // Fixture natural transformations (design §4, re-declared locally per
@@ -177,6 +203,25 @@ TEST_CASE("gprepro law: gprepro(dist_cata, identity_nat, phi') equals "
     }
 }
 
+// gprepro_with (design D12, multi-typeclass): threading an unregistered
+// functor (comonad stays canonical) still degenerates to fold_fix. The
+// projection algebra threads the same functor.
+TEST_CASE("gprepro_with: (dist_cata, identity_nat) matches fold_fix "
+          "(unregistered functor)") {
+    auto alg_prime = [](const NatF<Identity<int>> &layer) -> int {
+        return nat_count_algebra(layer_fmap(
+            generic_nat, [](const Identity<int> &i) { return i.value; },
+            layer));
+    };
+    for (int n = 0; n <= 10; ++n) {
+        Nat nat = nat_from_int(n);
+        CHECK((gprepro_with<int, Identity<int>>(
+                  generic_nat, comonad_typeclass<Identity<int>>, dist_cata,
+                  identity_nat{}, alg_prime, nat)) ==
+              fold_fix<int>(nat_count_algebra, nat));
+    }
+}
+
 TEST_CASE("gprepro law: gprepro(dist_cata, e, phi') equals prepro(e, phi) "
           "(take-while-positive fixture, [3,4,-1,5])") {
     IntList list = list_from_vector({3, 4, -1, 5});
@@ -224,6 +269,24 @@ TEST_CASE("gpostpro law: gpostpro(dist_ana, identity_nat, psi') equals "
             dist_ana, identity_nat{}, countdown_prime, n);
         Nat via_unfold = unfold_fix<NatF>(countdown, n);
         CHECK(nat_to_int(via_gpostpro) == nat_to_int(via_unfold));
+    }
+}
+
+// gpostpro_with (design D12, multi-typeclass, monad side): threading an
+// unregistered functor (monad stays canonical) still degenerates to
+// unfold_fix. The lift coalgebra threads the same functor.
+TEST_CASE("gpostpro_with: (dist_ana, identity_nat) matches unfold_fix "
+          "(unregistered functor)") {
+    auto psi_prime = [](int m) -> NatF<Identity<int>> {
+        return layer_fmap(
+            generic_nat, [](int x) { return Identity<int>{x}; }, countdown(m));
+    };
+    for (int n = 0; n <= 10; ++n) {
+        Nat via_gpostpro_with = gpostpro_with<NatF, Identity<int>>(
+            generic_nat, monad_typeclass<Identity<int>>, dist_ana,
+            identity_nat{}, psi_prime, n);
+        Nat via_unfold = unfold_fix<NatF>(countdown, n);
+        CHECK(nat_to_int(via_gpostpro_with) == nat_to_int(via_unfold));
     }
 }
 
