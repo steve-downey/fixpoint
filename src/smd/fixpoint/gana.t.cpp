@@ -21,11 +21,14 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstddef>
+#include <functional>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
 
 using smd::fixpoint::ana_via_gana;
+using smd::fixpoint::ana_via_gana_with;
 using smd::fixpoint::apo;
 using smd::fixpoint::apo_via_gana;
 using smd::fixpoint::Cons;
@@ -75,6 +78,25 @@ constexpr auto countdown(int m) -> NatF<int> {
     return Succ<int>{make_box<int>(m - 1)};
 }
 
+// Element-generic NatF functor, deliberately NOT registered -- exercises
+// gana_with's multi-typeclass threading with an unregistered functor (the
+// monad, Identity's, stays canonical/looked-up).
+struct GenericNatFunctor {
+    template <class Fn, class A>
+    auto fmap(Fn &&fn, const NatF<A> &layer) const {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{
+                                      make_box<B>(std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
+    }
+};
+inline constexpr GenericNatFunctor generic_nat{};
+
 } // namespace
 
 TEST_CASE("gana law: ana_via_gana equals unfold_fix (Nat, 0..10)") {
@@ -82,6 +104,17 @@ TEST_CASE("gana law: ana_via_gana equals unfold_fix (Nat, 0..10)") {
         Nat via_gana = ana_via_gana<NatF>(countdown, n);
         Nat via_unfold = unfold_fix<NatF>(countdown, n);
         CHECK(nat_to_int(via_gana) == nat_to_int(via_unfold));
+    }
+}
+
+// gana_with (design D12, multi-typeclass, monad side): threading an
+// unregistered functor (monad stays canonical) still recovers unfold_fix.
+TEST_CASE("gana_with: ana_via_gana_with matches unfold_fix (unregistered "
+          "functor)") {
+    for (int n = 0; n <= 10; ++n) {
+        Nat via_gana_with = ana_via_gana_with<NatF>(generic_nat, countdown, n);
+        Nat via_unfold = unfold_fix<NatF>(countdown, n);
+        CHECK(nat_to_int(via_gana_with) == nat_to_int(via_unfold));
     }
 }
 

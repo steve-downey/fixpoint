@@ -343,11 +343,75 @@ constexpr auto gana(const Dist &dist, const GCoalgebra &coalgebra,
 }
 
 // ---------------------------------------------------------------------
+// gana_with (design D12): the monad-side dual of gcata_with. gana dispatches
+// through the base functor (worker's layer_fmap + the dist law's internal
+// layer_fmap), the monad (monad_typeclass<MSeed>: pure/join, and -- via the
+// derived Monad::fmap -- the `fmapM` step), and the dist law. gana_with
+// threads the functor and the monad by value, uses `monad.fmap` for fmapM
+// (so no separate monad-functor lookup), and calls the dist law in its
+// functor-threaded form. Symmetric with gcata_with: two threaded instances.
+// ---------------------------------------------------------------------
+
+/** Worker for gana_with: gana_worker_t threading an explicit functor and
+ * monad. `fmapM` goes through the derived `monad.fmap`; `dist` is called in
+ * its functor-threaded (2-arg) form. */
+template <template <class> class F, class MSeed, class Functor, class Monad,
+          class Dist, class GCoalgebra>
+struct gana_worker_with_t {
+    const Functor &functor;
+    const Monad &monad;
+    const Dist &dist;
+    const GCoalgebra &coalgebra;
+
+    using MFMS = decltype(monad.pure(std::declval<F<MSeed>>()));
+    using MMS = decltype(monad.pure(std::declval<MSeed>()));
+
+    constexpr auto operator()(const MFMS &m) const -> Fix<F> {
+        return wrap_fix<F>(layer_fmap(
+            functor,
+            [this](const MMS &mms) -> Fix<F> {
+                auto joined = monad.join(mms);
+                auto next = monad.fmap(coalgebra, joined);
+                return (*this)(next);
+            },
+            dist(functor, m)));
+    }
+};
+
+/** gana threading an explicit functor and monad instance (design D12). */
+template <template <class> class F, class MSeed, class Functor, class Monad,
+          class Dist, class GCoalgebra, class Seed>
+constexpr auto gana_with(const Functor &functor, const Monad &monad,
+                         const Dist &dist, const GCoalgebra &coalgebra,
+                         const Seed &seed) -> Fix<F> {
+    gana_worker_with_t<F, MSeed, Functor, Monad, Dist, GCoalgebra> worker{
+        functor, monad, dist, coalgebra};
+    return worker(monad.pure(coalgebra(seed)));
+}
+
+// ---------------------------------------------------------------------
 // gana recovery functions (design §9): thin wrappers pinning gana to each
 // existing unfold scheme's own coalgebra shape. Each is gated in
 // gana.t.cpp by exact-answer equivalence with unfold_fix/apo/futu on the
 // same fixtures those schemes' own steps used (design D8).
 // ---------------------------------------------------------------------
+
+/** ana_via_gana_with: gana_with(dist_ana, ...) recovers unfold_fix, threading
+ * an explicit functor (the monad here is Identity's, canonical, looked up).
+ * The monad-side worked example of the multi-typeclass form. */
+template <template <class> class F, class Functor, class Coalgebra, class Seed>
+constexpr auto ana_via_gana_with(const Functor &functor,
+                                 const Coalgebra &coalgebra, const Seed &seed)
+    -> Fix<F> {
+    using MSeed = smd::typeclass::Identity<Seed>;
+    auto coalgebra_prime = [&](const Seed &s) -> F<MSeed> {
+        return layer_fmap(
+            functor, [](const Seed &x) { return MSeed{x}; }, coalgebra(s));
+    };
+    return gana_with<F, MSeed>(functor,
+                               smd::typeclass::monad_typeclass<MSeed>, dist_ana,
+                               coalgebra_prime, seed);
+}
 
 /** ana_via_gana: `gana<F, Identity<Seed>>(dist_ana, ...)` recovers
  * unfold_fix.

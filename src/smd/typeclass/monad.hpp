@@ -58,6 +58,21 @@ struct Monad : protected Impl {
                          [](auto &&inner) { return inner; });
     }
 
+    // fmap: derived from bind + pure -- every monad is a functor.
+    // fmap f m = m >>= (pure . f). Provided so a monad instance can be used
+    // as its own functor (mirrors Comonad::fmap), which the generalized
+    // schemes' monad side (gana/gpostpro) needs for `fmapM`; the result
+    // agrees with functor_typeclass<M<...>> for every lawful monad instance.
+    template <class Fn, class MA>
+    constexpr auto fmap(this auto &&self, Fn &&fn, MA &&ma) {
+        return self.bind(std::forward<MA>(ma),
+                         [&self, &fn](auto &&a) {
+                             return self.pure(std::invoke(
+                                 std::forward<Fn>(fn),
+                                 std::forward<decltype(a)>(a)));
+                         });
+    }
+
     // kleisli: forward Kleisli composition (>=>).
     // (f >=> g) a = f a >>= g
     template <class F, class G>

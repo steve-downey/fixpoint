@@ -108,6 +108,20 @@ struct dist_ana_t {
             },
             ident.value);
     }
+
+    // Functor-threaded form (design D12), for gana_with. Arity-distinguished.
+    template <class Functor, class Layer>
+    constexpr auto operator()(const Functor &functor,
+                              const smd::typeclass::Identity<Layer> &ident)
+        const {
+        return layer_fmap(
+            functor,
+            [](const auto &x) {
+                return smd::typeclass::Identity<
+                    std::remove_cvref_t<decltype(x)>>{x};
+            },
+            ident.value);
+    }
 };
 inline constexpr dist_ana_t dist_ana{};
 
