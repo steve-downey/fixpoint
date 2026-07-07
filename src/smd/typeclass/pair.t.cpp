@@ -71,7 +71,7 @@ TEST_CASE("pair env comonad: extend(extract, w) == w (comonad law)") {
     const auto &c = bt::comonad_typeclass<std::pair<std::string, int>>;
     std::pair<std::string, int> w{"env", 13};
     auto result = c.extend(
-        [&c](const std::pair<std::string, int> &inner) {
+        [](const std::pair<std::string, int> &inner) {
             return c.extract(inner);
         },
         w);
@@ -106,7 +106,7 @@ constexpr auto pair_constexpr_smoke() -> bool {
         c.duplicate(w) == std::pair<int, std::pair<int, int>>{1, w};
     bool extend_law_ok =
         c.extend(
-            [&c](const std::pair<int, int> &inner) { return c.extract(inner); },
+            [](const std::pair<int, int> &inner) { return c.extract(inner); },
             w) == w;
 
     auto mapped = bt::map_first([](int x) { return x + 1; }, w);

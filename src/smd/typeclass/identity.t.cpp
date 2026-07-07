@@ -49,14 +49,14 @@ TEST_CASE("identity: comonad laws hold") {
 
     // fmap extract . duplicate == id
     auto fmap_extract_duplicate = c.fmap(
-        [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+        [](const bt::Identity<int> &inner) { return c.extract(inner); },
         c.duplicate(w));
     REQUIRE(fmap_extract_duplicate == w);
 
     // duplicate . duplicate associativity: fmap duplicate . duplicate ==
     // duplicate . duplicate
     auto lhs = c.fmap(
-        [&c](const bt::Identity<int> &inner) { return c.duplicate(inner); },
+        [](const bt::Identity<int> &inner) { return c.duplicate(inner); },
         c.duplicate(w));
     auto rhs = c.duplicate(c.duplicate(w));
     REQUIRE(lhs == rhs);
@@ -64,7 +64,7 @@ TEST_CASE("identity: comonad laws hold") {
     // extend derived operation matches fmap-after-duplicate directly.
     REQUIRE(
         c.extend(
-            [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+            [](const bt::Identity<int> &inner) { return c.extract(inner); },
             w) == w);
 }
 
@@ -78,7 +78,7 @@ constexpr auto identity_comonad_laws_hold() -> bool {
     bool extract_duplicate_is_id = c.extract(c.duplicate(w)) == w;
     bool extend_extract_is_id =
         c.extend(
-            [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+            [](const bt::Identity<int> &inner) { return c.extract(inner); },
             w) == w;
     return extract_duplicate_is_id && extend_extract_is_id;
 }
