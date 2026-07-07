@@ -70,11 +70,10 @@ TEST_CASE("comonad laws: fmap(extract) . duplicate == id — both instances") {
 
     const auto &cp = bt::comonad_typeclass<std::pair<int, int>>;
     std::pair<int, int> wp{1, 4};
-    REQUIRE(cp.fmap(
-                [](const std::pair<int, int> &inner) {
-                    return cp.extract(inner);
-                },
-                cp.duplicate(wp)) == wp);
+    REQUIRE(
+        cp.fmap(
+            [](const std::pair<int, int> &inner) { return cp.extract(inner); },
+            cp.duplicate(wp)) == wp);
 }
 
 TEST_CASE("comonad laws: duplicate . duplicate associativity — Identity") {
@@ -100,11 +99,10 @@ constexpr auto comonad_generic_laws_hold() -> bool {
 
     const auto &cp = bt::comonad_typeclass<std::pair<int, int>>;
     std::pair<int, int> wp{0, 2};
-    bool pair_ok = cp.extend(
-                       [](const std::pair<int, int> &inner) {
-                           return cp.extract(inner);
-                       },
-                       wp) == wp;
+    bool pair_ok =
+        cp.extend(
+            [](const std::pair<int, int> &inner) { return cp.extract(inner); },
+            wp) == wp;
 
     return identity_ok && pair_ok;
 }
