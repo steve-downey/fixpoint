@@ -12,7 +12,6 @@ target_sources(
                 box.hpp
                 fmap.hpp
                 recursion_schemes.hpp
-                functors.hpp
                 para.hpp
                 apo.hpp
                 zygo.hpp
@@ -57,7 +56,6 @@ if(FIXPOINT_ENABLE_TESTING)
             overloaded.t.cpp
             fmap.t.cpp
             recursion_schemes.t.cpp
-            functors.t.cpp
             para.t.cpp
             apo.t.cpp
             zygo.t.cpp

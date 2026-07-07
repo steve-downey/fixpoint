@@ -57,15 +57,14 @@ struct NatFFunctorImpl {
     template <typename Fn>
     constexpr auto fmap(this auto &&, Fn &&fn, const NatF<A> &layer) {
         using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
-        return std::visit(
-            smd::fixpoint::overloaded{
-                [](const Zero &) -> NatF<B> { return Zero{}; },
-                [&](const Succ<A> &s) -> NatF<B> {
-                    return Succ<B>{
-                        smd::fixpoint::make_box<B>(std::invoke(fn, *s.pred))};
-                },
-            },
-            layer);
+        return std::visit(smd::fixpoint::overloaded{
+                              [](const Zero &) -> NatF<B> { return Zero{}; },
+                              [&](const Succ<A> &s) -> NatF<B> {
+                                  return Succ<B>{smd::fixpoint::make_box<B>(
+                                      std::invoke(fn, *s.pred))};
+                              },
+                          },
+                          layer);
     }
 };
 
@@ -172,15 +171,14 @@ namespace {
 struct TaggingNatFunctorImpl {
     template <typename Fn>
     constexpr auto fmap(this auto &&, Fn &&fn, const NatF<int> &layer) {
-        return std::visit(
-            overloaded{
-                [](const Zero &) -> NatF<int> { return Zero{}; },
-                [&](const Succ<int> &s) -> NatF<int> {
-                    return Succ<int>{
-                        make_box<int>(std::invoke(fn, *s.pred) + 100)};
-                },
-            },
-            layer);
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<int> { return Zero{}; },
+                              [&](const Succ<int> &s) -> NatF<int> {
+                                  return Succ<int>{make_box<int>(
+                                      std::invoke(fn, *s.pred) + 100)};
+                              },
+                          },
+                          layer);
     }
 };
 
@@ -228,8 +226,8 @@ TEST_CASE("fmap - explicit modes are constexpr") {
     }();
     constexpr auto explicit_obj = [] {
         NatF<int> layer = Succ<int>{make_box<int>(7)};
-        auto mapped = layer_fmap(
-            tagging_nat_functor, [](int x) { return x + 1; }, layer);
+        auto mapped =
+            layer_fmap(tagging_nat_functor, [](int x) { return x + 1; }, layer);
         return *std::get<Succ<int>>(mapped).pred;
     }();
     static_assert(pinned == 108 && explicit_obj == 108);

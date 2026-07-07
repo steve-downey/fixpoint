@@ -83,8 +83,10 @@ template <class Result, template <class> class F, class Algebra,
           class Coalgebra, class Seed>
 constexpr auto codyna(const Algebra &algebra, const Coalgebra &coalgebra,
                       const Seed &seed) -> Result {
-    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
-        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    auto unroll_step =
+        [&coalgebra](const Free<F, Seed> &chunk) -> F<Free<F, Seed>> {
+        return unroll<F>(coalgebra, chunk);
+    };
     return refold<Result, F>(algebra, unroll_step, pure_free<F>(seed));
 }
 
@@ -101,8 +103,10 @@ constexpr auto chrono(const Algebra &algebra, const Coalgebra &coalgebra,
     auto combined = [&](const F<Carrier> &layer) -> Carrier {
         return Carrier{algebra(layer), layer};
     };
-    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
-        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    auto unroll_step =
+        [&coalgebra](const Free<F, Seed> &chunk) -> F<Free<F, Seed>> {
+        return unroll<F>(coalgebra, chunk);
+    };
     return extract(
         refold<Carrier, F>(combined, unroll_step, pure_free<F>(seed)));
 }

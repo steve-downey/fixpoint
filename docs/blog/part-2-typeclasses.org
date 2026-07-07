@@ -63,9 +63,9 @@ an instance object.
 Registration for a base functor is a partial specialization keyed on the
 concrete *layer* type.
 Here is the whole of ~NatF~'s membership, from
-[[file:../../src/smd/fixpoint/functors.hpp][=src/smd/fixpoint/functors.hpp=]]:
+[[file:../../src/smd/concrete/functors.hpp][=src/smd/concrete/functors.hpp=]]:
 
-#+transclude: [[file:../../src/smd/fixpoint/functors.hpp::ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b]] :lines 2- :src cpp :end "ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b end"
+#+transclude: [[file:../../src/smd/concrete/functors.hpp::ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b]] :lines 2- :src cpp :end "ed1f1ead-9b55-4e2c-8ce1-de7f1f0a405b end"
 
 The ~Impl~ visits the variant: ~Zero~ crosses unchanged, ~Succ~ applies the
 function through the ~Box~ and reboxes at the new element type.

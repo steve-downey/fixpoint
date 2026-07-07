@@ -4,9 +4,9 @@
 #include <smd/fixpoint/histo.hpp>
 #include <smd/fixpoint/histo.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/fmap.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -15,17 +15,17 @@
 #include <optional>
 #include <variant>
 
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Cofree;
 using smd::fixpoint::extract;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::histo;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
-using smd::fixpoint::Zero;
 
 TEST_CASE("histo - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -39,10 +39,10 @@ namespace {
 
 auto plain_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 auto heads_only_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
@@ -118,7 +118,7 @@ constexpr auto look_back(const Cofree<NatF, int> &c, int steps)
         return std::nullopt; // ran off the front of the history: n - k < 0
     }
     return look_back(*std::get<Succ<Cofree<NatF, int>>>(c.tail).pred,
-                      steps - 1);
+                     steps - 1);
 }
 
 auto coin_change_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
@@ -128,7 +128,7 @@ auto coin_change_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
             [](const Succ<Cofree<NatF, int>> &s) -> int {
                 const Cofree<NatF, int> &pred = *s.pred; // history for n-1
                 int best = pred.head;                    // use coin 1
-                if (auto m4 = look_back(pred, 3)) {       // n-1-3 == n-4
+                if (auto m4 = look_back(pred, 3)) {      // n-1-3 == n-4
                     if (*m4 < best) {
                         best = *m4;
                     }

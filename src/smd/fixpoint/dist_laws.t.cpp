@@ -4,11 +4,11 @@
 #include <smd/fixpoint/dist_laws.hpp>
 #include <smd/fixpoint/dist_laws.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 
 #include <smd/typeclass/either.hpp>
@@ -20,9 +20,16 @@
 #include <utility>
 #include <variant>
 
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Cofree;
-using smd::fixpoint::dist_apo;
 using smd::fixpoint::dist_ana;
+using smd::fixpoint::dist_apo;
 using smd::fixpoint::dist_cata;
 using smd::fixpoint::dist_futu;
 using smd::fixpoint::dist_gapo;
@@ -32,24 +39,17 @@ using smd::fixpoint::dist_zygo;
 using smd::fixpoint::extract;
 using smd::fixpoint::Fix;
 using smd::fixpoint::Free;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::is_pure;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::pure_free;
 using smd::fixpoint::roll_free;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unwrap_fix;
 using smd::fixpoint::wrap_fix;
-using smd::fixpoint::Zero;
 
-using smd::fixpoint::Cons;
-using smd::fixpoint::Nil;
+using smd::concrete::Cons;
+using smd::concrete::Nil;
 
 using smd::typeclass::either;
 using smd::typeclass::functor_typeclass;
@@ -72,7 +72,8 @@ TEST_CASE("dist_cata: round-trips NatF<Identity<int>> shapes") {
     NatF<Identity<int>> zero_layer{Zero{}};
     CHECK(dist_cata(zero_layer) == Identity<NatF<int>>{NatF<int>{Zero{}}});
 
-    NatF<Identity<int>> succ_layer{Succ<Identity<int>>{make_box<Identity<int>>(Identity<int>{5})}};
+    NatF<Identity<int>> succ_layer{
+        Succ<Identity<int>>{make_box<Identity<int>>(Identity<int>{5})}};
     CHECK(dist_cata(succ_layer) ==
           Identity<NatF<int>>{NatF<int>{Succ<int>{make_box<int>(5)}}});
 }
@@ -89,8 +90,8 @@ TEST_CASE("dist_ana: round-trips IntListF<int> shapes") {
     Identity<IntListF<int>> cons_ident{
         IntListF<int>{Cons<int, int>{7, make_box<int>(3)}}};
     CHECK(dist_ana(cons_ident) ==
-          IntListF<Identity<int>>{
-              Cons<int, Identity<int>>{7, make_box<Identity<int>>(Identity<int>{3})}});
+          IntListF<Identity<int>>{Cons<int, Identity<int>>{
+              7, make_box<Identity<int>>(Identity<int>{3})}});
 }
 
 // ---------------------------------------------------------------------
@@ -104,9 +105,8 @@ namespace {
 
 auto make_nat_cofree_chain() -> Cofree<NatF, int> {
     Cofree<NatF, int> c0{0, NatF<Cofree<NatF, int>>{Zero{}}};
-    Cofree<NatF, int> c1{
-        1, NatF<Cofree<NatF, int>>{Succ<Cofree<NatF, int>>{
-               make_box<Cofree<NatF, int>>(c0)}}};
+    Cofree<NatF, int> c1{1, NatF<Cofree<NatF, int>>{Succ<Cofree<NatF, int>>{
+                                make_box<Cofree<NatF, int>>(c0)}}};
     return c1;
 }
 
@@ -128,8 +128,8 @@ TEST_CASE("dist_histo: F<Cofree<F,A>> -> Cofree<F, F<A>> on a two-level Nat "
 
     // Zero-layer input degenerates to a Zero-headed, Zero-tailed Cofree.
     NatF<Cofree<NatF, int>> zero_layer{Zero{}};
-    Cofree<NatF, NatF<int>> expected_zero{NatF<int>{Zero{}},
-                                         NatF<Cofree<NatF, NatF<int>>>{Zero{}}};
+    Cofree<NatF, NatF<int>> expected_zero{
+        NatF<int>{Zero{}}, NatF<Cofree<NatF, NatF<int>>>{Zero{}}};
     CHECK(dist_histo<NatF>(zero_layer) == expected_zero);
 }
 
@@ -141,8 +141,8 @@ TEST_CASE("dist_histo: F<Cofree<F,A>> -> Cofree<F, F<A>> on a two-level Nat "
 TEST_CASE("dist_futu: Free<F, F<A>> -> F<Free<F,A>> on Pure and Roll chunks "
           "(Nat)") {
     // Pure layer -> fmapF(pure_free, layer).
-    Free<NatF, NatF<int>> pure_chunk = pure_free<NatF>(NatF<int>{
-        Succ<int>{make_box<int>(5)}});
+    Free<NatF, NatF<int>> pure_chunk =
+        pure_free<NatF>(NatF<int>{Succ<int>{make_box<int>(5)}});
     NatF<Free<NatF, int>> expected_from_pure{
         Succ<Free<NatF, int>>{make_box<Free<NatF, int>>(pure_free<NatF>(5))}};
     CHECK(dist_futu<NatF>(pure_chunk) == expected_from_pure);
@@ -150,14 +150,13 @@ TEST_CASE("dist_futu: Free<F, F<A>> -> F<Free<F,A>> on Pure and Roll chunks "
     // Roll layer -> fmapF(roll_free . dist_futu, layer): one outer Succ
     // wrapping a Pure child chunk holding NatF<int>{Zero{}}.
     Free<NatF, NatF<int>> child_chunk = pure_free<NatF>(NatF<int>{Zero{}});
-    Free<NatF, NatF<int>> roll_chunk = roll_free<NatF>(
-        NatF<Free<NatF, NatF<int>>>{Succ<Free<NatF, NatF<int>>>{
+    Free<NatF, NatF<int>> roll_chunk =
+        roll_free<NatF>(NatF<Free<NatF, NatF<int>>>{Succ<Free<NatF, NatF<int>>>{
             make_box<Free<NatF, NatF<int>>>(child_chunk)}});
 
     NatF<Free<NatF, int>> expected_inner{Zero{}};
-    NatF<Free<NatF, int>> expected_from_roll{
-        Succ<Free<NatF, int>>{make_box<Free<NatF, int>>(
-            roll_free<NatF>(expected_inner))}};
+    NatF<Free<NatF, int>> expected_from_roll{Succ<Free<NatF, int>>{
+        make_box<Free<NatF, int>>(roll_free<NatF>(expected_inner))}};
     CHECK(dist_futu<NatF>(roll_chunk) == expected_from_roll);
 }
 
@@ -185,9 +184,8 @@ TEST_CASE("dist_zygo(helper): F<pair<B,X>> -> pair<B, F<X>> on NatF") {
     CHECK(zero_result.first == 0);
     CHECK(zero_result.second == NatF<char>{Zero{}});
 
-    NatF<std::pair<int, char>> succ_layer{
-        Succ<std::pair<int, char>>{make_box<std::pair<int, char>>(
-            std::pair<int, char>{3, 'z'})}};
+    NatF<std::pair<int, char>> succ_layer{Succ<std::pair<int, char>>{
+        make_box<std::pair<int, char>>(std::pair<int, char>{3, 'z'})}};
     auto succ_result = law(succ_layer);
     CHECK(succ_result.first == 4); // sum_helper(F<int> with the projected 3)
     CHECK(succ_result.second == NatF<char>{Succ<char>{make_box<char>('z')}});
@@ -200,14 +198,13 @@ TEST_CASE("dist_zygo(helper): F<pair<B,X>> -> pair<B, F<X>> on NatF") {
 TEST_CASE("dist_para: F<pair<Fix<F>,X>> -> pair<Fix<F>, F<X>> on NatF") {
     Nat two = nat_from_int(2);
 
-    NatF<std::pair<Nat, char>> layer{
-        Succ<std::pair<Nat, char>>{make_box<std::pair<Nat, char>>(
-            std::pair<Nat, char>{two, 'p'})}};
+    NatF<std::pair<Nat, char>> layer{Succ<std::pair<Nat, char>>{
+        make_box<std::pair<Nat, char>>(std::pair<Nat, char>{two, 'p'})}};
 
     auto result = dist_para<NatF>(layer);
     // First component reconstructs Fix<F> from every child's original
     // subtree (wrap_fix of the projected-.first layer) — i.e. Succ(two).
-    CHECK(smd::fixpoint::nat_to_int(result.first) == 3);
+    CHECK(smd::concrete::nat_to_int(result.first) == 3);
     CHECK(result.second == NatF<char>{Succ<char>{make_box<char>('p')}});
 }
 
@@ -235,8 +232,9 @@ TEST_CASE("dist_apo: Left graft and Right continue on NatF") {
     REQUIRE(std::holds_alternative<Succ<either<Nat, int>>>(left_result));
     const auto &left_succ_alt = std::get<Succ<either<Nat, int>>>(left_result);
     REQUIRE(is_left(*left_succ_alt.pred));
-    // The grafted child is existing's own predecessor subtree (Succ(Succ(Zero))).
-    CHECK(smd::fixpoint::nat_to_int(left(*left_succ_alt.pred)) == 2);
+    // The grafted child is existing's own predecessor subtree
+    // (Succ(Succ(Zero))).
+    CHECK(smd::concrete::nat_to_int(left(*left_succ_alt.pred)) == 2);
 }
 
 TEST_CASE("dist_apo: either<Fix<F>, F<Fix<F>>>-shaped case (Seed = Fix<F>)") {
@@ -244,20 +242,21 @@ TEST_CASE("dist_apo: either<Fix<F>, F<Fix<F>>>-shaped case (Seed = Fix<F>)") {
     Nat seed_tree = nat_from_int(5);
 
     // Right side holds a full F<Fix<F>> layer (Seed = Fix<F> itself).
-    either<Nat, NatF<Nat>> right_input = make_right<Nat>(
-        NatF<Nat>{Succ<Nat>{make_box<Nat>(seed_tree)}});
+    either<Nat, NatF<Nat>> right_input =
+        make_right<Nat>(NatF<Nat>{Succ<Nat>{make_box<Nat>(seed_tree)}});
     auto right_result = dist_apo.operator()<Nat>(right_input);
     REQUIRE(std::holds_alternative<Succ<either<Nat, Nat>>>(right_result));
     const auto &right_succ = std::get<Succ<either<Nat, Nat>>>(right_result);
     CHECK_FALSE(is_left(*right_succ.pred));
-    CHECK(smd::fixpoint::nat_to_int(right(*right_succ.pred)) == 5);
+    CHECK(smd::concrete::nat_to_int(right(*right_succ.pred)) == 5);
 
     either<Nat, NatF<Nat>> left_input = make_left<NatF<Nat>>(existing);
     auto left_result = dist_apo.operator()<Nat>(left_input);
     REQUIRE(std::holds_alternative<Succ<either<Nat, Nat>>>(left_result));
     const auto &left_succ = std::get<Succ<either<Nat, Nat>>>(left_result);
     REQUIRE(is_left(*left_succ.pred));
-    CHECK(smd::fixpoint::nat_to_int(left(*left_succ.pred)) == 0); // existing's child
+    CHECK(smd::concrete::nat_to_int(left(*left_succ.pred)) ==
+          0); // existing's child
 }
 
 // ---------------------------------------------------------------------
@@ -276,8 +275,8 @@ TEST_CASE("dist_gapo(coalg): generalizes dist_apo with a coalgebra") {
     };
     auto law = dist_gapo(coalg);
 
-    either<int, NatF<char>> right_input = make_right<int>(
-        NatF<char>{Succ<char>{make_box<char>('r')}});
+    either<int, NatF<char>> right_input =
+        make_right<int>(NatF<char>{Succ<char>{make_box<char>('r')}});
     auto right_result = law.operator()<char>(right_input);
     REQUIRE(std::holds_alternative<Succ<either<int, char>>>(right_result));
     CHECK_FALSE(is_left(*std::get<Succ<either<int, char>>>(right_result).pred));
@@ -345,16 +344,17 @@ namespace {
 constexpr auto dist_cata_constexpr_smoke() -> bool {
     NatF<Identity<int>> layer{
         Succ<Identity<int>>{make_box<Identity<int>>(Identity<int>{6})}};
-    return dist_cata(layer) == Identity<NatF<int>>{NatF<int>{Succ<int>{make_box<int>(6)}}};
+    return dist_cata(layer) ==
+           Identity<NatF<int>>{NatF<int>{Succ<int>{make_box<int>(6)}}};
 }
 
 constexpr auto dist_zygo_constexpr_smoke() -> bool {
     auto law = dist_zygo(sum_helper);
-    NatF<std::pair<int, int>> layer{
-        Succ<std::pair<int, int>>{make_box<std::pair<int, int>>(
-            std::pair<int, int>{2, 9})}};
+    NatF<std::pair<int, int>> layer{Succ<std::pair<int, int>>{
+        make_box<std::pair<int, int>>(std::pair<int, int>{2, 9})}};
     auto result = law(layer);
-    return result.first == 3 && result.second == NatF<int>{Succ<int>{make_box<int>(9)}};
+    return result.first == 3 &&
+           result.second == NatF<int>{Succ<int>{make_box<int>(9)}};
 }
 
 } // namespace

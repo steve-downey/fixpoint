@@ -135,16 +135,13 @@ template <class Result, template <class> class F, class Algebra>
 constexpr auto cata_via_gcata(const Algebra &algebra, const Fix<F> &tree)
     -> Result {
     auto algebra_prime =
-        [&algebra](const F<smd::typeclass::Identity<Result>> &layer)
-        -> Result {
-        return algebra(layer_fmap(
-            [](const smd::typeclass::Identity<Result> &i) -> Result {
-                return i.value;
-            },
-            layer));
+        [&algebra](const F<smd::typeclass::Identity<Result>> &layer) -> Result {
+        return algebra(layer_fmap([](const smd::typeclass::Identity<Result> &i)
+                                      -> Result { return i.value; },
+                                  layer));
     };
-    return gcata<Result, smd::typeclass::Identity<Result>>(
-        dist_cata, algebra_prime, tree);
+    return gcata<Result, smd::typeclass::Identity<Result>>(dist_cata,
+                                                           algebra_prime, tree);
 }
 
 /** histo_via_gcata: `gcata(dist_histo<F>, ...)` recovers histo.
@@ -167,12 +164,12 @@ constexpr auto histo_via_gcata(const Algebra &algebra, const Fix<F> &tree)
  * std::pair<Helper,Result>` here is precisely zygo's own carrier (helper
  * first, main second, S05's convention), so no projection is needed.
  */
-template <class Result, class Helper, template <class> class F,
-          class HelperAlg, class MainAlg>
+template <class Result, class Helper, template <class> class F, class HelperAlg,
+          class MainAlg>
 constexpr auto zygo_via_gcata(const HelperAlg &helper, const MainAlg &main,
                               const Fix<F> &tree) -> Result {
     return gcata<Result, std::pair<Helper, Result>>(dist_zygo(helper), main,
-                                                     tree);
+                                                    tree);
 }
 
 /** para_via_gcata: `gcata(dist_para<F>, ...)` recovers para.
@@ -187,7 +184,7 @@ template <class Result, template <class> class F, class Algebra>
 constexpr auto para_via_gcata(const Algebra &algebra, const Fix<F> &tree)
     -> Result {
     return gcata<Result, std::pair<Fix<F>, Result>>(dist_para<F>, algebra,
-                                                     tree);
+                                                    tree);
 }
 // e34a7536-66fe-42a4-b83b-63b606224eda end
 
@@ -246,8 +243,7 @@ struct gana_worker_t {
     constexpr auto operator()(const MFMS &m) const -> Fix<F> {
         return wrap_fix<F>(layer_fmap(
             [this](const MMS &mms) -> Fix<F> {
-                auto joined =
-                    smd::typeclass::monad_typeclass<MSeed>.join(mms);
+                auto joined = smd::typeclass::monad_typeclass<MSeed>.join(mms);
                 auto next = layer_fmap(coalgebra, joined);
                 return (*this)(next);
             },
@@ -271,13 +267,12 @@ struct gana_worker_t {
  *   (dist_laws.hpp)
  * @param coalgebra `Seed -> F<MSeed>`
  */
-template <template <class> class F, class MSeed, class Dist,
-          class GCoalgebra, class Seed>
+template <template <class> class F, class MSeed, class Dist, class GCoalgebra,
+          class Seed>
 constexpr auto gana(const Dist &dist, const GCoalgebra &coalgebra,
                     const Seed &seed) -> Fix<F> {
     gana_worker_t<F, MSeed, Dist, GCoalgebra> worker{dist, coalgebra};
-    return worker(
-        smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
+    return worker(smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
 }
 // ceed4381-6731-4b6d-9415-7685ce4e2730 end
 
@@ -304,8 +299,7 @@ constexpr auto ana_via_gana(const Coalgebra &coalgebra, const Seed &seed)
     -> Fix<F> {
     using MSeed = smd::typeclass::Identity<Seed>;
     auto coalgebra_prime = [&coalgebra](const Seed &s) -> F<MSeed> {
-        return layer_fmap([](const Seed &x) { return MSeed{x}; },
-                          coalgebra(s));
+        return layer_fmap([](const Seed &x) { return MSeed{x}; }, coalgebra(s));
     };
     return gana<F, MSeed>(dist_ana, coalgebra_prime, seed);
 }
@@ -406,8 +400,8 @@ template <class Result, class WResult, template <class> class F, class MSeed,
 constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
                      const MDist &m_dist, const GCoalgebra &coalgebra,
                      const Seed &seed) -> Result {
-    return gcata<Result, WResult>(
-        w_dist, algebra, gana<F, MSeed>(m_dist, coalgebra, seed));
+    return gcata<Result, WResult>(w_dist, algebra,
+                                  gana<F, MSeed>(m_dist, coalgebra, seed));
 }
 // 70f74abb-92b4-4ee2-9023-820b89366ebc end
 
@@ -484,7 +478,7 @@ struct gprepro_worker_t {
 template <class Result, class WResult, template <class> class F, class Dist,
           class Nat, class GAlgebra>
 constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
-                      const Fix<F> &tree) -> Result {
+                       const Fix<F> &tree) -> Result {
     gprepro_worker_t<Result, WResult, F, Dist, Nat, GAlgebra> worker{dist, e,
                                                                      algebra};
     return algebra(
@@ -522,8 +516,7 @@ struct gpostpro_worker_t {
     constexpr auto operator()(const MFMS &m) const -> Fix<F> {
         return wrap_fix<F>(layer_fmap(
             [this](const MMS &mms) -> Fix<F> {
-                auto joined =
-                    smd::typeclass::monad_typeclass<MSeed>.join(mms);
+                auto joined = smd::typeclass::monad_typeclass<MSeed>.join(mms);
                 auto next = layer_fmap(coalgebra, joined);
                 return hoist<F>(e, (*this)(next));
             },
@@ -555,8 +548,7 @@ constexpr auto gpostpro(const Dist &dist, const Nat &e,
     -> Fix<F> {
     gpostpro_worker_t<F, MSeed, Dist, Nat, GCoalgebra> worker{dist, e,
                                                               coalgebra};
-    return worker(
-        smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
+    return worker(smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
 }
 
 } // namespace smd::fixpoint
@@ -607,7 +599,8 @@ template <template <class> class F, class Helper, class X>
 struct ZygoHistoComonadImpl {
     template <class Y>
     constexpr auto
-    extract(this auto &&, const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
+    extract(this auto &&,
+            const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
         -> const Y & {
         return smd::fixpoint::extract(w.second);
     }
@@ -617,8 +610,8 @@ struct ZygoHistoComonadImpl {
     duplicate(this auto &&,
               const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
         -> std::pair<Helper,
-                    smd::fixpoint::Cofree<
-                        F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>> {
+                     smd::fixpoint::Cofree<
+                         F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>> {
         const Helper &env = w.first;
         auto duplicated_cofree =
             comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.duplicate(w.second);
@@ -628,16 +621,16 @@ struct ZygoHistoComonadImpl {
                 return std::pair<Helper, smd::fixpoint::Cofree<F, Y>>{env, c};
             },
             duplicated_cofree);
-        return std::pair<Helper,
-                         smd::fixpoint::Cofree<
-                             F, std::pair<Helper,
-                                         smd::fixpoint::Cofree<F, Y>>>>{
+        return std::pair<
+            Helper, smd::fixpoint::Cofree<
+                        F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>>{
             env, std::move(reattached)};
     }
 
     template <class Fn, class Y>
-    constexpr auto fmap(this auto &&, Fn &&fn,
-                        const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w) {
+    constexpr auto
+    fmap(this auto &&, Fn &&fn,
+         const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w) {
         using Z = remove_cvref_t<std::invoke_result_t<Fn, const Y &>>;
         return std::pair<Helper, smd::fixpoint::Cofree<F, Z>>{
             w.first, comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.fmap(
@@ -700,8 +693,7 @@ struct dist_zygo_histo_t {
     HelperAlg helper;
 
     template <class Helper, class X>
-    constexpr auto
-    operator()(const F<std::pair<Helper, Cofree<F, X>>> &l) const
+    constexpr auto operator()(const F<std::pair<Helper, Cofree<F, X>>> &l) const
         -> std::pair<Helper, Cofree<F, F<X>>> {
         auto helper_layer = layer_fmap(
             [](const std::pair<Helper, Cofree<F, X>> &p) -> Helper {
@@ -714,7 +706,7 @@ struct dist_zygo_histo_t {
             },
             l);
         return std::pair<Helper, Cofree<F, F<X>>>{helper(helper_layer),
-                                                   dist_histo<F>(w_layer)};
+                                                  dist_histo<F>(w_layer)};
     }
 };
 
@@ -755,8 +747,8 @@ constexpr auto dist_zygo_histo(HelperAlg helper)
  * @param g the main algebra `F<std::pair<Helper, Cofree<F,Result>>> ->
  *   Result`
  */
-template <class Result, class Helper, template <class> class F,
-          class HelperAlg, class Nat, class MainAlg>
+template <class Result, class Helper, template <class> class F, class HelperAlg,
+          class Nat, class MainAlg>
 constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
                                  const MainAlg &g, const Fix<F> &tree)
     -> Result {

@@ -4,7 +4,7 @@
 #include <smd/fixpoint/apo.hpp>
 #include <smd/fixpoint/apo.hpp> // Re-inclusion check
 
-#include <smd/fixpoint/functors.hpp>
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -15,22 +15,22 @@
 #include <variant>
 #include <vector>
 
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::nat_to_int;
+using smd::concrete::NatF;
+using smd::concrete::Nil;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::apo;
-using smd::fixpoint::Cons;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::nat_to_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Nil;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unwrap_fix;
-using smd::fixpoint::Zero;
 using smd::typeclass::either;
 using smd::typeclass::make_left;
 using smd::typeclass::make_right;
@@ -100,9 +100,8 @@ auto make_insert_coalgebra(int value) {
             overloaded{
                 [&](const Nil<int> &) -> IntListF<either<IntList, IntList>> {
                     return Cons<int, either<IntList, IntList>>{
-                        value,
-                        make_box<either<IntList, IntList>>(
-                            make_left<IntList>(l))};
+                        value, make_box<either<IntList, IntList>>(
+                                   make_left<IntList>(l))};
                 },
                 [&](const Cons<int, IntList> &c)
                     -> IntListF<either<IntList, IntList>> {
@@ -110,9 +109,8 @@ auto make_insert_coalgebra(int value) {
                         // Insertion point: graft the whole current list
                         // (untouched) after `value`.
                         return Cons<int, either<IntList, IntList>>{
-                            value,
-                            make_box<either<IntList, IntList>>(
-                                make_left<IntList>(l))};
+                            value, make_box<either<IntList, IntList>>(
+                                       make_left<IntList>(l))};
                     }
                     return Cons<int, either<IntList, IntList>>{
                         c.head, make_box<either<IntList, IntList>>(
@@ -127,30 +125,27 @@ auto make_insert_coalgebra(int value) {
  * intermediate copy at the graft point.
  */
 auto make_insert_coalgebra_graft(int value) {
-    return [value](const IntList &l)
-               -> IntListF<either<const IntList &, IntList>> {
+    return [value](
+               const IntList &l) -> IntListF<either<const IntList &, IntList>> {
         const auto &layer = unwrap_fix(l);
         return std::visit(
             overloaded{
                 [&](const Nil<int> &)
                     -> IntListF<either<const IntList &, IntList>> {
                     return Cons<int, either<const IntList &, IntList>>{
-                        value,
-                        make_box<either<const IntList &, IntList>>(
-                            make_left<IntList, const IntList &>(l))};
+                        value, make_box<either<const IntList &, IntList>>(
+                                   make_left<IntList, const IntList &>(l))};
                 },
                 [&](const Cons<int, IntList> &c)
                     -> IntListF<either<const IntList &, IntList>> {
                     if (value <= c.head) {
                         return Cons<int, either<const IntList &, IntList>>{
-                            value,
-                            make_box<either<const IntList &, IntList>>(
-                                make_left<IntList, const IntList &>(l))};
+                            value, make_box<either<const IntList &, IntList>>(
+                                       make_left<IntList, const IntList &>(l))};
                     }
                     return Cons<int, either<const IntList &, IntList>>{
-                        c.head,
-                        make_box<either<const IntList &, IntList>>(
-                            make_right<const IntList &>(*c.tail))};
+                        c.head, make_box<either<const IntList &, IntList>>(
+                                    make_right<const IntList &>(*c.tail))};
                 },
             },
             layer);
@@ -180,12 +175,10 @@ TEST_CASE("apo: zero-copy graft matches the by-value graft (IntList)") {
     // Insert at both ends too, to exercise Nil and "smaller than every
     // element" positions where the untouched-tail graft matters most.
     auto front_value = apo<IntListF>(make_insert_coalgebra_graft(0), sorted);
-    CHECK(list_to_vector(front_value) ==
-          std::vector<int>{0, 1, 3, 7, 9});
+    CHECK(list_to_vector(front_value) == std::vector<int>{0, 1, 3, 7, 9});
 
     auto back_value = apo<IntListF>(make_insert_coalgebra_graft(10), sorted);
-    CHECK(list_to_vector(back_value) ==
-          std::vector<int>{1, 3, 7, 9, 10});
+    CHECK(list_to_vector(back_value) == std::vector<int>{1, 3, 7, 9, 10});
 }
 
 // ---------------------------------------------------------------------

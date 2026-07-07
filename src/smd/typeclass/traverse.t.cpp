@@ -43,6 +43,5 @@ TEST_CASE(
     const auto &t = bt::traversable_typeclass<bt::Identity<int>>;
     auto result = t.for_each(bt::Identity<int>{20},
                              [](int x) { return std::optional<int>{x + 1}; });
-    REQUIRE(result ==
-            std::optional<bt::Identity<int>>{bt::Identity<int>{21}});
+    REQUIRE(result == std::optional<bt::Identity<int>>{bt::Identity<int>{21}});
 }

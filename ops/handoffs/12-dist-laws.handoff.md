@@ -235,7 +235,7 @@ prose implies.
   Pitfalls) — S13/S14's recovery-law gates (`gcata(dist_cata) ≡ fold_fix`,
   `gcata(dist_histo) ≡ histo`, `gcata(dist_zygo(f)) ≡ zygo(f)`,
   `gcata(dist_para-equivalent) ≡ para`, and the full S14 gana/ghylo table)
-  are the real proof. This step deliberately did not try to pre-empt that
+  are the real proof. This step deliberately did not try to preempt that
   work (per the task's own instruction not to duplicate S13/S14's job).
 - None specific to S12's own scope were left open — gate is green, every
   bullet in the step file's "Tests" section has a corresponding test, and

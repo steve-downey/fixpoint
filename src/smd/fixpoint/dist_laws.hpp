@@ -90,8 +90,8 @@ inline constexpr dist_cata_t dist_cata{};
  */
 struct dist_ana_t {
     template <class Layer> // Layer = F<A>; argument is Identity<Layer>
-    constexpr auto operator()(const smd::typeclass::Identity<Layer> &ident)
-        const {
+    constexpr auto
+    operator()(const smd::typeclass::Identity<Layer> &ident) const {
         return layer_fmap(
             [](const auto &x) {
                 return smd::typeclass::Identity<
@@ -143,8 +143,8 @@ struct dist_histo_t {
     template <class A>
     constexpr auto operator()(const F<Cofree<F, A>> &l) const
         -> Cofree<F, F<A>> {
-        auto head = layer_fmap(
-            [](const Cofree<F, A> &c) { return extract(c); }, l);
+        auto head =
+            layer_fmap([](const Cofree<F, A> &c) { return extract(c); }, l);
         auto tail = layer_fmap(
             [this](const Cofree<F, A> &c) -> Cofree<F, F<A>> {
                 return (*this)(c.tail);
@@ -267,8 +267,7 @@ struct dist_para_t {
     constexpr auto operator()(const F<std::pair<Fix<F>, X>> &l) const
         -> std::pair<Fix<F>, F<X>> {
         auto b_layer = layer_fmap(
-            [](const std::pair<Fix<F>, X> &p) -> Fix<F> { return p.first; },
-            l);
+            [](const std::pair<Fix<F>, X> &p) -> Fix<F> { return p.first; }, l);
         auto x_layer = layer_fmap(
             [](const std::pair<Fix<F>, X> &p) -> X { return p.second; }, l);
         return std::pair<Fix<F>, F<X>>{wrap_fix<F>(std::move(b_layer)),

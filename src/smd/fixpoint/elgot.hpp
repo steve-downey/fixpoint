@@ -9,7 +9,8 @@
 // elgot ::  (f a -> a) -> (b -> Either a (f b)) -> b -> a
 // Equation: elgot phi psi s = case psi(s) of
 //                                Left(a)     -> a
-//                                Right(layer) -> phi(fmapF(elgot phi psi, layer))
+//                                Right(layer) -> phi(fmapF(elgot phi psi,
+//                                layer))
 // The coalgebra can short-circuit *any* seed (including the very first one)
 // with a finished answer: D4's convention (Left = stop, Right = continue,
 // smd::typeclass::either, §5.2) applies here exactly as it does to apo
@@ -51,8 +52,7 @@ constexpr auto elgot(const Algebra &algebra, const Coalgebra &coalgebra,
                      const Seed &seed) -> Result {
     auto step = coalgebra(seed);
     return smd::typeclass::match(
-        step,
-        [](const Result &answer) -> Result { return answer; },
+        step, [](const Result &answer) -> Result { return answer; },
         [&](const auto &layer) -> Result {
             auto evaluated = layer_fmap(
                 [&](const Seed &child) -> Result {

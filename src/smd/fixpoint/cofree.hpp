@@ -81,15 +81,13 @@ struct CofreeFunctorImpl {
     // type up front breaks the cycle.
     template <class Fn>
     constexpr auto fmap(this auto &&self, Fn &&fn,
-                         const smd::fixpoint::Cofree<F, A> &c)
+                        const smd::fixpoint::Cofree<F, A> &c)
         -> smd::fixpoint::Cofree<
             F, remove_cvref_t<std::invoke_result_t<Fn, const A &>>> {
         using B = remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
         auto mapped_tail = smd::fixpoint::layer_fmap(
             [&self, &fn](const smd::fixpoint::Cofree<F, A> &child)
-                -> smd::fixpoint::Cofree<F, B> {
-                return self.fmap(fn, child);
-            },
+                -> smd::fixpoint::Cofree<F, B> { return self.fmap(fn, child); },
             c.tail);
         return smd::fixpoint::Cofree<F, B>{std::invoke(fn, c.head),
                                            std::move(mapped_tail)};
@@ -129,7 +127,7 @@ struct CofreeComonadImpl {
 
     template <class X>
     constexpr auto duplicate(this auto &&self,
-                              const smd::fixpoint::Cofree<F, X> &c)
+                             const smd::fixpoint::Cofree<F, X> &c)
         -> smd::fixpoint::Cofree<F, smd::fixpoint::Cofree<F, X>> {
         auto mapped_tail = smd::fixpoint::layer_fmap(
             [&self](const smd::fixpoint::Cofree<F, X> &child) {
@@ -146,15 +144,13 @@ struct CofreeComonadImpl {
     // before its own deduction completes.
     template <class Fn, class X>
     constexpr auto fmap(this auto &&self, Fn &&fn,
-                         const smd::fixpoint::Cofree<F, X> &c)
+                        const smd::fixpoint::Cofree<F, X> &c)
         -> smd::fixpoint::Cofree<
             F, remove_cvref_t<std::invoke_result_t<Fn, const X &>>> {
         using B = remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
         auto mapped_tail = smd::fixpoint::layer_fmap(
             [&self, &fn](const smd::fixpoint::Cofree<F, X> &child)
-                -> smd::fixpoint::Cofree<F, B> {
-                return self.fmap(fn, child);
-            },
+                -> smd::fixpoint::Cofree<F, B> { return self.fmap(fn, child); },
             c.tail);
         return smd::fixpoint::Cofree<F, B>{std::invoke(fn, c.head),
                                            std::move(mapped_tail)};

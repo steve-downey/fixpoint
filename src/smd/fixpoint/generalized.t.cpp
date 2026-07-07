@@ -4,10 +4,10 @@
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/generalized.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/dist_laws.hpp>
 #include <smd/fixpoint/fmap.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/histo.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/para.hpp>
@@ -22,34 +22,34 @@
 #include <variant>
 #include <vector>
 
-using smd::fixpoint::Cofree;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::IntTree;
+using smd::concrete::IntTreeF;
+using smd::concrete::Leaf;
+using smd::concrete::list_from_vector;
+using smd::concrete::list_to_vector;
+using smd::concrete::make_leaf;
+using smd::concrete::make_node;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Node;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::cata_via_gcata;
+using smd::fixpoint::Cofree;
 using smd::fixpoint::dist_cata;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::gcata;
 using smd::fixpoint::histo;
 using smd::fixpoint::histo_via_gcata;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::IntTree;
-using smd::fixpoint::IntTreeF;
 using smd::fixpoint::layer_fmap;
-using smd::fixpoint::Leaf;
-using smd::fixpoint::list_from_vector;
-using smd::fixpoint::list_to_vector;
-using smd::fixpoint::make_leaf;
-using smd::fixpoint::make_node;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
-using smd::fixpoint::Node;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::para;
 using smd::fixpoint::para_via_gcata;
-using smd::fixpoint::Succ;
 using smd::fixpoint::zygo;
 using smd::fixpoint::zygo_via_gcata;
-using smd::fixpoint::Zero;
 
 using smd::typeclass::Identity;
 
@@ -66,21 +66,20 @@ namespace {
 // pattern, S05 handoff).
 constexpr auto nat_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 auto list_sum_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const smd::fixpoint::Nil<int> &) { return 0; },
-            [](const smd::fixpoint::Cons<int, int> &c) {
-                return c.head + *c.tail;
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const smd::concrete::Nil<int> &) { return 0; },
+                          [](const smd::concrete::Cons<int, int> &c) {
+                              return c.head + *c.tail;
+                          },
+                      },
+                      layer);
 }
 
 } // namespace
@@ -145,36 +144,35 @@ namespace {
 
 auto height_helper(const IntTreeF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Leaf<int> &) { return 0; },
-                           [](const Node<int> &n) {
-                               int l = *n.left;
-                               int r = *n.right;
-                               return 1 + (l > r ? l : r);
-                           },
-                       },
-                       layer);
+                          [](const Leaf<int> &) { return 0; },
+                          [](const Node<int> &n) {
+                              int l = *n.left;
+                              int r = *n.right;
+                              return 1 + (l > r ? l : r);
+                          },
+                      },
+                      layer);
 }
 
 auto balanced_main(const IntTreeF<std::pair<int, bool>> &layer) -> bool {
-    return std::visit(
-        overloaded{
-            [](const Leaf<int> &) { return true; },
-            [](const Node<std::pair<int, bool>> &n) {
-                int lh = n.left->first;
-                int rh = n.right->first;
-                int diff = lh > rh ? lh - rh : rh - lh;
-                return diff <= 1 && n.left->second && n.right->second;
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const Leaf<int> &) { return true; },
+                          [](const Node<std::pair<int, bool>> &n) {
+                              int lh = n.left->first;
+                              int rh = n.right->first;
+                              int diff = lh > rh ? lh - rh : rh - lh;
+                              return diff <= 1 && n.left->second &&
+                                     n.right->second;
+                          },
+                      },
+                      layer);
 }
 
 } // namespace
 
 TEST_CASE("gcata law: zygo_via_gcata equals zygo (zygo_balanced fixture)") {
-    IntTree balanced_tree =
-        make_node(make_node(make_leaf(1), make_leaf(2)),
-                  make_node(make_leaf(3), make_leaf(4)));
+    IntTree balanced_tree = make_node(make_node(make_leaf(1), make_leaf(2)),
+                                      make_node(make_leaf(3), make_leaf(4)));
     IntTree left_spine = make_node(
         make_node(make_node(make_leaf(1), make_leaf(2)), make_leaf(3)),
         make_leaf(4));
@@ -197,13 +195,15 @@ auto tails_algebra(
     -> std::vector<std::vector<int>> {
     return std::visit(
         overloaded{
-            [](const smd::fixpoint::Nil<int> &) -> std::vector<std::vector<int>> {
+            [](const smd::concrete::Nil<int> &)
+                -> std::vector<std::vector<int>> {
                 return {std::vector<int>{}};
             },
-            [](const smd::fixpoint::Cons<
+            [](const smd::concrete::Cons<
                 int, std::pair<IntList, std::vector<std::vector<int>>>> &c)
                 -> std::vector<std::vector<int>> {
-                std::vector<int> original_tail = list_to_vector((*c.tail).first);
+                std::vector<int> original_tail =
+                    list_to_vector((*c.tail).first);
                 std::vector<int> current{c.head};
                 current.insert(current.end(), original_tail.begin(),
                                original_tail.end());

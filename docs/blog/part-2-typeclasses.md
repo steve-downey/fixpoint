@@ -1,4 +1,4 @@
-<div class="abstract" id="org81bf1f5">
+<div class="abstract" id="orgd0d9cfa">
 <p>
 Every recursion scheme needs exactly one thing from a base functor: <code>fmap</code>,
 apply a function at each child position of one layer. Haskell finds it by
@@ -57,23 +57,22 @@ inline constexpr auto functor_typeclass = std::false_type{};
 
 Two pieces. `Functor<Impl>` is a CRTP base: the `Impl` supplies the primitive `fmap`, and the base derives what can be derived (`replace` &#x2014; map ignoring the element). `functor_typeclass<T>` is the registry: default `std::false_type`, meaning *no instance*; a type opts in by specializing the variable template to hold an instance object.
 
-Registration for a base functor is a partial specialization keyed on the concrete **layer** type. Here is the whole of `NatF`'s membership, from [`src/smd/fixpoint/functors.hpp`](../../src/smd/fixpoint/functors.hpp):
+Registration for a base functor is a partial specialization keyed on the concrete **layer** type. Here is the whole of `NatF`'s membership, from [`src/smd/concrete/functors.hpp`](../../src/smd/concrete/functors.hpp):
 
 ```cpp
 template <typename A>
 struct NatFFunctorImpl {
     template <typename Fn>
     constexpr auto fmap(this auto &&, Fn &&fn,
-                         const smd::fixpoint::NatF<A> &layer) {
+                        const smd::concrete::NatF<A> &layer) {
         using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
         return std::visit(
             smd::fixpoint::overloaded{
-                [](const smd::fixpoint::Zero &) -> smd::fixpoint::NatF<B> {
-                    return smd::fixpoint::Zero{};
+                [](const smd::concrete::Zero &) -> smd::concrete::NatF<B> {
+                    return smd::concrete::Zero{};
                 },
-                [&](const smd::fixpoint::Succ<A> &s)
-                    -> smd::fixpoint::NatF<B> {
-                    return smd::fixpoint::Succ<B>{
+                [&](const smd::concrete::Succ<A> &s) -> smd::concrete::NatF<B> {
+                    return smd::concrete::Succ<B>{
                         smd::fixpoint::make_box<B>(std::invoke(fn, *s.pred))};
                 },
             },
@@ -87,7 +86,7 @@ struct NatFFunctorMap : Functor<NatFFunctorImpl<A>> {
 };
 
 template <typename A>
-inline constexpr auto functor_typeclass<smd::fixpoint::NatF<A>> =
+inline constexpr auto functor_typeclass<smd::concrete::NatF<A>> =
     NatFFunctorMap<A>{};
 ```
 

@@ -131,7 +131,7 @@ TEST_CASE("either: fanin returns the matcher as a callable") {
 // -- reference sides (P2988 model) --
 
 TEST_CASE("either references: binds an lvalue; left()/right() alias the "
-         "original object") {
+          "original object") {
     int x = 42;
     auto e = bt::make_left<int, int &>(x);
     REQUIRE(&bt::left(e) == &x);
@@ -156,7 +156,7 @@ TEST_CASE("either references: assignment rebinds, does not assign through") {
 }
 
 TEST_CASE("either references: shallow const — a const wrapper still yields "
-         "a mutable referent") {
+          "a mutable referent") {
     int x = 5;
     const auto e = bt::make_left<int, int &>(x);
     // left(e) returns int& (not const int&) even though e is const: the
@@ -176,7 +176,7 @@ TEST_CASE("either references: no-temporary constraints on the wrappers") {
 }
 
 TEST_CASE("either references: no-temporary constraints on make_left/"
-         "make_right themselves") {
+          "make_right themselves") {
     static_assert(
         !std::is_invocable_v<decltype(bt::make_left<int, int &>), int>);
     static_assert(
@@ -226,14 +226,14 @@ constexpr auto either_constexpr_smoke() -> bool {
     auto l = bt::make_left<int>(1);
     auto r = bt::make_right<int>(2);
     bool ok = bt::is_left(l) && !bt::is_left(r) && bt::left(l) == 1 &&
-             bt::right(r) == 2;
+              bt::right(r) == 2;
 
     const auto &f = bt::functor_typeclass<bt::either<int, int>>;
     auto mapped = f.fmap([](int x) { return x + 1; }, r);
     ok = ok && bt::right(mapped) == 3;
 
-    ok = ok && bt::match(l, [](int x) { return x; }, [](int x) { return -x; }) ==
-                   1;
+    ok = ok &&
+         bt::match(l, [](int x) { return x; }, [](int x) { return -x; }) == 1;
     return ok;
 }
 } // namespace

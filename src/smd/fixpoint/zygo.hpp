@@ -36,8 +36,8 @@ namespace smd::fixpoint {
  * @param helper F<Helper> -> Helper
  * @param main   F<std::pair<Helper, Result>> -> Result
  */
-template <class Result, class Helper, template <class> class F,
-          class HelperAlg, class MainAlg>
+template <class Result, class Helper, template <class> class F, class HelperAlg,
+          class MainAlg>
 constexpr auto zygo(const HelperAlg &helper, const MainAlg &main,
                     const Fix<F> &tree) -> Result {
     using Carrier = std::pair<Helper, Result>;

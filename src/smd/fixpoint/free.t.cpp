@@ -4,16 +4,16 @@
 #include <smd/fixpoint/free.hpp>
 #include <smd/fixpoint/free.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/functors.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <variant>
 
-using smd::fixpoint::Cons;
+using smd::concrete::Cons;
+using smd::concrete::IntListF;
 using smd::fixpoint::Free;
-using smd::fixpoint::IntListF;
 using smd::fixpoint::is_pure;
 using smd::fixpoint::make_box;
 using smd::fixpoint::pure_free;
@@ -69,8 +69,7 @@ TEST_CASE("free functor: fmap maps the Pure value, recurses through Roll") {
     auto &functor = smd::typeclass::functor_typeclass<IntFree>;
 
     IntFree pure_leaf = pure_free<IntListF>(4);
-    IntFree mapped_pure =
-        functor.fmap([](int x) { return x + 10; }, pure_leaf);
+    IntFree mapped_pure = functor.fmap([](int x) { return x + 10; }, pure_leaf);
     CHECK(is_pure(mapped_pure));
     CHECK(std::get<int>(mapped_pure.node) == 14);
 
@@ -94,7 +93,7 @@ TEST_CASE("free monad law: left identity - bind(pure(a), k) == k(a)") {
 
 TEST_CASE("free monad law: right identity - bind(m, pure) == m") {
     const auto &monad = smd::typeclass::monad_typeclass<IntFree>;
-    auto pure_k = [&monad](int x) -> IntFree { return monad.pure(x); };
+    auto pure_k = [](int x) -> IntFree { return monad.pure(x); };
     for (int count = 0; count <= 3; ++count) {
         IntFree m = make_run(7, count, count * 10);
         CHECK(monad.bind(m, pure_k) == m);
@@ -108,8 +107,8 @@ TEST_CASE("free monad law: associativity spot-check") {
     for (int count = 0; count <= 3; ++count) {
         IntFree m = make_run(3, count, count);
         IntFree lhs = monad.bind(monad.bind(m, k), h);
-        IntFree rhs = monad.bind(
-            m, [&monad, &k, &h](int x) { return monad.bind(k(x), h); });
+        IntFree rhs =
+            monad.bind(m, [&k, &h](int x) { return monad.bind(k(x), h); });
         CHECK(lhs == rhs);
     }
 }

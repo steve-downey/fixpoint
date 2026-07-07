@@ -4,10 +4,10 @@
 #include <smd/fixpoint/chrono.hpp>
 #include <smd/fixpoint/chrono.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/cofree.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/futu.hpp>
 #include <smd/fixpoint/histo.hpp>
 #include <smd/fixpoint/overloaded.hpp>
@@ -18,9 +18,12 @@
 #include <optional>
 #include <variant>
 
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::chrono;
-using smd::fixpoint::Cofree;
 using smd::fixpoint::codyna;
+using smd::fixpoint::Cofree;
 using smd::fixpoint::dyna;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::Free;
@@ -28,12 +31,9 @@ using smd::fixpoint::futu;
 using smd::fixpoint::histo;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::make_box;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::pure_free;
-using smd::fixpoint::Succ;
 using smd::fixpoint::unfold_fix;
-using smd::fixpoint::Zero;
 
 TEST_CASE("chrono - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -65,10 +65,10 @@ auto one_layer_countdown(int m) -> NatF<Free<NatF, int>> {
 // is meant to catch.
 auto plain_count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 // Fibonacci via history (design §7.5/§9's histo-fib, reused verbatim from
@@ -120,8 +120,8 @@ TEST_CASE("codyna law: codyna(phi, psi, s) == fold_fix(phi, futu(psi, s))") {
     for (int n = 0; n <= 10; ++n) {
         int via_codyna =
             codyna<int, NatF>(plain_count_algebra, one_layer_countdown, n);
-        int via_fold_futu = fold_fix<int>(
-            plain_count_algebra, futu<NatF>(one_layer_countdown, n));
+        int via_fold_futu = fold_fix<int>(plain_count_algebra,
+                                          futu<NatF>(one_layer_countdown, n));
         CHECK(via_codyna == via_fold_futu);
     }
 }
@@ -133,8 +133,7 @@ TEST_CASE("codyna law: codyna(phi, psi, s) == fold_fix(phi, futu(psi, s))") {
 
 TEST_CASE("chrono law: chrono(phi, psi, s) == histo(phi, futu(psi, s))") {
     for (int n = 0; n <= 10; ++n) {
-        int via_chrono =
-            chrono<int, NatF>(fib_algebra, one_layer_countdown, n);
+        int via_chrono = chrono<int, NatF>(fib_algebra, one_layer_countdown, n);
         int via_histo_futu =
             histo<int>(fib_algebra, futu<NatF>(one_layer_countdown, n));
         CHECK(via_chrono == via_histo_futu);
@@ -173,7 +172,7 @@ constexpr auto look_back(const Cofree<NatF, int> &c, int steps)
         return std::nullopt; // ran off the front of the history: n - k < 0
     }
     return look_back(*std::get<Succ<Cofree<NatF, int>>>(c.tail).pred,
-                      steps - 1);
+                     steps - 1);
 }
 
 auto coin_change_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
@@ -183,7 +182,7 @@ auto coin_change_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
             [](const Succ<Cofree<NatF, int>> &s) -> int {
                 const Cofree<NatF, int> &pred = *s.pred; // history for n-1
                 int best = pred.head;                    // use coin 1
-                if (auto m4 = look_back(pred, 3)) {       // n-1-3 == n-4
+                if (auto m4 = look_back(pred, 3)) {      // n-1-3 == n-4
                     if (*m4 < best) {
                         best = *m4;
                     }

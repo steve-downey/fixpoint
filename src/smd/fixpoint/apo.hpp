@@ -40,8 +40,7 @@ constexpr auto apo(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
     auto expanded = layer_fmap(
         [&](const auto &step) -> Fix<F> {
             return smd::typeclass::match(
-                step,
-                [](const auto &subtree) -> Fix<F> { return subtree; },
+                step, [](const auto &subtree) -> Fix<F> { return subtree; },
                 [&](const auto &next_seed) -> Fix<F> {
                     return apo<F>(coalgebra, next_seed);
                 });

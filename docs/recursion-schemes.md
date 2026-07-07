@@ -611,7 +611,7 @@ These aren't schemes but are used throughout the catalog above:
 - **`Free<F, A>`** (`smd/fixpoint/free.hpp`) — a Pure value or one `F`-layer
   of further Free computations; `futu`'s unfold carrier, `gana`'s `MSeed`
   for the futu recovery.
-- **`NatF`, `ListF<E,·>`, `TreeF<E,·>`, `ExprF`** (`smd/fixpoint/functors.hpp`)
+- **`NatF`, `ListF<E,·>`, `TreeF<E,·>`, `ExprF`** (`smd/concrete/functors.hpp`)
   — the reusable base functors every example above builds its fixtures
   from, plus smart constructors and `std::vector`/`int` converters.
 

@@ -83,7 +83,7 @@ struct Left<L &> {
     constexpr explicit Left(L &referent) : ptr(&referent) {}
     constexpr Left(L &&) = delete; // no binding to temporaries
 
-    constexpr Left(const Left &) = default;            // rebinds
+    constexpr Left(const Left &) = default;                     // rebinds
     constexpr auto operator=(const Left &) -> Left & = default; // rebinds
 
     constexpr auto referent() const -> L & { return *ptr; }
@@ -115,7 +115,7 @@ struct Right<R &> {
     constexpr explicit Right(R &referent) : ptr(&referent) {}
     constexpr Right(R &&) = delete; // no binding to temporaries
 
-    constexpr Right(const Right &) = default;            // rebinds
+    constexpr Right(const Right &) = default;                     // rebinds
     constexpr auto operator=(const Right &) -> Right & = default; // rebinds
 
     constexpr auto referent() const -> R & { return *ptr; }
@@ -200,8 +200,7 @@ constexpr auto map_left(Fn &&fn, const either<L, R> &e) {
                     Left<B>{std::invoke(fn, l.referent())}}};
             },
             [](const Right<R> &r) -> either<B, R> {
-                return either<B, R>{
-                    std::variant<Left<B>, Right<R>>{r}};
+                return either<B, R>{std::variant<Left<B>, Right<R>>{r}};
             },
         },
         e.node);
@@ -216,16 +215,15 @@ constexpr auto map_left(Fn &&fn, const either<L, R> &e) {
 template <class L, class R, class OnLeft, class OnRight>
 constexpr auto match(const either<L, R> &e, OnLeft &&on_left,
                      OnRight &&on_right) {
-    return std::visit(
-        smd::fixpoint::overloaded{
-            [&on_left](const Left<L> &l) {
-                return std::invoke(on_left, l.referent());
-            },
-            [&on_right](const Right<R> &r) {
-                return std::invoke(on_right, r.referent());
-            },
-        },
-        e.node);
+    return std::visit(smd::fixpoint::overloaded{
+                          [&on_left](const Left<L> &l) {
+                              return std::invoke(on_left, l.referent());
+                          },
+                          [&on_right](const Right<R> &r) {
+                              return std::invoke(on_right, r.referent());
+                          },
+                      },
+                      e.node);
 }
 
 /** Returns the matcher `[f, g]` as a callable value; the dual of
@@ -248,8 +246,7 @@ struct EitherFunctorImpl {
         return std::visit(
             smd::fixpoint::overloaded{
                 [](const Left<L> &l) -> either<L, B> {
-                    return either<L, B>{
-                        std::variant<Left<L>, Right<B>>{l}};
+                    return either<L, B>{std::variant<Left<L>, Right<B>>{l}};
                 },
                 [&fn](const Right<R> &r) -> either<L, B> {
                     return either<L, B>{std::variant<Left<L>, Right<B>>{
@@ -294,8 +291,7 @@ struct EitherMonadImpl {
         return std::visit(
             smd::fixpoint::overloaded{
                 [](const Left<L> &l) -> Result {
-                    return Result{
-                        std::variant<Left<L>, Right<ResultRight>>{l}};
+                    return Result{std::variant<Left<L>, Right<ResultRight>>{l}};
                 },
                 [&f](const Right<R2> &r) -> Result {
                     return std::invoke(f, r.referent());

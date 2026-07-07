@@ -27,9 +27,9 @@ TEST_CASE("comonad: extend is derived as fmap . duplicate — Identity") {
 
     auto via_extend = c.extend(
         [](const bt::Identity<int> &inner) { return inner.value + 1; }, w);
-    auto via_fmap_duplicate = c.fmap(
-        [](const bt::Identity<int> &inner) { return inner.value + 1; },
-        c.duplicate(w));
+    auto via_fmap_duplicate =
+        c.fmap([](const bt::Identity<int> &inner) { return inner.value + 1; },
+               c.duplicate(w));
     REQUIRE(via_extend == via_fmap_duplicate);
 }
 
@@ -63,22 +63,24 @@ TEST_CASE("comonad laws: extract . duplicate == id — both instances") {
 TEST_CASE("comonad laws: fmap(extract) . duplicate == id — both instances") {
     const auto &ci = bt::comonad_typeclass<bt::Identity<int>>;
     bt::Identity<int> wi{4};
-    REQUIRE(ci.fmap([&ci](const bt::Identity<int> &inner) {
-        return ci.extract(inner);
-    }, ci.duplicate(wi)) == wi);
+    REQUIRE(
+        ci.fmap(
+            [](const bt::Identity<int> &inner) { return ci.extract(inner); },
+            ci.duplicate(wi)) == wi);
 
     const auto &cp = bt::comonad_typeclass<std::pair<int, int>>;
     std::pair<int, int> wp{1, 4};
-    REQUIRE(cp.fmap([&cp](const std::pair<int, int> &inner) {
-        return cp.extract(inner);
-    }, cp.duplicate(wp)) == wp);
+    REQUIRE(
+        cp.fmap(
+            [](const std::pair<int, int> &inner) { return cp.extract(inner); },
+            cp.duplicate(wp)) == wp);
 }
 
 TEST_CASE("comonad laws: duplicate . duplicate associativity — Identity") {
     const auto &c = bt::comonad_typeclass<bt::Identity<int>>;
     bt::Identity<int> w{4};
     auto lhs = c.fmap(
-        [&c](const bt::Identity<int> &inner) { return c.duplicate(inner); },
+        [](const bt::Identity<int> &inner) { return c.duplicate(inner); },
         c.duplicate(w));
     auto rhs = c.duplicate(c.duplicate(w));
     REQUIRE(lhs == rhs);
@@ -90,15 +92,17 @@ namespace {
 constexpr auto comonad_generic_laws_hold() -> bool {
     const auto &ci = bt::comonad_typeclass<bt::Identity<int>>;
     bt::Identity<int> wi{2};
-    bool identity_ok = ci.extend([&ci](const bt::Identity<int> &inner) {
-        return ci.extract(inner);
-    }, wi) == wi;
+    bool identity_ok =
+        ci.extend(
+            [](const bt::Identity<int> &inner) { return ci.extract(inner); },
+            wi) == wi;
 
     const auto &cp = bt::comonad_typeclass<std::pair<int, int>>;
     std::pair<int, int> wp{0, 2};
-    bool pair_ok = cp.extend([&cp](const std::pair<int, int> &inner) {
-        return cp.extract(inner);
-    }, wp) == wp;
+    bool pair_ok =
+        cp.extend(
+            [](const std::pair<int, int> &inner) { return cp.extract(inner); },
+            wp) == wp;
 
     return identity_ok && pair_ok;
 }

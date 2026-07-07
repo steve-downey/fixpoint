@@ -51,9 +51,7 @@ namespace smd::fixpoint {
 template <template <class> class G, template <class> class F, class Nat>
 constexpr auto hoist(const Nat &e, const Fix<F> &tree) -> Fix<G> {
     return fold_fix<Fix<G>>(
-        [&](const F<Fix<G>> &layer) -> Fix<G> {
-            return wrap_fix<G>(e(layer));
-        },
+        [&](const F<Fix<G>> &layer) -> Fix<G> { return wrap_fix<G>(e(layer)); },
         tree);
 }
 // 74b7324d-22d6-4878-8ef3-2296f458e040 end
@@ -84,8 +82,8 @@ constexpr auto hoist(const Nat &e, const Fix<F> &tree) -> Fix<G> {
  * @param algebra F<Result> -> Result
  */
 template <class Result, template <class> class F, class Nat, class Algebra>
-constexpr auto prepro(const Nat &e, const Algebra &algebra,
-                      const Fix<F> &tree) -> Result {
+constexpr auto prepro(const Nat &e, const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
     const auto &layer = unwrap_fix(tree);
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> Result {

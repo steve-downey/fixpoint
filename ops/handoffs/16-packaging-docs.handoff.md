@@ -115,9 +115,9 @@
   one-entry-per-line (accepted, purely mechanical, no semantic change —
   the pre-existing "unknown command 'catch_discover_tests'" gersemi
   warning is unrelated and predates this step); `codespell` flagged
-  "re-declared" (schemes.t.cpp's own comment) as a typo for "redeclared" —
+  "redeclared" (schemes.t.cpp's own comment) as a typo for "redeclared" —
   fixed in the one file this step owns. (Note: `gprepro.t.cpp`, S15's file,
-  has the identical "re-declared"/"re-declares" spelling and would fail the
+  has the identical "redeclared"/"redeclares" spelling and would fail the
   same codespell check if targeted directly — confirmed by running
   codespell on it alone — but per this step's own scope ("fix mechanical
   findings ... in files this plan created" doesn't mandate touching every
@@ -216,7 +216,7 @@ note).
   unreconciled into `docs/recursion-schemes-design.md`** — see the
   itemized list under Deviations above. This is the one substantive open
   item from the whole plan.
-- `gprepro.t.cpp` (S15's file) has the same "re-declared"/"re-declares"
+- `gprepro.t.cpp` (S15's file) has the same "redeclared"/"redeclares"
   codespell finding this step fixed in its own new file — left untouched,
   out of this step's stated scope (see Verification evidence); a trivial,
   optional cleanup for later.

@@ -43,7 +43,7 @@ constexpr auto futu(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F>;
  */
 template <template <class> class F, class Coalgebra, class Seed>
 constexpr auto futu_worker(const Coalgebra &coalgebra,
-                            const Free<F, Seed> &chunk) -> Fix<F> {
+                           const Free<F, Seed> &chunk) -> Fix<F> {
     return std::visit(
         overloaded{
             [&](const Seed &s) -> Fix<F> { return futu<F>(coalgebra, s); },

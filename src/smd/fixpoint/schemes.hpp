@@ -54,7 +54,6 @@
 #include <smd/fixpoint/elgot.hpp>
 #include <smd/fixpoint/fmap.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/futu.hpp>
 #include <smd/fixpoint/generalized.hpp>
 #include <smd/fixpoint/histo.hpp>

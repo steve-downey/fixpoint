@@ -11,10 +11,10 @@
 // from a plain ana/unfold_fix: unfold_fix's coalgebra can only ever
 // contribute one layer per call.
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/free.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/futu.hpp>
 
 #include <cstddef>
@@ -22,14 +22,14 @@
 #include <utility>
 #include <vector>
 
-using smd::fixpoint::Cons;
+using smd::concrete::Cons;
+using smd::concrete::IntList;
+using smd::concrete::IntListF;
+using smd::concrete::list_to_vector;
+using smd::concrete::Nil;
 using smd::fixpoint::Free;
 using smd::fixpoint::futu;
-using smd::fixpoint::IntList;
-using smd::fixpoint::IntListF;
-using smd::fixpoint::list_to_vector;
 using smd::fixpoint::make_box;
-using smd::fixpoint::Nil;
 using smd::fixpoint::pure_free;
 using smd::fixpoint::roll_free;
 
@@ -58,9 +58,8 @@ auto make_rle_coalgebra(const std::vector<std::pair<int, int>> &pairs) {
             return Nil<int>{};
         }
         auto [count, value] = pairs[i];
-        return Cons<int, IndexFree>{
-            value,
-            make_box<IndexFree>(build_run_tail(value, count - 1, i + 1))};
+        return Cons<int, IndexFree>{value, make_box<IndexFree>(build_run_tail(
+                                               value, count - 1, i + 1))};
     };
 }
 // 5108825f-15af-4371-a949-3ecb9e370b8d end
@@ -69,7 +68,7 @@ void print_pairs(const std::vector<std::pair<int, int>> &pairs) {
     std::print("input: [");
     for (std::size_t i = 0; i < pairs.size(); ++i) {
         std::print("{}({}, {})", i == 0 ? "" : ", ", pairs[i].first,
-                    pairs[i].second);
+                   pairs[i].second);
     }
     std::println("]");
 }

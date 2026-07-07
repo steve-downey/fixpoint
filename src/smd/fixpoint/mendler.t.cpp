@@ -4,10 +4,10 @@
 #include <smd/fixpoint/mendler.hpp>
 #include <smd/fixpoint/mendler.hpp> // Re-inclusion check
 
+#include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/fmap.hpp>
-#include <smd/fixpoint/functors.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 #include <smd/fixpoint/recursion_schemes.hpp>
 
@@ -15,28 +15,28 @@
 
 #include <variant>
 
-using smd::fixpoint::Add;
+using smd::concrete::Add;
+using smd::concrete::add_node;
+using smd::concrete::Const;
+using smd::concrete::const_node;
+using smd::concrete::Expr;
+using smd::concrete::ExprF;
+using smd::concrete::Mul;
+using smd::concrete::mul_node;
+using smd::concrete::Nat;
+using smd::concrete::nat_from_int;
+using smd::concrete::NatF;
+using smd::concrete::Succ;
+using smd::concrete::Zero;
 using smd::fixpoint::Box;
-using smd::fixpoint::Const;
-using smd::fixpoint::Expr;
-using smd::fixpoint::ExprF;
 using smd::fixpoint::Fix;
 using smd::fixpoint::fold_fix;
 using smd::fixpoint::layer_fmap;
 using smd::fixpoint::make_box;
 using smd::fixpoint::mcata;
 using smd::fixpoint::mhisto;
-using smd::fixpoint::Mul;
-using smd::fixpoint::Nat;
-using smd::fixpoint::nat_from_int;
-using smd::fixpoint::NatF;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::Succ;
 using smd::fixpoint::wrap_fix;
-using smd::fixpoint::Zero;
-using smd::fixpoint::add_node;
-using smd::fixpoint::const_node;
-using smd::fixpoint::mul_node;
 
 TEST_CASE("mendler - HeaderIsIdempotent") { REQUIRE(true); }
 
@@ -51,19 +51,19 @@ namespace {
 
 auto count_algebra(const NatF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Zero &) { return 0; },
-                           [](const Succ<int> &s) { return *s.pred + 1; },
-                       },
-                       layer);
+                          [](const Zero &) { return 0; },
+                          [](const Succ<int> &s) { return *s.pred + 1; },
+                      },
+                      layer);
 }
 
 auto eval_plain_algebra(const ExprF<int> &layer) -> int {
     return std::visit(overloaded{
-                           [](const Const<int> &c) { return c.val; },
-                           [](const Add<int> &a) { return *a.left + *a.right; },
-                           [](const Mul<int> &m) { return *m.left * *m.right; },
-                       },
-                       layer);
+                          [](const Const<int> &c) { return c.val; },
+                          [](const Add<int> &a) { return *a.left + *a.right; },
+                          [](const Mul<int> &m) { return *m.left * *m.right; },
+                      },
+                      layer);
 }
 
 } // namespace
@@ -83,8 +83,7 @@ TEST_CASE("mcata law: mcata degenerates to fold_fix (ExprF)") {
     auto mendler_algebra = [](auto recurse, const ExprF<Expr> &layer) -> int {
         return eval_plain_algebra(layer_fmap(recurse, layer));
     };
-    Expr e =
-        add_node(mul_node(const_node(2), const_node(3)), const_node(4));
+    Expr e = add_node(mul_node(const_node(2), const_node(3)), const_node(4));
     CHECK(mcata<int, ExprF>(mendler_algebra, e) ==
           fold_fix<int>(eval_plain_algebra, e));
 }
@@ -97,26 +96,23 @@ TEST_CASE("mcata law: mcata degenerates to fold_fix (ExprF)") {
 
 namespace {
 
-auto mendler_eval_algebra = [](auto recurse, const ExprF<Expr> &layer)
-    -> int {
-    return std::visit(
-        overloaded{
-            [](const Const<Expr> &c) { return c.val; },
-            [&](const Add<Expr> &a) -> int {
-                return recurse(*a.left) + recurse(*a.right);
-            },
-            [&](const Mul<Expr> &m) -> int {
-                return recurse(*m.left) * recurse(*m.right);
-            },
-        },
-        layer);
+auto mendler_eval_algebra = [](auto recurse, const ExprF<Expr> &layer) -> int {
+    return std::visit(overloaded{
+                          [](const Const<Expr> &c) { return c.val; },
+                          [&](const Add<Expr> &a) -> int {
+                              return recurse(*a.left) + recurse(*a.right);
+                          },
+                          [&](const Mul<Expr> &m) -> int {
+                              return recurse(*m.left) * recurse(*m.right);
+                          },
+                      },
+                      layer);
 };
 
 } // namespace
 
 TEST_CASE("mcata behavior: ExprF eval via mcata, no fmap") {
-    Expr e =
-        add_node(mul_node(const_node(2), const_node(3)), const_node(4));
+    Expr e = add_node(mul_node(const_node(2), const_node(3)), const_node(4));
     CHECK(mcata<int, ExprF>(mendler_eval_algebra, e) == 10);
 }
 
@@ -161,16 +157,15 @@ constexpr auto make_opaque(int n) -> OpaqueNat {
         OpaqueSucc<OpaqueNat>{make_box<OpaqueNat>(make_opaque(n - 1))}});
 }
 
-auto opaque_count_algebra = [](auto recurse, const OpaqueF<OpaqueNat> &layer)
-    -> int {
-    return std::visit(
-        overloaded{
-            [](const OpaqueZero<OpaqueNat> &) { return 0; },
-            [&](const OpaqueSucc<OpaqueNat> &s) -> int {
-                return recurse(*s.pred) + 1;
-            },
-        },
-        layer);
+auto opaque_count_algebra = [](auto recurse,
+                               const OpaqueF<OpaqueNat> &layer) -> int {
+    return std::visit(overloaded{
+                          [](const OpaqueZero<OpaqueNat> &) { return 0; },
+                          [&](const OpaqueSucc<OpaqueNat> &s) -> int {
+                              return recurse(*s.pred) + 1;
+                          },
+                      },
+                      layer);
 };
 
 } // namespace
@@ -194,12 +189,12 @@ TEST_CASE(
 namespace {
 
 auto mhisto_fib_algebra = [](auto recurse, auto unroll,
-                              const NatF<Nat> &layer) -> int {
+                             const NatF<Nat> &layer) -> int {
     return std::visit(
         overloaded{
             [](const Zero &) { return 0; }, // fib(0) == 0
             [&](const Succ<Nat> &s) -> int {
-                const Nat &pred = *s.pred;                // n - 1
+                const Nat &pred = *s.pred; // n - 1
                 const NatF<Nat> &pred_layer = unroll(pred);
                 return std::visit(
                     overloaded{
@@ -237,10 +232,10 @@ namespace {
 constexpr auto mcata_constexpr_smoke() -> bool {
     auto plain_count_algebra = [](const NatF<int> &layer) -> int {
         return std::visit(overloaded{
-                               [](const Zero &) { return 0; },
-                               [](const Succ<int> &s) { return *s.pred + 1; },
-                           },
-                           layer);
+                              [](const Zero &) { return 0; },
+                              [](const Succ<int> &s) { return *s.pred + 1; },
+                          },
+                          layer);
     };
     auto mendler_algebra = [&](auto recurse, const NatF<Nat> &layer) -> int {
         return plain_count_algebra(layer_fmap(recurse, layer));
@@ -249,25 +244,25 @@ constexpr auto mcata_constexpr_smoke() -> bool {
 }
 
 constexpr auto mhisto_constexpr_smoke() -> bool {
-    auto algebra = [](auto recurse, auto unroll, const NatF<Nat> &layer)
-        -> int {
-        return std::visit(
-            overloaded{
-                [](const Zero &) { return 0; },
-                [&](const Succ<Nat> &s) -> int {
-                    const Nat &pred = *s.pred;
-                    const NatF<Nat> &pred_layer = unroll(pred);
-                    return std::visit(
-                        overloaded{
-                            [&](const Zero &) { return 1; },
-                            [&](const Succ<Nat> &s2) -> int {
-                                return recurse(pred) + recurse(*s2.pred);
-                            },
-                        },
-                        pred_layer);
-                },
-            },
-            layer);
+    auto algebra = [](auto recurse, auto unroll,
+                      const NatF<Nat> &layer) -> int {
+        return std::visit(overloaded{
+                              [](const Zero &) { return 0; },
+                              [&](const Succ<Nat> &s) -> int {
+                                  const Nat &pred = *s.pred;
+                                  const NatF<Nat> &pred_layer = unroll(pred);
+                                  return std::visit(
+                                      overloaded{
+                                          [&](const Zero &) { return 1; },
+                                          [&](const Succ<Nat> &s2) -> int {
+                                              return recurse(pred) +
+                                                     recurse(*s2.pred);
+                                          },
+                                      },
+                                      pred_layer);
+                              },
+                          },
+                          layer);
     };
     return mhisto<int, NatF>(algebra, nat_from_int(6)) == 8;
 }
