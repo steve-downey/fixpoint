@@ -6,8 +6,7 @@ target_sources(
         FILE_SET smd_concrete_headers
             TYPE HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/src
-            FILES
-                functors.hpp
+            FILES functors.hpp
 )
 
 ## Tests
@@ -29,11 +28,7 @@ endif()
 if(FIXPOINT_ENABLE_TESTING)
     add_executable(smd_concrete_test)
 
-    target_sources(
-        smd_concrete_test
-        PRIVATE
-            functors.t.cpp
-    )
+    target_sources(smd_concrete_test PRIVATE functors.t.cpp)
 
     target_link_libraries(smd_concrete_test fixpoint.fixpoint)
     target_link_libraries(smd_concrete_test Catch2::Catch2WithMain)

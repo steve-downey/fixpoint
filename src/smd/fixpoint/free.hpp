@@ -42,8 +42,7 @@ struct Free {
     // comment — Free<F,A> is self-referential through F<Free<F,A>>, exactly
     // the shape that triggers Clang's eager defaulted-comparison
     // completeness check inside a self-embedding class template.
-    friend constexpr auto operator==(const Free &lhs, const Free &rhs)
-        -> bool {
+    friend constexpr auto operator==(const Free &lhs, const Free &rhs) -> bool {
         return lhs.node == rhs.node;
     }
 };
@@ -86,7 +85,7 @@ struct FreeFunctorImpl {
     // CofreeFunctorImpl staying fixed to its own `A`).
     template <class Fn>
     constexpr auto fmap(this auto &&self, Fn &&fn,
-                         const smd::fixpoint::Free<F, A> &fr)
+                        const smd::fixpoint::Free<F, A> &fr)
         -> smd::fixpoint::Free<
             F, remove_cvref_t<std::invoke_result_t<Fn, const A &>>> {
         using B = remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
@@ -148,7 +147,7 @@ struct FreeMonadImpl {
     // 'auto'").
     template <class X, class Fn>
     constexpr auto bind(this auto &&self, const smd::fixpoint::Free<F, X> &m,
-                         Fn &&fn)
+                        Fn &&fn)
         -> remove_cvref_t<std::invoke_result_t<Fn, const X &>> {
         using ResultFree = remove_cvref_t<std::invoke_result_t<Fn, const X &>>;
         return std::visit(

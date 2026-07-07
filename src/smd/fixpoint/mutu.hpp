@@ -26,8 +26,8 @@ namespace smd::fixpoint {
  * @param alg_b F<std::pair<A, B>> -> B
  */
 template <class A, class B, template <class> class F, class AlgA, class AlgB>
-constexpr auto mutu(const AlgA &alg_a, const AlgB &alg_b,
-                    const Fix<F> &tree) -> std::pair<A, B> {
+constexpr auto mutu(const AlgA &alg_a, const AlgB &alg_b, const Fix<F> &tree)
+    -> std::pair<A, B> {
     using Carrier = std::pair<A, B>;
     auto combined = [&](const F<Carrier> &layer) -> Carrier {
         return Carrier{alg_a(layer), alg_b(layer)};

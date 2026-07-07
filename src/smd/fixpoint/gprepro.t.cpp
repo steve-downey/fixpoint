@@ -56,9 +56,9 @@ using smd::typeclass::Identity;
 TEST_CASE("gprepro - HeaderIsIdempotent") { REQUIRE(true); }
 
 // ---------------------------------------------------------------------
-// Fixture natural transformations (design §4, re-declared locally per
+// Fixture natural transformations (design §4, redeclared locally per
 // gana.t.cpp's own precedent: these fixtures live in prepro.t.cpp's own
-// anonymous namespace, one translation unit away, so this file re-declares
+// anonymous namespace, one translation unit away, so this file redeclares
 // the exact shapes rather than reaching across translation units).
 // ---------------------------------------------------------------------
 

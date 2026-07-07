@@ -96,7 +96,7 @@ auto apply_chain(SELF &&, ACCUMULATED &&accumulated) {
 }
 
 template <class SELF, class ACCUMULATED, class NEXT_ARGUMENT,
-         class... REST_ARGUMENTS>
+          class... REST_ARGUMENTS>
 auto apply_chain(SELF &&self, ACCUMULATED &&accumulated,
                  NEXT_ARGUMENT &&next_argument,
                  REST_ARGUMENTS &&...rest_arguments) {

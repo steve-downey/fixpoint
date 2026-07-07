@@ -116,7 +116,7 @@ attempt made to fuse it away.
   reused by both `TEST_CASE` and the `static_assert`, rather than being
   redefined as a second copy of local lambdas inside the constexpr
   function (contrast with `para.t.cpp`/`zygo.t.cpp`'s pattern of
-  re-declaring the same lambda body twice — either idiom works, named
+  redeclaring the same lambda body twice — either idiom works, named
   `constexpr` functions read slightly better when three separate laws all
   reuse the exact same algebra).
 - Confirmed again (as S04 predicted) that `Box<std::pair<Helper,

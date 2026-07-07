@@ -95,8 +95,8 @@ struct Monad : protected Applicative<monad_applicative_adapter<Impl>> {
 
     // bind_with: explicit monad object override.
     template <class MONAD_MAP, class MA, class F>
-    constexpr auto bind_with(this auto &&, const MONAD_MAP &monad_map,
-                             MA &&ma, F &&f) {
+    constexpr auto bind_with(this auto &&, const MONAD_MAP &monad_map, MA &&ma,
+                             F &&f) {
         return monad_map.bind(std::forward<MA>(ma), std::forward<F>(f));
     }
 };

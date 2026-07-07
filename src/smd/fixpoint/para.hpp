@@ -35,7 +35,7 @@ constexpr auto para(const Algebra &algebra, const Fix<F> &tree) -> Result {
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> std::pair<Fix<F>, Result> {
             return std::pair<Fix<F>, Result>{child,
-                                              para<Result>(algebra, child)};
+                                             para<Result>(algebra, child)};
         },
         layer);
     return algebra(evaluated);

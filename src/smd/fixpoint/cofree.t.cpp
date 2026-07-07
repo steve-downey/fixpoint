@@ -91,8 +91,7 @@ TEST_CASE("cofree comonad law: fmap(extract) . duplicate == id") {
     const auto &comonad = smd::typeclass::comonad_typeclass<AnnNat>;
     auto duplicated = comonad.duplicate(ann2);
     auto roundtripped = comonad.fmap(
-        [&comonad](const AnnNat &inner) { return comonad.extract(inner); },
-        duplicated);
+        [](const AnnNat &inner) { return extract(inner); }, duplicated);
     CHECK(roundtripped == ann2);
 }
 

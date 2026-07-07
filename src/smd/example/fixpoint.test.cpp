@@ -1,5 +1,5 @@
-// example/fixpoint.test.cpp                                              -*-C++-*-
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// example/fixpoint.test.cpp -*-C++-*- SPDX-License-Identifier: Apache-2.0 WITH
+// LLVM-exception
 
 #include <smd/example/fixpoint.hpp>
 

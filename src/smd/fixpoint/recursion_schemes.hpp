@@ -63,8 +63,7 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 
 // 45dcc85d-d409-475c-9a43-85451e28e55b
 template <typename Result, template <typename> class F, typename Algebra>
-constexpr auto fold_fix(const Algebra &algebra, const Fix<F> &tree)
-    -> Result {
+constexpr auto fold_fix(const Algebra &algebra, const Fix<F> &tree) -> Result {
     const auto &layer = unwrap_fix(tree);
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> Result {

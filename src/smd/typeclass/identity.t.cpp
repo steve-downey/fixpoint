@@ -21,7 +21,8 @@ TEST_CASE("identity: functor fmap wraps the transformed value") {
 TEST_CASE("identity: applicative pure/apply round-trip") {
     const auto &a = bt::applicative_typeclass<bt::Identity<int>>;
     auto wrapped_fn = a.pure([](int x) { return x * 2; });
-    REQUIRE(a.apply(wrapped_fn, bt::Identity<int>{21}) == bt::Identity<int>{42});
+    REQUIRE(a.apply(wrapped_fn, bt::Identity<int>{21}) ==
+            bt::Identity<int>{42});
     REQUIRE(bt::test::check_applicative_identity_law<bt::Identity<int>>(
         bt::Identity<int>{7}));
     REQUIRE(bt::test::check_applicative_homomorphism_law<bt::Identity<int>>(
@@ -30,10 +31,9 @@ TEST_CASE("identity: applicative pure/apply round-trip") {
 
 TEST_CASE("identity: monad bind invokes directly on .value") {
     const auto &m = bt::monad_typeclass<bt::Identity<int>>;
-    auto to_string_len = [](int x) {
-        return bt::Identity<int>{x + 1};
-    };
-    REQUIRE(m.bind(bt::Identity<int>{9}, to_string_len) == bt::Identity<int>{10});
+    auto to_string_len = [](int x) { return bt::Identity<int>{x + 1}; };
+    REQUIRE(m.bind(bt::Identity<int>{9}, to_string_len) ==
+            bt::Identity<int>{10});
     REQUIRE(bt::mbind(bt::Identity<int>{9}, to_string_len) ==
             bt::Identity<int>{10});
 }
@@ -48,9 +48,9 @@ TEST_CASE("identity: comonad laws hold") {
     REQUIRE(c.extract(c.duplicate(w)) == w);
 
     // fmap extract . duplicate == id
-    auto fmap_extract_duplicate =
-        c.fmap([&c](const bt::Identity<int> &inner) { return c.extract(inner); },
-              c.duplicate(w));
+    auto fmap_extract_duplicate = c.fmap(
+        [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+        c.duplicate(w));
     REQUIRE(fmap_extract_duplicate == w);
 
     // duplicate . duplicate associativity: fmap duplicate . duplicate ==
@@ -62,9 +62,10 @@ TEST_CASE("identity: comonad laws hold") {
     REQUIRE(lhs == rhs);
 
     // extend derived operation matches fmap-after-duplicate directly.
-    REQUIRE(c.extend([&c](const bt::Identity<int> &inner) {
-        return c.extract(inner);
-    }, w) == w);
+    REQUIRE(
+        c.extend(
+            [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+            w) == w);
 }
 
 static_assert(bt::Identity<int>{1} == bt::Identity<int>{1});
@@ -76,9 +77,9 @@ constexpr auto identity_comonad_laws_hold() -> bool {
     bt::Identity<int> w{5};
     bool extract_duplicate_is_id = c.extract(c.duplicate(w)) == w;
     bool extend_extract_is_id =
-        c.extend([&c](const bt::Identity<int> &inner) {
-            return c.extract(inner);
-        }, w) == w;
+        c.extend(
+            [&c](const bt::Identity<int> &inner) { return c.extract(inner); },
+            w) == w;
     return extract_duplicate_is_id && extend_extract_is_id;
 }
 } // namespace

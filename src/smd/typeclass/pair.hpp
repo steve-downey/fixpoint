@@ -117,7 +117,7 @@ template <class Fn, class B, class A>
 constexpr auto map_first(Fn &&fn, const std::pair<B, A> &p) {
     using C = remove_cvref_t<std::invoke_result_t<Fn, const B &>>;
     return std::pair<C, A>{std::invoke(std::forward<Fn>(fn), p.first),
-                          p.second};
+                           p.second};
 }
 
 /** The product introducer `<f, g>` (the pairing): returns a callable

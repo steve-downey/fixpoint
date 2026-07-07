@@ -93,7 +93,7 @@ TEST_CASE("free monad law: left identity - bind(pure(a), k) == k(a)") {
 
 TEST_CASE("free monad law: right identity - bind(m, pure) == m") {
     const auto &monad = smd::typeclass::monad_typeclass<IntFree>;
-    auto pure_k = [&monad](int x) -> IntFree { return monad.pure(x); };
+    auto pure_k = [](int x) -> IntFree { return monad.pure(x); };
     for (int count = 0; count <= 3; ++count) {
         IntFree m = make_run(7, count, count * 10);
         CHECK(monad.bind(m, pure_k) == m);
@@ -107,8 +107,8 @@ TEST_CASE("free monad law: associativity spot-check") {
     for (int count = 0; count <= 3; ++count) {
         IntFree m = make_run(3, count, count);
         IntFree lhs = monad.bind(monad.bind(m, k), h);
-        IntFree rhs = monad.bind(
-            m, [&monad, &k, &h](int x) { return monad.bind(k(x), h); });
+        IntFree rhs =
+            monad.bind(m, [&k, &h](int x) { return monad.bind(k(x), h); });
         CHECK(lhs == rhs);
     }
 }

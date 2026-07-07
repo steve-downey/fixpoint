@@ -18,8 +18,8 @@ TEST_CASE("pair - HeaderIsIdempotent") { REQUIRE(true); }
 
 TEST_CASE("pair functor: fmap maps .second, leaves .first untouched") {
     const auto &f = bt::functor_typeclass<std::pair<std::string, int>>;
-    auto mapped =
-        f.fmap([](int x) { return x + 1; }, std::pair<std::string, int>{"env", 41});
+    auto mapped = f.fmap([](int x) { return x + 1; },
+                         std::pair<std::string, int>{"env", 41});
     REQUIRE(mapped.first == "env");
     REQUIRE(mapped.second == 42);
 }
@@ -28,7 +28,7 @@ TEST_CASE("pair functor: fmap maps .second, leaves .first untouched") {
 
 TEST_CASE("pair: map_first maps .first, leaves .second untouched") {
     auto mapped = bt::map_first([](int x) { return x * 10; },
-                               std::pair<int, std::string>{3, "value"});
+                                std::pair<int, std::string>{3, "value"});
     REQUIRE(mapped.first == 30);
     REQUIRE(mapped.second == "value");
 }
@@ -102,7 +102,8 @@ constexpr auto pair_constexpr_smoke() -> bool {
     const auto &c = bt::comonad_typeclass<std::pair<int, int>>;
     std::pair<int, int> w{1, 2};
     bool extract_ok = c.extract(w) == 2;
-    bool duplicate_ok = c.duplicate(w) == std::pair<int, std::pair<int, int>>{1, w};
+    bool duplicate_ok =
+        c.duplicate(w) == std::pair<int, std::pair<int, int>>{1, w};
     bool extend_law_ok =
         c.extend(
             [&c](const std::pair<int, int> &inner) { return c.extract(inner); },
@@ -112,11 +113,11 @@ constexpr auto pair_constexpr_smoke() -> bool {
     bool map_first_ok = mapped.first == 2 && mapped.second == 2;
 
     auto paired = bt::fanout([](int x) { return x + 1; },
-                            [](int x) { return x * 2; })(10);
+                             [](int x) { return x * 2; })(10);
     bool fanout_ok = paired.first == 11 && paired.second == 20;
 
     return extract_ok && duplicate_ok && extend_law_ok && map_first_ok &&
-          fanout_ok;
+           fanout_ok;
 }
 } // namespace
 
