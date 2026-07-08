@@ -20,7 +20,7 @@ most interesting data structures in the library.
 #+MACRO: TEASER_END
 {{TEASER_END}}
 #+html: <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
-[[file:index.org][↑ Series Index]] | [[file:part-6-prepro-postpro.org][Part 6 - Natural Transformations: hoist, prepro, postpro ←]]
+[[file:index.org][↑ Series Index]] | [[file:part-6.5-free-cofree.org][Interlude - Free, Cofree, and Their Free-er Relatives ←]]
 #+html: </nav>
 
 * Cofree: A Tree Annotated With Its Own Past

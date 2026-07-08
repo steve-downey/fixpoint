@@ -357,6 +357,17 @@ clean-blog-md:
 	-rm -f $(BLOG_ORGFILES:.org=.md) $(BLOG_ORGFILES:.org=.md.deps)
 clean: clean-blog-md
 
+.PHONY: blog-haskell-check
+blog-haskell-check: ## typecheck the interlude Haskell excerpts (needs GHC 9.6+)
+	@if command -v ghc >/dev/null 2>&1; then \
+	  out=$$(mktemp -d); \
+	  echo "ghc --make -fno-code -Wall docs/blog/code/*.hs"; \
+	  ghc --make -fno-code -Wall -outputdir $$out docs/blog/code/*.hs; \
+	  rm -rf $$out; \
+	else \
+	  echo "ghc not found; skipping blog-haskell-check"; \
+	fi
+
 %-slides.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
 	--batch --load .emacs.d/init.el  \

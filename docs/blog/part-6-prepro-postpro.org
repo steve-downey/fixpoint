@@ -123,7 +123,7 @@ history, the carrier stops being a pair and becomes a data structure of
 its own.
 
 #+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
-[[file:index.org][↑ Series Index]] | [[file:part-7-histo-futu.org][Next: Part 7 - Histomorphisms and Futumorphisms →]]
+[[file:index.org][↑ Series Index]] | [[file:part-6.5-free-cofree.org][Next: Interlude - Free, Cofree, and Their Free-er Relatives →]]
 #+html: </nav>
 
 * References

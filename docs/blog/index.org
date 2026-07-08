@@ -46,6 +46,11 @@ banana-split pair carrier underneath both.
 ** [[file:part-6-prepro-postpro.org][Part 6 — Natural Transformations: hoist, prepro, postpro]]
 Rewriting every layer, and fusing the rewrite into folds and unfolds.
 
+** [[file:part-6.5-free-cofree.org][Interlude — Free, Cofree, and Their Free-er Relatives]]
+Where Free and Cofree come from (the adjunctions), how they are ~Fix~ with
+variables or annotations, the naive vs Church encodings, and Kiselyov's
+Freer — plus the dual the title asks about, all with compiled code.
+
 ** [[file:part-7-histo-futu.org][Part 7 — Histomorphisms and Futumorphisms]]
 Course-of-values recursion: Cofree histories for folds, Free chunks for
 unfolds, coin change and run-length decoding.

@@ -113,6 +113,12 @@ recursive folds as peers.
 Rewriting every layer of a tree, and fusing that rewrite into a fold on the
 way down or an unfold on the way out.
 
+*Interlude --- Free, Cofree, and Their Free-er Relatives.*
+A detour before Part 7 uses them: where Free and Cofree come from (left and
+right adjoints to forgetful functors), why each is ~Fix~ with one extra thing
+per node, how the naive types compare to the Church encoding and to Kiselyov's
+Freer monad, and whether there is a CoFreer --- every excerpt compiled.
+
 *Part 7 --- Histomorphisms and Futumorphisms.*
 Course-of-values recursion: folds that can look arbitrarily far back into
 computed history via the Cofree comonad, and unfolds that emit several layers

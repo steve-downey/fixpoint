@@ -194,3 +194,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+add_executable(free_cofree_interlude)
+
+# Add example source file.
+target_sources(free_cofree_interlude PRIVATE free_cofree_interlude.cpp)
+
+# Link example with the library.
+target_link_libraries(free_cofree_interlude PRIVATE fixpoint.fixpoint)
+
+install(
+    TARGETS free_cofree_interlude
+    COMPONENT fixpoint.fixpoint.examples
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXCLUDE_FROM_ALL
+)

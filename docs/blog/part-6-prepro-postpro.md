@@ -1,8 +1,8 @@
-<div class="abstract" id="org3d34e27">
+<div class="abstract" id="org1553d42">
 <p>
 So far the algebras have decided what to compute; the <i>shape</i> of the tree
 was taken as given. A natural transformation rewrites the shape itself,
-one layer at a time, uniformly at every type &#x2014; and Fokkinga's
+one layer at a time, uniformly at every type &mdash; and Fokkinga's
 prepromorphism and postpromorphism fuse that rewriting into a fold on the
 way down, or an unfold on the way out. Take-while disappears into the sum
 that consumes it.
@@ -21,7 +21,7 @@ that consumes it.
 
 # What "Natural" Buys You
 
-A natural transformation between functors is a function `e : F<X> -> G<X>` that works *for every X* &#x2014; it may rearrange the layer's structure, but it cannot look at the `X` s, so it cannot care whether the children are subtrees, seeds, or finished results. In C++ that "for every X" is a polymorphic function object with a **templated** call operator. The header is emphatic about this, because the failure mode is nasty: a lambda with a concrete layer parameter type-checks at one call site and then `prepro` applies the transformation at a *different* instantiation &#x2014; whole subtrees, not carriers &#x2014; and it fails to compile, or worse, silently picks another overload. The example fixture shows the required shape:
+A natural transformation between functors is a function `e : F<X> -> G<X>` that works *for every X* &mdash; it may rearrange the layer's structure, but it cannot look at the `X` s, so it cannot care whether the children are subtrees, seeds, or finished results. In C++ that "for every X" is a polymorphic function object with a **templated** call operator. The header is emphatic about this, because the failure mode is nasty: a lambda with a concrete layer parameter type-checks at one call site and then `prepro` applies the transformation at a *different* instantiation &mdash; whole subtrees, not carriers &mdash; and it fails to compile, or worse, silently picks another overload. The example fixture shows the required shape:
 
 ```cpp
 // The natural transformation: IntListF<A> -> IntListF<A> for every A. Must
@@ -46,15 +46,16 @@ struct take_while_positive {
 
 // The algebra: sum every remaining head.
 auto sum_algebra(const IntListF<int> &layer) -> int {
-    return std::visit(overloaded{
-                           [](const Nil<int> &) { return 0; },
-                           [](const Cons<int, int> &c) { return c.head + *c.tail; },
-                       },
-                       layer);
+    return std::visit(
+        overloaded{
+            [](const Nil<int> &) { return 0; },
+            [](const Cons<int, int> &c) { return c.head + *c.tail; },
+        },
+        layer);
 }
 ```
 
-`take_while_positive` rewrites one list layer: a `Cons` with a negative head becomes `Nil`; everything else passes through. Templated over `A`, so it applies at any element type &#x2014; which is exactly the license `prepro` needs.
+`take_while_positive` rewrites one list layer: a `Cons` with a negative head becomes `Nil`; everything else passes through. Templated over `A`, so it applies at any element type &mdash; which is exactly the license `prepro` needs.
 
 
 # hoist: Retag Every Layer
@@ -80,14 +81,12 @@ The simplest consumer of a natural transformation rewrites a whole tree. From [`
 template <template <class> class G, template <class> class F, class Nat>
 constexpr auto hoist(const Nat &e, const Fix<F> &tree) -> Fix<G> {
     return fold_fix<Fix<G>>(
-        [&](const F<Fix<G>> &layer) -> Fix<G> {
-            return wrap_fix<G>(e(layer));
-        },
+        [&](const F<Fix<G>> &layer) -> Fix<G> { return wrap_fix<G>(e(layer)); },
         tree);
 }
 ```
 
-`hoist` is a `fold_fix` whose algebra is "transform the layer, wrap it again" &#x2014; so it can even change the functor, `Fix<F>` to `Fix<G>`. The endo case `hoist<F>(e, t)` &#x2014; same functor, rewritten layers &#x2014; is the workhorse; the target functor is named explicitly because nothing about `e` (a polymorphic object, remember) lets C++ deduce it.
+`hoist` is a `fold_fix` whose algebra is "transform the layer, wrap it again" &mdash; so it can even change the functor, `Fix<F>` to `Fix<G>`. The endo case `hoist<F>(e, t)` &mdash; same functor, rewritten layers &mdash; is the workhorse; the target functor is named explicitly because nothing about `e` (a polymorphic object, remember) lets C++ deduce it.
 
 
 # prepro: The Rewrite Fused Into the Fold
@@ -120,8 +119,8 @@ Now fuse. `prepro` folds a tree, but on the way down it applies `e` to each chil
  * @param algebra F<Result> -> Result
  */
 template <class Result, template <class> class F, class Nat, class Algebra>
-constexpr auto prepro(const Nat &e, const Algebra &algebra,
-                      const Fix<F> &tree) -> Result {
+constexpr auto prepro(const Nat &e, const Algebra &algebra, const Fix<F> &tree)
+    -> Result {
     const auto &layer = unwrap_fix(tree);
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> Result {
@@ -132,7 +131,7 @@ constexpr auto prepro(const Nat &e, const Algebra &algebra,
 }
 ```
 
-The body is `fold_fix` with one insertion: `hoist<F>(e, child)` ahead of the recursive call. The effect is **cumulative**: a node at depth `k` has passed through `e` once per ancestor by the time the algebra sees it. For take-while, cumulativity is the semantics you want &#x2014; once any ancestor's rewrite truncated the list, everything below the cut is already gone, and the summing algebra never sees a single dropped element:
+The body is `fold_fix` with one insertion: `hoist<F>(e, child)` ahead of the recursive call. The effect is **cumulative**: a node at depth `k` has passed through `e` once per ancestor by the time the algebra sees it. For take-while, cumulativity is the semantics you want &mdash; once any ancestor's rewrite truncated the list, everything below the cut is already gone, and the summing algebra never sees a single dropped element:
 
 ```
 sum(take_while(>=0, [3, 4, -1, 5])) = 7
@@ -140,7 +139,7 @@ sum(take_while(>=0, [3, 4, -1, 5])) = 7
 
 No separate filtering pass, no intermediate list. The full program is [`src/examples/prepro_takewhile_sum.cpp`](../../src/examples/prepro_takewhile_sum.cpp).
 
-The header's cumulative-cost note deserves its moment: each step re-hoists the whole remaining subtree, so this literal transcription of Fokkinga's equation (Fokkinga, Maarten M., 1992) does O(depth) passes over deep nodes. The library documents the cost instead of optimizing it away &#x2014; the transcription *is* the product; fusion belongs to a different layer of the story (and Part 11's `gprepro` shows where it would live).
+The header's cumulative-cost note deserves its moment: each step re-hoists the whole remaining subtree, so this literal transcription of Fokkinga's equation (Fokkinga, Maarten M., 1992) does O(depth) passes over deep nodes. The library documents the cost instead of optimizing it away &mdash; the transcription *is* the product; fusion belongs to a different layer of the story (and Part 11's `gprepro` shows where it would live).
 
 
 # postpro: The Mirror
@@ -175,7 +174,7 @@ constexpr auto postpro(const Nat &e, const Coalgebra &coalgebra,
 }
 ```
 
-`unfold_fix` with the same one-line insertion, mirrored: `hoist<F>(e, ...)` wraps the *result* of the recursive unfold, so each freshly built subtree is rewritten before being grafted into its parent. Where `prepro`'s transformation gates what the algebra ever sees, `postpro`'s gates what the final tree ever contains &#x2014; an unfold that generates candidates and a transformation that prunes or normalizes them, running interleaved rather than as passes.
+`unfold_fix` with the same one-line insertion, mirrored: `hoist<F>(e, ...)` wraps the *result* of the recursive unfold, so each freshly built subtree is rewritten before being grafted into its parent. Where `prepro`'s transformation gates what the algebra ever sees, `postpro`'s gates what the final tree ever contains &mdash; an unfold that generates candidates and a transformation that prunes or normalizes them, running interleaved rather than as passes.
 
 Degeneracy, as always, pins the pair down: with the identity transformation, `prepro` is `fold_fix` and `postpro` is `unfold_fix`, and the test suite says so verbatim.
 
@@ -186,7 +185,7 @@ Worth pausing on how small these were. `para` was `fold_fix` with a pair in the 
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
-[↑ Series Index](index.md) | [Next: Part 7 - Histomorphisms and Futumorphisms →](part-7-histo-futu.md)
+[↑ Series Index](index.md) | [Next: Interlude - Free, Cofree, and Their Free-er Relatives →](part-6.5-free-cofree.md)
 
 </nav>
 

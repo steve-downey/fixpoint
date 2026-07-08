@@ -1,10 +1,10 @@
-<div class="abstract" id="org3d7e654">
+<div class="abstract" id="org9068d2f">
 <p>
 Coin-change dynamic programming needs <code>minCoins(n-1)</code>, <code>minCoins(n-4)</code>, and
 <code>minCoins(n-5)</code> at once; a plain fold sees only its immediate child.
 Run-length decoding wants to emit a whole run of list cells in one step; a
 plain unfold emits exactly one layer per call. Course-of-values recursion
-fixes both, and the carriers that do it &#x2014; Cofree and Free &#x2014; are the
+fixes both, and the carriers that do it &mdash; Cofree and Free &mdash; are the
 most interesting data structures in the library.
 </p>
 
@@ -14,7 +14,7 @@ most interesting data structures in the library.
 
 <nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em">
 
-[↑ Series Index](index.md) | [Part 6 - Natural Transformations: hoist, prepro, postpro ←](part-6-prepro-postpro.md)
+[↑ Series Index](index.md) | [Interlude - Free, Cofree, and Their Free-er Relatives ←](part-6.5-free-cofree.md)
 
 </nav>
 
@@ -62,7 +62,7 @@ constexpr auto unwrap_cofree(const Cofree<F, A> &c) -> const F<Cofree<F, A>> & {
 }
 ```
 
-Notice that this compiles for exactly the reason `Fix` did. `F`'s recursive positions are boxed, so `F<Cofree<F, A>>` is a complete type while `Cofree<F, A>` is still being defined &#x2014; the Part 1 trick, paying its second dividend. (And the hand-written `operator==` is the Part 1 war story again, at the type where Clang's eager completeness check actually fired.)
+Notice that this compiles for exactly the reason `Fix` did. `F`'s recursive positions are boxed, so `F<Cofree<F, A>>` is a complete type while `Cofree<F, A>` is still being defined &mdash; the Part 1 trick, paying its second dividend. (And the hand-written `operator==` is the Part 1 war story again, at the type where Clang's eager completeness check actually fired.)
 
 
 # histo: Fold With Total Recall
@@ -84,7 +84,7 @@ constexpr auto histo(const Algebra &algebra, const Fix<F> &tree) -> Result {
 }
 ```
 
-Four lines, and the same construction as zygo: a `fold_fix` at a richer carrier. The combined algebra runs the user's algebra, then stores the layer *itself* as the new node's tail &#x2014; so each child position accumulates its entire annotated history as the fold climbs. The user's algebra receives `F<Cofree<F, Result>>`: at every child, the head is that child's result, and the tail goes all the way down. `extract` at the root throws the scaffolding away.
+Four lines, and the same construction as zygo: a `fold_fix` at a richer carrier. The combined algebra runs the user's algebra, then stores the layer *itself* as the new node's tail &mdash; so each child position accumulates its entire annotated history as the fold climbs. The user's algebra receives `F<Cofree<F, Result>>`: at every child, the head is that child's result, and the tail goes all the way down. `extract` at the root throws the scaffolding away.
 
 The classic use is dynamic programming where the recurrence skips levels. From [`src/examples/histo_coin_change.cpp`](../../src/examples/histo_coin_change.cpp):
 
@@ -107,40 +107,42 @@ constexpr auto look_back(const History &c, int steps) -> std::optional<int> {
 // The histo algebra: F<Cofree<F, int>> -> int, i.e.
 // NatF<History> -> int.
 auto min_coins_algebra(const NatF<History> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const Zero &) { return 0; }, // minCoins(0) = 0
-            [](const Succ<History> &s) -> int {
-                // s.pred is the history for amount n-1: its own head is
-                // minCoins(n-1), and its tail lets us walk further back.
-                const History &pred = *s.pred;
-                int best = pred.head; // coin 1: 1 + minCoins(n-1)
+    return std::visit(overloaded{
+                          [](const Zero &) { return 0; }, // minCoins(0) = 0
+                          [](const Succ<History> &s) -> int {
+                              // s.pred is the history for amount n-1: its own
+                              // head is minCoins(n-1), and its tail lets us
+                              // walk further back.
+                              const History &pred = *s.pred;
+                              int best = pred.head; // coin 1: 1 + minCoins(n-1)
 
-                // coin 4: 1 + minCoins(n-4) == 1 + minCoins((n-1) - 3)
-                if (auto m4 = look_back(pred, 3)) {
-                    if (*m4 < best) {
-                        best = *m4;
-                    }
-                }
-                // coin 5: 1 + minCoins(n-5) == 1 + minCoins((n-1) - 4)
-                if (auto m5 = look_back(pred, 4)) {
-                    if (*m5 < best) {
-                        best = *m5;
-                    }
-                }
-                return best + 1;
-            },
-        },
-        layer);
+                              // coin 4: 1 + minCoins(n-4) == 1 + minCoins((n-1)
+                              // - 3)
+                              if (auto m4 = look_back(pred, 3)) {
+                                  if (*m4 < best) {
+                                      best = *m4;
+                                  }
+                              }
+                              // coin 5: 1 + minCoins(n-5) == 1 + minCoins((n-1)
+                              // - 4)
+                              if (auto m5 = look_back(pred, 4)) {
+                                  if (*m5 < best) {
+                                      best = *m5;
+                                  }
+                              }
+                              return best + 1;
+                          },
+                      },
+                      layer);
 }
 ```
 
-`minCoins(n)` needs `minCoins(n-1)`, `minCoins(n-4)`, `minCoins(n-5)`. The predecessor's head is the first; `look_back` walks the history 3 and 4 more steps for the others. Nothing is ever recomputed &#x2014; the history *is* the memo table, built by the fold itself, no map, no mutable array. The program prints `minCoins(8) = 2` (4+4) and `minCoins(12) = 3` (4+4+4), the cases where a greedy or naive-recursive formulation goes wrong or goes exponential.
+`minCoins(n)` needs `minCoins(n-1)`, `minCoins(n-4)`, `minCoins(n-5)`. The predecessor's head is the first; `look_back` walks the history 3 and 4 more steps for the others. Nothing is ever recomputed &mdash; the history *is* the memo table, built by the fold itself, no map, no mutable array. The program prints `minCoins(8) = 2` (4+4) and `minCoins(12) = 3` (4+4+4), the cases where a greedy or naive-recursive formulation goes wrong or goes exponential.
 
 
 # Free: Computation Chunks With Seeds at the Leaves
 
-Dualize the annotation idea. Cofree is *always* a node, *plus* an annotation at every level. Its mirror is *either* a value *or* a layer of more structure &#x2014; the Free monad. From [`src/smd/fixpoint/free.hpp`](../../src/smd/fixpoint/free.hpp):
+Dualize the annotation idea. Cofree is *always* a node, *plus* an annotation at every level. Its mirror is *either* a value *or* a layer of more structure &mdash; the Free monad. From [`src/smd/fixpoint/free.hpp`](../../src/smd/fixpoint/free.hpp):
 
 ```cpp
 /** Free<F, A>: a Pure value of type A, or one F-layer of further Free
@@ -156,8 +158,7 @@ struct Free {
     // comment — Free<F,A> is self-referential through F<Free<F,A>>, exactly
     // the shape that triggers Clang's eager defaulted-comparison
     // completeness check inside a self-embedding class template.
-    friend constexpr auto operator==(const Free &lhs, const Free &rhs)
-        -> bool {
+    friend constexpr auto operator==(const Free &lhs, const Free &rhs) -> bool {
         return lhs.node == rhs.node;
     }
 };
@@ -183,7 +184,7 @@ constexpr auto is_pure(const Free<F, A> &f) -> bool {
 }
 ```
 
-Read `Free<F, Seed>` as "a chunk of tree, with fresh seeds where I stopped building." `pure_free` is a seed; `roll_free` is one more layer of chunk. Cofree is the cofree *comonad* over F and Free the free *monad* &#x2014; the library registers exactly those instances, and Part 11 spends them.
+Read `Free<F, Seed>` as "a chunk of tree, with fresh seeds where I stopped building." `pure_free` is a seed; `roll_free` is one more layer of chunk. Cofree is the cofree *comonad* over F and Free the free *monad* &mdash; the library registers exactly those instances, and Part 11 spends them.
 
 
 # futu: Unfold Several Layers per Step
@@ -198,7 +199,7 @@ An `unfold_fix` coalgebra returns `F<Seed>`: one layer, seeds under it. A `futu`
  */
 template <template <class> class F, class Coalgebra, class Seed>
 constexpr auto futu_worker(const Coalgebra &coalgebra,
-                            const Free<F, Seed> &chunk) -> Fix<F> {
+                           const Free<F, Seed> &chunk) -> Fix<F> {
     return std::visit(
         overloaded{
             [&](const Seed &s) -> Fix<F> { return futu<F>(coalgebra, s); },
@@ -257,27 +258,26 @@ auto make_rle_coalgebra(const std::vector<std::pair<int, int>> &pairs) {
             return Nil<int>{};
         }
         auto [count, value] = pairs[i];
-        return Cons<int, IndexFree>{
-            value,
-            make_box<IndexFree>(build_run_tail(value, count - 1, i + 1))};
+        return Cons<int, IndexFree>{value, make_box<IndexFree>(build_run_tail(
+                                               value, count - 1, i + 1))};
     };
 }
 ```
 
-One coalgebra call sees `(count, value)` and emits `count` `Cons` layers as a single nested-`roll_free` chunk, with the `Pure` leaf carrying the index of the next pair. `[(2,7), (3,1)]` decodes to `[7, 7, 1, 1, 1]` with three coalgebra calls, not five. A plain unfold would need seed bookkeeping &#x2014; "which pair, how many emitted so far" &#x2014; to fake what the chunk states directly.
+One coalgebra call sees `(count, value)` and emits `count` `Cons` layers as a single nested-`roll_free` chunk, with the `Pure` leaf carrying the index of the next pair. `[(2,7), (3,1)]` decodes to `[7, 7, 1, 1, 1]` with three coalgebra calls, not five. A plain unfold would need seed bookkeeping &mdash; "which pair, how many emitted so far" &mdash; to fake what the chunk states directly.
 
 
 # The Symmetry Ledger
 
 The catalog is now symmetric three levels deep, and it is worth writing the ledger down:
 
-| fold side                                | unfold side                             |
-|---------------------------------------- |--------------------------------------- |
-| `fold_fix` &#x2014; child's result       | `unfold_fix` &#x2014; one seed          |
-| `para` &#x2014; result + original (pair) | `apo` &#x2014; seed or subtree (either) |
-| `histo` &#x2014; full history (Cofree)   | `futu` &#x2014; full chunk (Free)       |
+| fold side                               | unfold side                            |
+|--------------------------------------- |-------------------------------------- |
+| `fold_fix` &mdash; child's result       | `unfold_fix` &mdash; one seed          |
+| `para` &mdash; result + original (pair) | `apo` &mdash; seed or subtree (either) |
+| `histo` &mdash; full history (Cofree)   | `futu` &mdash; full chunk (Free)       |
 
-Products and annotations on the left; sums and chunks on the right. Pair generalizes to Cofree, either generalizes to Free &#x2014; and each right column entry is the categorical dual of its left neighbor. This table is not a mnemonic; it is a theorem, and Part 11 proves it in code: every left entry is `gcata` at a comonad, every right entry `gana` at a monad. But first, the fused forms &#x2014; what happens when a histo runs directly on a seed &#x2014; and two schemes that step outside the functor framework entirely.
+Products and annotations on the left; sums and chunks on the right. Pair generalizes to Cofree, either generalizes to Free &mdash; and each right column entry is the categorical dual of its left neighbor. This table is not a mnemonic; it is a theorem, and Part 11 proves it in code: every left entry is `gcata` at a comonad, every right entry `gana` at a monad. But first, the fused forms &mdash; what happens when a histo runs directly on a seed &mdash; and two schemes that step outside the functor framework entirely.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
