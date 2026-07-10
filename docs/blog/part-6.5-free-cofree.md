@@ -1,12 +1,17 @@
-<div class="abstract" id="org349cab6">
+<div class="abstract" id="org2ae1688">
 <p>
-Part 7 pulls two new types out of a hat &mdash; Cofree and Free &mdash; calls them
+Part 7 pulls two new types out of a hat &#x2014; Cofree and Free &#x2014; calls them
 "the carriers," and moves on. They deserve better than a hat. Both are older
 and more general than the schemes that use them, both stand on the exact Part
-1 fixpoint trick, and both sit at the head of a small family &mdash; the
+1 fixpoint trick, and both sit at the head of a small family &#x2014; the
 Church-encoded free monad, Kiselyov's Freer, and the dual the title asks
-about. This interlude is the theory Part 7 leans on, paid up front, with every
-excerpt compiled: Haskell by GHC 9.6.7, C++ by the library's own build.
+about. Fair warning: this is the interlude where I am writing at the edge of
+what I understand. Where the category theory outruns me &#x2014; adjunctions,
+mostly &#x2014; I quote the definitions and say so, rather than pretend; where the
+code compiles, I vouch for it, and every excerpt here compiles: Haskell by
+GHC 9.6.7, C++ by the library's own build. There is also one genuine surprise
+on the trail: C++26 has already shipped something shaped exactly like a Freer
+monad, and it is called sender/receiver.
 </p>
 
 </div>
@@ -22,22 +27,28 @@ excerpt compiled: Haskell by GHC 9.6.7, C++ by the library's own build.
 
 # Where "Free" and "Cofree" Come From
 
-The words are not decoration. They are the two halves of an adjunction, and the whole story falls out of taking that seriously.
+The words are not decoration &#x2014; but I owe you a warning label before I try to explain them. This is the section where I am writing to learn, not writing from mastery. The standard etymology of "free" and "cofree" runs through a piece of category theory called an *adjunction*, and I do not understand adjunctions yet &#x2014; not well enough to explain one to you, which is the only standard that counts. So here is the deal for the next few paragraphs: I quote the definitions, unpack the individual words as far as I honestly can, and then show what the definitions *predict* &#x2014; because the predictions are type equations, and type equations can be checked by a compiler. The predictions check out. That is the level of confidence on offer.
 
-Recall the punch line every functional programmer has had recited at them: a monad is a monoid in the category of endofunctors &mdash; a monoid in ([C, C], ∘, Id), with composition as the tensor and the identity functor as the unit. Turn every arrow around and you get its dual, which &mdash; as I would happily tell you at a party, and which is even true &mdash; makes a *comonad just a comonoid in the category of endofunctors*.
+Start with the punch line every functional programmer has had recited at them, me included:
 
-Now put a forgetful functor in front of each. There is a forgetful functor from monads on C to plain endofunctors: throw away `return` and `join`, keep the underlying `F`. Its *left adjoint* takes an endofunctor `F` to the smallest monad containing it &mdash; the **free monad** `Free F`, the free monoid on `F` under composition. Dually, there is a forgetful functor from comonads to endofunctors, and its *right adjoint* takes `F` to the largest comonad sitting over it &mdash; the **cofree comonad** `Cofree F`. "Free" is left-adjoint-to-forgetful; "cofree" is right-adjoint-to-forgetful. That is the entire etymology, and it already predicts the shapes: a free construction is generated (finite, built up from constructors), a cofree one is observed (potentially infinite, taken apart by projections) (Kmett, Edward, 2009).
+> A monad is just a monoid in the category of endofunctors.
+
+The words in that, I can unpack. A monoid is a set of things, an associative way to combine two of them, and a unit that combines as a no-op: integers with `+` and `0`, strings with `++` and `""`. An endofunctor is what this series has called `F` all along: a type constructor with an `fmap`. The slogan says a monad is the monoid pattern one level up, where the things being combined are functor layers themselves: the combining operation is `join`, which flattens `M<M<X>>` into `M<X>`, and the unit is `return`, which wraps a plain `X` into `M<X>` without adding anything. The monoid laws &#x2014; associativity, unit on either side &#x2014; become the monad laws. Turn every arrow around and you get the dual, which &#x2014; as I would happily tell you at a party, and which is even true &#x2014; makes a comonad a *comonoid* in the same category: `duplicate` un-flattens, `extract` unwraps.
+
+Now the part I hold at arm's length. The textbook story continues: there is a "forgetful" functor from monads to plain endofunctors &#x2014; forgetful because it throws away `return` and `join` and keeps only the underlying `F` &#x2014; and the free monad construction is its *left adjoint*, while dually the cofree comonad construction is the *right adjoint* of the matching forgetful functor for comonads (Kmett, Edward, 2009). "Free" means left-adjoint-to-forgetful; "cofree" means right-adjoint-to-forgetful. I can report that. I cannot yet explain what makes one functor the adjoint of another, and I will not fake it here.
+
+What I can do is say what the definition is supposed to *buy*, because that part has checkable consequences. "Free" promises that `Free F` is a genuine monad built from `F` with nothing added beyond what the monad laws force &#x2014; no extra equations, no collapsing, every value just a finite pile of constructors you could have written by hand. "Cofree" promises the mirror image: `Cofree F` is a genuine comonad over `F` that throws nothing away &#x2014; it records, up front, every observation you could ever make of an `F`-shaped unfolding. That is why the shapes come out the way they do: a free thing is *generated* &#x2014; finite, built up from constructors &#x2014; and a cofree thing is *observed* &#x2014; potentially infinite, taken apart by projections. Those shapes I do understand, because they are the type equations of the next section, and the type equations compile.
 
 
 # Fix Is the Degenerate Case of Both
 
-Part 1 built `Fix<F> ≅ F<Fix<F>>`: pure recursion, nothing extra at the nodes. Free and Cofree are each `Fix` with *one extra thing* at every position, and the type equations say exactly which thing.
+Here the ground firms up: everything from this point on is checked by a compiler, and I can vouch for all of it. Part 1 built `Fix<F> ≅ F<Fix<F>>`: pure recursion, nothing extra at the nodes. Free and Cofree are each `Fix` with *one extra thing* at every position, and the type equations say exactly which thing.
 
 The free monad is the least fixed point of `X ↦ a + F X`:
 
     Free F a  ≅  Fix (λX. a + F X)
 
-Read it as a tree of `F`-layers whose leaves are not dead ends but *variables* of type `a` &mdash; a term over the signature `F` with holes you can still fill. Kill the holes (set `a` to the empty type `Void`) and there is nothing left but the recursion: `Free F Void ≅ Fix F`.
+Read it as a tree of `F`-layers whose leaves are not dead ends but *variables* of type `a` &#x2014; a term over the signature `F` with holes you can still fill. Kill the holes (set `a` to the empty type `Void`) and there is nothing left but the recursion: `Free F Void ≅ Fix F`.
 
 The cofree comonad is the greatest fixed point of `X ↦ a × F X`:
 
@@ -45,7 +56,7 @@ The cofree comonad is the greatest fixed point of `X ↦ a × F X`:
 
 Every node still has its `F`-shape, but now it also carries an *annotation* of type `a`. Make the annotation trivial (set `a` to the unit type) and it vanishes: `Cofree F () ≅ Fix F`.
 
-So `Fix` is not a third thing beside Free and Cofree. It is their shared degenerate core: Free with no variables, Cofree with no labels. These are honest, total isomorphisms, not hand-waving &mdash; here they are in Haskell, compiled, with `Void` and `()` doing the collapsing. From [`docs/blog/code/FixRel.hs`](code/FixRel.hs):
+So `Fix` is not a third thing beside Free and Cofree. It is their shared degenerate core: Free with no variables, Cofree with no labels. These are honest, total isomorphisms, not hand-waving &#x2014; here they are in Haskell, compiled, with `Void` and `()` doing the collapsing. From [`docs/blog/code/FixRel.hs`](code/FixRel.hs):
 
 ```haskell
 -- The plain fixpoint -- the Haskell twin of C++ smd::fixpoint::Fix<F>.
@@ -71,7 +82,7 @@ fixToCofree :: Functor f => Fix f -> Cofree f ()
 fixToCofree (Fix fa) = () :< fmap fixToCofree fa
 ```
 
-And &mdash; the reason this interlude belongs to a C++ series &mdash; the same collapse happens in the library's *own* types. `Cofree<F, Unit>` round-trips through `Fix<F>`, and so does `Free<F, Empty>` (with the `Pure` leaf simply never constructed, `Empty` standing in for `Void`). Both directions fold at compile time; the `static_assert` in the example is the proof. From [`src/examples/free_cofree_interlude.cpp`](../../src/examples/free_cofree_interlude.cpp):
+And &#x2014; the reason this interlude belongs to a C++ series &#x2014; the same collapse happens in the library's *own* types. `Cofree<F, Unit>` round-trips through `Fix<F>`, and so does `Free<F, Empty>` (with the `Pure` leaf simply never constructed, `Empty` standing in for `Void`). Both directions fold at compile time; the `static_assert` in the example is the proof. From [`src/examples/free_cofree_interlude.cpp`](../../src/examples/free_cofree_interlude.cpp):
 
 ```cpp
 // The two "trivial" annotation/leaf types. Unit is the trivial annotation
@@ -121,7 +132,7 @@ That both conversions compile is Part 1's magic trick paying its second and thir
 
 # The Naive Implementation, in Both Languages
 
-The direct Haskell models are four lines each, and they are precisely what the library's headers transcribe. Here is the naive free monad &mdash; a `Pure` value or one `F`-layer of more Free &mdash; and the naive cofree comonad &mdash; an annotation at the head and one `F`-layer of annotated children at the tail. From [`docs/blog/code/Naive.hs`](code/Naive.hs):
+The direct Haskell models are four lines each, and they are precisely what the library's headers transcribe. Here is the naive free monad &#x2014; a `Pure` value or one `F`-layer of more Free &#x2014; and the naive cofree comonad &#x2014; an annotation at the head and one `F`-layer of annotated children at the tail. From [`docs/blog/code/Naive.hs`](code/Naive.hs):
 
 ```haskell
 -- Free f a: a Pure value of type a, or one F-layer of further Free
@@ -169,7 +180,7 @@ instance Functor f => Comonad (Cofree f) where
   duplicate w@(_ :< fa)     = w :< fmap duplicate fa
 ```
 
-Set that beside the C++. `Free<F, A>` is a `std::variant<A, F<Free<F, A>>>` &mdash; the `Pure a | Free (f ...)` sum, spelled as a variant. From [`src/smd/fixpoint/free.hpp`](../../src/smd/fixpoint/free.hpp):
+Set that beside the C++. `Free<F, A>` is a `std::variant<A, F<Free<F, A>>>` &#x2014; the `Pure a | Free (f ...)` sum, spelled as a variant. From [`src/smd/fixpoint/free.hpp`](../../src/smd/fixpoint/free.hpp):
 
 ```cpp
 /** Free<F, A>: a Pure value of type A, or one F-layer of further Free
@@ -211,7 +222,7 @@ constexpr auto is_pure(const Free<F, A> &f) -> bool {
 }
 ```
 
-`Cofree<F, A>` is a head and a tail &mdash; the `a :< f (Cofree f a)` product, spelled as two members. From [`src/smd/fixpoint/cofree.hpp`](../../src/smd/fixpoint/cofree.hpp):
+`Cofree<F, A>` is a head and a tail &#x2014; the `a :< f (Cofree f a)` product, spelled as two members. From [`src/smd/fixpoint/cofree.hpp`](../../src/smd/fixpoint/cofree.hpp):
 
 ```cpp
 /** Cofree<F, A>: an F-tree where every node is annotated with an A.
@@ -252,12 +263,12 @@ constexpr auto unwrap_cofree(const Cofree<F, A> &c) -> const F<Cofree<F, A>> & {
 }
 ```
 
-Both are a near-mechanical transliteration &mdash; sum becomes `variant`, product becomes a struct, the recursive position gets boxed &mdash; and both instances (Monad for Free, Comonad for Cofree; see Part 2's `layer_fmap`) demand exactly one thing of `F`: a Functor instance. That requirement is the thread the rest of this interlude pulls on.
+Both are a near-mechanical transliteration &#x2014; sum becomes `variant`, product becomes a struct, the recursive position gets boxed &#x2014; and both instances (Monad for Free, Comonad for Cofree; see Part 2's `layer_fmap`) demand exactly one thing of `F`: a Functor instance. That requirement is the thread the rest of this interlude pulls on.
 
 
 # Representing a Free by Its Own Fold: the Church Encoding
 
-The naive Free is data. There is a rival representation that is *function*: encode a value by the one thing you will ever do to it &mdash; fold it. This is the Church, or Böhm&ndash;Berarducci, encoding (B{\\"o}hm, Corrado and Berarducci, Alessandro, 1985), and it is the exact dual of the library's design choice, so it is worth seeing.
+The naive Free is data. There is a rival representation that is *function*: encode a value by the one thing you will ever do to it &#x2014; fold it. This is the Church, or Böhm&#x2013;Berarducci, encoding (B{\\"o}hm, Corrado and Berarducci, Alessandro, 1985), and it is the exact dual of the library's design choice, so it is worth seeing.
 
 A Church-encoded free value is a function that, given what to do with a `Pure` leaf (`a → r`) and an `F`-algebra (`f r → r`), returns the `r`. From [`docs/blog/code/Church.hs`](code/Church.hs):
 
@@ -285,7 +296,7 @@ liftF :: Functor f => f a -> CFree f a
 liftF fa = CFree (\kp kf -> kf (fmap kp fa))
 ```
 
-Two things stand out. First, there is no `Functor f` in the type or the `Monad` instance at all: the `fmap` that the naive Free needs inside `>>=` has been pushed out into the caller-supplied algebra `kf`. Second, this is the *initial-algebra* view turned inside out &mdash; a value *is* its own catamorphism &mdash; which is why it is isomorphic to the naive form for any Functor, via a fold one way and a pair of constructors the other.
+Two things stand out. First, there is no `Functor f` in the type or the `Monad` instance at all: the `fmap` that the naive Free needs inside `>>=` has been pushed out into the caller-supplied algebra `kf`. Second, this is Part 3's `cata` turned inside out &#x2014; a value *is* its own catamorphism, a function sitting there waiting to be handed an algebra &#x2014; which is why it is isomorphic to the naive form for any Functor, via a fold one way and a pair of constructors the other.
 
 ```haskell
 -- The encoding is isomorphic to naive Free (for a Functor f): fromNaive
@@ -301,14 +312,14 @@ toNaive :: CFree f a -> Free f a
 toNaive (CFree c) = c Pure Free
 ```
 
-The Church form is not just a curiosity; it is a performance fix. The naive `>>=` walks to the leaves of its left argument and grafts there, so a *left-nested* chain `((m >>= f) >>= g) >>= h` re-traverses the growing left spine at every step &mdash; classic quadratic blowup. The CPS shape re-associates that work for free. The definitive treatment, and the type-aligned-sequence remedy that the extensible-effects libraries actually ship, is van der Ploeg and Kiselyov's "Reflection without Remorse" (van der Ploeg, Atze and Kiselyov, Oleg, 2014).
+The Church form is not just a curiosity; it is a performance fix. The naive `>>=` walks to the leaves of its left argument and grafts there, so a *left-nested* chain `((m >>= f) >>= g) >>= h` re-traverses the growing left spine at every step &#x2014; classic quadratic blowup. The CPS shape re-associates that work for free. The definitive treatment, and the type-aligned-sequence remedy that the extensible-effects libraries actually ship, is van der Ploeg and Kiselyov's "Reflection without Remorse" (van der Ploeg, Atze and Kiselyov, Oleg, 2014).
 
-So why does `smd::fixpoint` use the naive `Fix`-of-a-variant and not the Church encoding? Because this library's product is a *materialized, `constexpr` tree* &mdash; values that you pattern-match, compare with `==`, and fold at compile time. A `forall r` rank-2 newtype is precisely the thing you cannot pattern-match, cannot compare structurally, and cannot easily fold in a constant expression. The encoding that wins for asymptotic bind performance in a lazy language is the one that loses for a value-semantics compile-time library. The trade is real, and the library takes the other side of it deliberately.
+So why does `smd::fixpoint` use the naive `Fix`-of-a-variant and not the Church encoding? Because this library's product is a *materialized, `constexpr` tree* &#x2014; values that you pattern-match, compare with `==`, and fold at compile time. A `forall r` rank-2 newtype is precisely the thing you cannot pattern-match, cannot compare structurally, and cannot easily fold in a constant expression. The encoding that wins for asymptotic bind performance in a lazy language is the one that loses for a value-semantics compile-time library. The trade is real, and the library takes the other side of it deliberately.
 
 
 # Freer: the Monad That Forgot It Needed a Functor
 
-Both naive and Church Free still, at some point, want an `F`-algebra or an `fmap`. Kiselyov and Ishii's **Freer** monad &mdash; from "Freer Monads, More Extensible Effects" (Kiselyov, Oleg and Ishii, Hiromi, 2015) &mdash; removes even that. The idea is to replace the nested-functor layer with an explicit *continuation*. From [`docs/blog/code/Freer.hs`](code/Freer.hs):
+Both naive and Church Free still, at some point, want an `F`-algebra or an `fmap`. Kiselyov and Ishii's **Freer** monad &#x2014; from "Freer Monads, More Extensible Effects" (Kiselyov, Oleg and Ishii, Hiromi, 2015) &#x2014; removes even that. The idea is to replace the nested-functor layer with an explicit *continuation*. From [`docs/blog/code/Freer.hs`](code/Freer.hs):
 
 ```haskell
 -- Freer f a: a Pure value, or a command `f x` paired with a continuation
@@ -336,7 +347,7 @@ liftFreer :: f a -> Freer f a
 liftFreer c = RImpure c RPure
 ```
 
-Look at the instance heads: `instance Functor (Freer f)`, no `Functor f =>` in sight. The `>>=` never maps over `f`; it only *composes continuations*. That is the whole trick, and it has a precise name: `Freer f` is exactly the free monad over the **Coyoneda** of `f` &mdash; the free functor, which turns any `f` whatsoever into a Functor by deferring the map into an accumulated function. These witnesses compile, so the isomorphism `Freer f ≅ Free (Coyoneda f)` is a fact, not a slogan:
+Look at the instance heads: `instance Functor (Freer f)`, no `Functor f =>` in sight. The `>>=` never maps over `f`; it only *composes continuations*. That is the whole trick, and it has a precise name: `Freer f` is exactly the free monad over the **Coyoneda** of `f`. Coyoneda sounds worse than it is. `Coyoneda f a` is just a pair: some `f x` you already have, and a function `x → a` you promise to apply later. Its `fmap` composes the new function onto the stored one and never touches the `f x` at all &#x2014; which is how it makes a lawful Functor out of *any* `f`, asking nothing of it. These witnesses compile, so the isomorphism `Freer f ≅ Free (Coyoneda f)` is a fact, not a slogan:
 
 ```haskell
 -- Coyoneda f -- the free functor on any f. It is a Functor for *every* f,
@@ -359,7 +370,7 @@ fromFree (Pure a)                = RPure a
 fromFree (Free (Coyoneda h fx)) = RImpure fx (fromFree . h)
 ```
 
-The payoff is that your signature need not be a functor &mdash; it can be a plain GADT of commands indexed by their result type, which has no `Functor` instance at all. Freer still hands you a monad, and a pure handler interprets it:
+The payoff is that your signature need not be a functor &#x2014; it can be a plain GADT of commands indexed by their result type, which has no `Functor` instance at all. Freer still hands you a monad, and a pure handler interprets it:
 
 ```haskell
 -- An effect signature with NO Functor instance (its result type is an
@@ -391,12 +402,29 @@ runConsole ins      (RImpure cmd k) = case cmd of
     []         -> runConsole [] (k "")
 ```
 
-There is a straight line from here back into the series. Part 9 (Mendler style) removes the Functor requirement from *folds* by the same spirit of move: instead of `fmap`-ing the recursive call over a layer, it *hands the algebra the recursive call itself*. Freer is to Free as Mendler-cata is to cata &mdash; "recursion without a Functor instance," reached from the monadic and the fold sides respectively. The library commits to the Functor instance everywhere (Part 2), which buys the uniform `layer_fmap` bridge; Freer and Mendler are the two escape hatches when you would rather not pay it.
+There is a straight line from here back into the series. Part 9 (Mendler style) removes the Functor requirement from *folds* by the same spirit of move: instead of `fmap`-ing the recursive call over a layer, it *hands the algebra the recursive call itself*. Freer is to Free as Mendler-cata is to cata &#x2014; "recursion without a Functor instance," reached from the monadic and the fold sides respectively. The library commits to the Functor instance everywhere (Part 2), which buys the uniform `layer_fmap` bridge; Freer and Mendler are the two escape hatches when you would rather not pay it.
+
+
+# Side-Light: C++26 Already Shipped a Freer
+
+Look at `RImpure` once more, because if you have been following WG21 you have seen this shape very recently.
+
+    RImpure :: f x -> (x -> Freer f a) -> Freer f a
+
+A Freer computation is a command paired with a continuation: run the command, feed whatever it produces to the rest of the program. Now set that beside the core of C++26's `std::execution`, the sender/receiver framework adopted from P2300 (Dominiak, Michał and Niebler, Eric and others, 2024):
+
+    connect : (sender, receiver) -> operation-state
+
+A *sender* describes work that will eventually complete with some values; by itself it does nothing. A *receiver* is the continuation, with a channel for each way the work can end: `set_value`, `set_error`, `set_stopped`. `connect` pairs the two into an operation state, and `start` runs it. Command plus continuation on one side; work-description plus what-happens-next on the other. It is the same decomposition.
+
+The correspondence runs deeper than one constructor. `Console` had no Functor instance because its result type is an index &#x2014; `GetLine` *is* a String-producing command, not a container of Strings &#x2014; and a sender advertises its completion signatures the same way: a compile-time list of the types it will deliver, not a covariant slot you can `fmap` over. The adaptor `then(sndr, g)` never touches the work inside `sndr`; it wraps the receiver, so that `g` runs on the value on its way through to the original continuation. That is `Freer`'s `fmap`, and it is exactly the Coyoneda move &#x2014; defer the map into the continuation &#x2014; played out on operation states instead of closures. `let_value(sndr, g)`, where `g` gets the first result and returns a new sender to run, is `>>=`. And a sender means nothing until something interprets it &#x2014; a scheduler, by way of `connect` and `start` &#x2014; just as `greet` meant nothing until `runConsole` walked it. Description, continuation, interpreter: the whole Freer kit, renamed.
+
+Two honest caveats. The signatures above are sketches, and the only uncompiled code in this interlude: real senders carry three completion channels rather than one, and compose at compile time through operation-state types, so the alignment is morphological rather than literal. And I do not claim P2300's authors derived the design from Kiselyov and Ishii; it descends from Facebook's futures and libunifex through a decade of engineering. But the convergence is not a coincidence either. Both start from the same constraint &#x2014; represent work without running it, and never require the command vocabulary to be a functor &#x2014; and continuation-passing is the shape that constraint forces. When you write `then(read(sock), parse)`, you are building an `RImpure` node, and the scheduler is your handler.
 
 
 # Is There a CoFreer?
 
-Yes &mdash; and by now you can predict its shape. Dualize `Freer f = Free (Coyoneda f)` arrow-for-arrow and you get `Cofreer f = Cofree (Coyoneda f)`: a cofree comonad that needs no Functor instance for its signature, because `Coyoneda f` supplies one for every `f`. The proof is that the comonad operations, specialized to this carrier, have *no* `Functor f` constraint and still typecheck. From [`docs/blog/code/Cofreer.hs`](code/Cofreer.hs):
+Yes &#x2014; and by now you can predict its shape. Dualize `Freer f = Free (Coyoneda f)` arrow-for-arrow and you get `Cofreer f = Cofree (Coyoneda f)`: a cofree comonad that needs no Functor instance for its signature, because `Coyoneda f` supplies one for every `f`. The proof is that the comonad operations, specialized to this carrier, have *no* `Functor f` constraint and still typecheck. From [`docs/blog/code/Cofreer.hs`](code/Cofreer.hs):
 
 ```haskell
 -- Cofreer f = Cofree (Coyoneda f). Because Coyoneda f is a Functor for
@@ -420,7 +448,7 @@ lowerCoyoneda :: Functor f => Coyoneda f a -> f a
 lowerCoyoneda (Coyoneda h fx) = fmap h fx
 ```
 
-There is one genuine subtlety, and it is the variance. `Coyoneda` (a left Kan extension, an *exists*) is free to *build* from &mdash; `liftCoyoneda` needs no Functor &mdash; but you pay a Functor to interpret one layer back out. Its mirror is `Yoneda` (a right Kan extension, a *forall*), which is the reverse: free to *observe* out of, but you pay a Functor to get in. Both make any `f` a functor, so `Cofree (Yoneda f)` is *also* a lawful comonad for every `f`; which one is "the" CoFreer depends on whether you are constructing or consuming. Since a comonad is a thing you *observe*, `Yoneda` is arguably the more honest dual &mdash; and it costs nothing to write both down:
+There is one genuine subtlety, and it is the variance. The literature files `Coyoneda` and `Yoneda` under "Kan extensions" &#x2014; a drawer of category theory I have not opened yet, so I will not lean on the name. What I can lean on is the quantifier, because it is right there in the two data declarations. `Coyoneda f a` is an *exists* &#x2014; "there is some `x`, an `f x`, and a function out of `x`" &#x2014; so it is free to *build* (`liftCoyoneda` needs no Functor) but you pay a Functor to interpret one layer back out. `Yoneda f a` is a *forall* &#x2014; "hand me any function out of `a` and I will produce the mapped `f`" &#x2014; so it is the reverse: free to *observe* out of, but you pay a Functor to get in. Both make any `f` a functor, so `Cofree (Yoneda f)` is *also* a lawful comonad for every `f`; which one is "the" CoFreer depends on whether you are constructing or consuming. Since a comonad is a thing you *observe*, `Yoneda` is arguably the more honest dual &#x2014; and it costs nothing to write both down:
 
 ```haskell
 -- The variance-dual choice. Yoneda is the other free-functor completion --
@@ -446,12 +474,12 @@ lowerYoneda (Yoneda y) = y id
 type CofreerY f = Cofree (Yoneda f)
 ```
 
-So the construction is real, it is lawful, and it compiles. What it is *not* is famous. Freer earned its name because dropping the Functor constraint unlocked composable, efficient extensible *effects* &mdash; a problem thousands of people had. The comonadic dual would unlock composable *co-effects*: context-dependent, streaming, incremental computations. That is a real and interesting corner, but it never acquired a celebrated library or a catchy name, so "CoFreer" remains mostly folklore and a good answer to an interview question. The honest summary: yes, there is a CoFreer; no, you have probably never needed one; and writing it down is a two-line `type` synonym once you have Coyoneda.
+So the construction is real, it is lawful, and it compiles. What it is *not* is famous. Freer earned its name because dropping the Functor constraint unlocked composable, efficient extensible *effects* &#x2014; a problem thousands of people had. The comonadic dual would unlock composable *co-effects*: context-dependent, streaming, incremental computations. That is a real and interesting corner, but it never acquired a celebrated library or a catchy name, so "CoFreer" remains mostly folklore and a good answer to an interview question. The honest summary: yes, there is a CoFreer; no, you have probably never needed one; and writing it down is a two-line `type` synonym once you have Coyoneda.
 
 
 # The Ledger
 
-The family, one row per member, and the question that separates them &mdash; does the construction demand a Functor instance for `F`?
+The family, one row per member, and the question that separates them &#x2014; does the construction demand a Functor instance for `F`?
 
 | construction         | what it is                      | needs `Functor f`?    |
 |-------------------- |------------------------------- |--------------------- |
@@ -462,7 +490,7 @@ The family, one row per member, and the question that separates them &mdash; doe
 | `Freer f a`          | `Free (Coyoneda f)`             | no                    |
 | `Cofreer f a`        | `Cofree (Coyoneda f)`           | no                    |
 
-Read down the middle column and the theme of the whole series reappears: it is all `Fix` with something bolted to the nodes. Read down the right column and you see the two ways to stop paying the Functor tax &mdash; push it into the fold (Church) or defer it through a Kan extension (Freer/Cofreer). The `smd::fixpoint` library sits firmly in the top three rows, and on purpose: materialized values that compare and fold at compile time are worth a Functor instance per layer.
+Read down the middle column and the theme of the whole series reappears: it is all `Fix` with something bolted to the nodes. Read down the right column and you see the two ways to stop paying the Functor tax &#x2014; push it into the fold (Church) or defer it into a stored continuation (Freer/Cofreer). The `smd::fixpoint` library sits firmly in the top three rows, and on purpose: materialized values that compare and fold at compile time are worth a Functor instance per layer. And if the `Freer` row rings familiar from the day job, that is the side-light: C++26's sender/receiver sits in that row too.
 
 With the carriers demystified, Part 7 can hand you Cofree and Free and you will know precisely what is in your hand: `Fix`, annotated on the left and seeded on the right.
 
@@ -482,3 +510,5 @@ Böhm, Corrado and Berarducci, Alessandro (1985). **Automatic Synthesis of Typed
 van der Ploeg, Atze and Kiselyov, Oleg (2014). **Reflection without Remorse: Revealing a Hidden Sequence to Speed up Monadic Reflection**, Haskell Symposium 2014.
 
 Kiselyov, Oleg and Ishii, Hiromi (2015). **Freer Monads, More Extensible Effects**, Haskell Symposium 2015.
+
+Dominiak, Michał, Evtushenko, Georgy, Baker, Lewis, Teodorescu, Lucian Radu, Howes, Lee, Shoop, Kirk, Garland, Michael, Niebler, Eric, and Adelstein Lelbach, Bryce (2024). **std::execution**, WG21 paper P2300R10, <https://wg21.link/P2300>.
