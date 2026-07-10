@@ -1,9 +1,9 @@
-<div class="abstract" id="org20845cf">
+<div class="abstract" id="org3ac7beb">
 <p>
 A recursive type that names itself is ordinary. A type that is the fixed
 point of a <b>non-recursive</b> template is the foundation every recursion scheme
 stands on. The type equation <code>Fix&lt;F&gt; ≅ F&lt;Fix&lt;F&gt;&gt;</code> looks like it cannot
-possibly compile &#x2014; the trick that makes it legal C++ is deciding, once and
+possibly compile &mdash; the trick that makes it legal C++ is deciding, once and
 for all, whose job the indirection is.
 </p>
 
@@ -46,7 +46,7 @@ using ExprF = std::variant<Const<A>, Add<A>, Mul<A>>;
 using Expr = smd::fixpoint::Fix<ExprF>;
 ```
 
-`ExprF` never mentions `ExprF`. When `A` is `int`, an `ExprF<int>` is one layer whose children are already integers. When `A` is the full tree type, the children are subtrees. This parameterization &#x2014; the *base functor* &#x2014; is the whole idea (Milewski, Bartosz, 2013) (Milewski, Bartosz, 2017). Everything else in this series is machinery for choosing what to put in that `A` slot.
+`ExprF` never mentions `ExprF`. When `A` is `int`, an `ExprF<int>` is one layer whose children are already integers. When `A` is the full tree type, the children are subtrees. This parameterization &mdash; the *base functor* &mdash; is the whole idea (Milewski, Bartosz, 2013) (Milewski, Bartosz, 2017). Everything else in this series is machinery for choosing what to put in that `A` slot.
 
 
 # Fix: The Knot
@@ -60,7 +60,7 @@ struct Fix {
 };
 ```
 
-`Fix` takes a template-template parameter &#x2014; the unary base functor &#x2014; and plugs the resulting type back into itself: a `Fix<F>` holds one layer `F<Fix<F>>`, *by value*. The isomorphism boundary is two trivial functions:
+`Fix` takes a template-template parameter &mdash; the unary base functor &mdash; and plugs the resulting type back into itself: a `Fix<F>` holds one layer `F<Fix<F>>`, *by value*. The isomorphism boundary is two trivial functions:
 
 ```cpp
 /** Wrap one layer of @p F into the fixed-point type. */
@@ -76,7 +76,7 @@ constexpr auto unwrap_fix(const Fix<F> &fixed) -> const F<Fix<F>> & {
 }
 ```
 
-`wrap_fix` packs a layer; `unwrap_fix` exposes it. Neither does work. They exist so the type system can watch the recursion cross the boundary, one layer at a time &#x2014; this is iso-recursion, not equi-recursion, and the explicitness is a feature. Every scheme in this series is a dance of `unwrap_fix`, `fmap`, and `wrap_fix`.
+`wrap_fix` packs a layer; `unwrap_fix` exposes it. Neither does work. They exist so the type system can watch the recursion cross the boundary, one layer at a time &mdash; this is iso-recursion, not equi-recursion, and the explicitness is a feature. Every scheme in this series is a dance of `unwrap_fix`, `fmap`, and `wrap_fix`.
 
 
 # The Magic Trick
@@ -90,20 +90,20 @@ struct Fix {
 };
 ```
 
-At the point `inner` is declared, `Fix<F>` is still an incomplete type &#x2014; the compiler is in the middle of defining it. Instantiating `F` at an incomplete type, and holding the result **by value**, should be a hard error for any `F` that stores its argument directly. `Succ<A>` with an `A pred;` member would demand the size of `Fix<NatF>` while computing the size of `Fix<NatF>`. Infinite regress; the compiler gives up at the template instantiation depth limit.
+At the point `inner` is declared, `Fix<F>` is still an incomplete type &mdash; the compiler is in the middle of defining it. Instantiating `F` at an incomplete type, and holding the result **by value**, should be a hard error for any `F` that stores its argument directly. `Succ<A>` with an `A pred;` member would demand the size of `Fix<NatF>` while computing the size of `Fix<NatF>`. Infinite regress; the compiler gives up at the template instantiation depth limit.
 
 The trick is a division of responsibility, stated once in the design and obeyed everywhere:
 
 > Boxing is the functor's responsibility. Recursive positions inside base functor alternatives hold `Box<A>`. Consequently `F<X>` is a complete type for incomplete `X`.
 
-Look back at `ExprF`: the children are `Box<A> left, right;` &#x2014; never a bare `A`. A `Box<A>` contains only an `A*`, and C++ has always been happy to point at an incomplete type. So `ExprF<Fix<ExprF>>` is a complete type &#x2014; its size is known, its members are pointers &#x2014; even while `Fix<ExprF>` itself is still being defined. The knot ties.
+Look back at `ExprF`: the children are `Box<A> left, right;` &mdash; never a bare `A`. A `Box<A>` contains only an `A*`, and C++ has always been happy to point at an incomplete type. So `ExprF<Fix<ExprF>>` is a complete type &mdash; its size is known, its members are pointers &mdash; even while `Fix<ExprF>` itself is still being defined. The knot ties.
 
-That is the entire magic. Not a compiler extension, not a clever metaprogram &#x2014; a convention about who owns the indirection. The functor boxes; `Fix`, `Cofree` (Part 7), and `Free` (Part 7) all get to contain their own layers by value because of it.
+That is the entire magic. Not a compiler extension, not a clever metaprogram &mdash; a convention about who owns the indirection. The functor boxes; `Fix`, `Cofree` (the Interlude), and `Free` (the Interlude) all get to contain their own layers by value because of it.
 
 
 # Box: The Indirection That Survives constexpr
 
-`Box` could almost be `std::unique_ptr`, except trees are values here &#x2014; they copy, they compare, and they fold at compile time. From [`src/smd/fixpoint/box.hpp`](../../src/smd/fixpoint/box.hpp):
+`Box` could almost be `std::unique_ptr`, except trees are values here &mdash; they copy, they compare, and they fold at compile time. From [`src/smd/fixpoint/box.hpp`](../../src/smd/fixpoint/box.hpp):
 
 ```cpp
 template <typename A>
@@ -153,11 +153,11 @@ struct Box {
 
 Three properties earn `Box` its place.
 
-**Deep-copy value semantics.** Copying a `Box` copies the pointee. Copying a tree copies the tree. No sharing, no reference counting, no surprises about who mutated what. The library accepts the copies deliberately &#x2014; performance tuning is an explicit non-goal of the design, correctness of the transcription is the goal.
+**Deep-copy value semantics.** Copying a `Box` copies the pointee. Copying a tree copies the tree. No sharing, no reference counting, no surprises about who mutated what. The library accepts the copies deliberately &mdash; performance tuning is an explicit non-goal of the design, correctness of the transcription is the goal.
 
 **constexpr capability.** The allocation uses raw `new~/~delete`, which are usable in constant evaluation for transient allocations since C++20. This is why every scheme in the library can carry a `static_assert` that folds a small tree at compile time. The fixpoint machinery is a compile-time library that also works at run time, not the other way around.
 
-**Nullability by default.** A default-constructed `Box` is null. That looks like a concession, and it is &#x2014; the C++26 alternative `std::indirect` (Bhosale, Jagrut and Catmur, Ed and Berne, Jonathan, 2024) has the right semantics but an explicit default constructor, which blocks aggregate-initialized storage. The header's comment records the trade honestly: `Box` is a workaround the library keeps for consistency and its nullable default.
+**Nullability by default.** A default-constructed `Box` is null. That looks like a concession, and it is &mdash; the C++26 alternative `std::indirect` (Bhosale, Jagrut and Catmur, Ed and Berne, Jonathan, 2024) has the right semantics but an explicit default constructor, which blocks aggregate-initialized storage. The header's comment records the trade honestly: `Box` is a workaround the library keeps for consistency and its nullable default.
 
 The maker function completes the vocabulary:
 
@@ -172,7 +172,7 @@ constexpr auto make_box(Args &&...args) -> Box<A> {
 
 # Composition, Not Inheritance
 
-Eric Niebler's classic translation of this pattern (Niebler, Eric, 2013) ties the knot with inheritance: `struct Fix : F<Fix<F>> {}`. That satisfies the same equation, and unwrapping becomes an upcast. But is-a is stronger than the math requires. Inheritance implies substitutability &#x2014; any function taking `F<Fix<F>>` would accept a `Fix<F>` &#x2014; and that uninvited conversion can ambush overload resolution. The single-member composition here says exactly what is true: a `Fix<F>` *contains* one layer. Nothing more is promised, so nothing more can go wrong.
+Eric Niebler's classic translation of this pattern (Niebler, Eric, 2013) ties the knot with inheritance: `struct Fix : F<Fix<F>> {}`. That satisfies the same equation, and unwrapping becomes an upcast. But is-a is stronger than the math requires. Inheritance implies substitutability &mdash; any function taking `F<Fix<F>>` would accept a `Fix<F>` &mdash; and that uninvited conversion can ambush overload resolution. The single-member composition here says exactly what is true: a `Fix<F>` *contains* one layer. Nothing more is promised, so nothing more can go wrong.
 
 
 # Smart Constructors, and a Tree at Last
@@ -231,7 +231,7 @@ No tree-walking code anywhere in it. That absence is the product this library se
 
 # The Rest of the Bestiary
 
-The same header defines the other base functors the series uses: `NatF` (Peano naturals &#x2014; `Zero` or `Succ`), `ListF<E, ·>` (cons lists carrying payload type `E`), and `TreeF<E, ·>` (leaf-valued binary trees).
+The same header defines the other base functors the series uses: `NatF` (Peano naturals &mdash; `Zero` or `Succ`), `ListF<E, ·>` (cons lists carrying payload type `E`), and `TreeF<E, ·>` (leaf-valued binary trees).
 
 ```cpp
 struct Zero {
@@ -267,7 +267,7 @@ using NatF = std::variant<Zero, Succ<A>>;
 using Nat = smd::fixpoint::Fix<NatF>;
 ```
 
-Two things to notice. `ListF` is a *binary* template &#x2014; element type and recursion slot &#x2014; and `Fix` wants a unary one; an alias template (`template <class A> using IntListF = ListF<int, A>`) binds the payload, and alias templates are valid template-template arguments per P0522 (Spertus, Mike and Vandevoorde, Daveed, 2016). And those hand-written `operator==` bodies where `= default` ought to be: the comment records a real Clang 22 discovery &#x2014; a defaulted comparison's deleted-ness check forces completeness of self-referential functor families mid-definition; a plain friend body is only instantiated when used. Shipping code accumulates scars. The field guide keeps them visible.
+Two things to notice. `ListF` is a *binary* template &mdash; element type and recursion slot &mdash; and `Fix` wants a unary one; an alias template (`template <class A> using IntListF = ListF<int, A>`) binds the payload, and alias templates are valid template-template arguments per P0522 (Spertus, Mike and Vandevoorde, Daveed, 2016). And those hand-written `operator==` bodies where `= default` ought to be: the comment records a real Clang 22 discovery &mdash; a defaulted comparison's deleted-ness check forces completeness of self-referential functor families mid-definition; a plain friend body is only instantiated when used. Shipping code accumulates scars. The field guide keeps them visible.
 
 Next: the `fmap` that every scheme leans on, and the typeclass machinery that finds it.
 

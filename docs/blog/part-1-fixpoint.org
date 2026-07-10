@@ -106,8 +106,8 @@ The knot ties.
 That is the entire magic.
 Not a compiler extension, not a clever metaprogram --- a convention about
 who owns the indirection.
-The functor boxes; ~Fix~, ~Cofree~ (Part 7), and ~Free~ (Part 7) all get to
-contain their own layers by value because of it.
+The functor boxes; ~Fix~, ~Cofree~ (the Interlude), and ~Free~ (the
+Interlude) all get to contain their own layers by value because of it.
 
 * Box: The Indirection That Survives constexpr
 

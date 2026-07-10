@@ -345,7 +345,7 @@ docs/blog/%.md : docs/blog/%.org
 	--eval "(org-export-to-file 'gfm \"$(abspath $@)\")"
 	echo $@ : \\ > $@.deps
 	echo "  $<" \\ >> $@.deps
-	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs -I{} realpath -m --relative-to=. $(dir $<){} | xargs printf "  %s \\\\\\n" >> $@.deps
 
 -include $(BLOG_ORGFILES:.org=.md.deps)
 
@@ -356,6 +356,17 @@ blog-md: $(BLOG_ORGFILES:.org=.md) ## convert docs/blog/*.org to GFM markdown
 clean-blog-md:
 	-rm -f $(BLOG_ORGFILES:.org=.md) $(BLOG_ORGFILES:.org=.md.deps)
 clean: clean-blog-md
+
+.PHONY: blog-haskell-check
+blog-haskell-check: ## typecheck the interlude Haskell excerpts (needs GHC 9.6+)
+	@if command -v ghc >/dev/null 2>&1; then \
+	  out=$$(mktemp -d); \
+	  echo "ghc --make -fno-code -Wall docs/blog/code/*.hs"; \
+	  ghc --make -fno-code -Wall -outputdir $$out docs/blog/code/*.hs; \
+	  rm -rf $$out; \
+	else \
+	  echo "ghc not found; skipping blog-haskell-check"; \
+	fi
 
 %-slides.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
