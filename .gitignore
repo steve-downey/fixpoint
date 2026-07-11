@@ -14,5 +14,6 @@ uv.lock
 /.emacs.d/elpa/
 *.deps
 *.html
+!/docs/header.html
 /docs/html/
 /.claude/settings.local.json
