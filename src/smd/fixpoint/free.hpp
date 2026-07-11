@@ -107,6 +107,50 @@ struct FreeFunctorImpl {
             },
             fr.node);
     }
+
+    // FD4: consuming overload. Explicit trailing return type for the same
+    // deduction-cycle reason as the const overload above. `fr.node` is
+    // visited by moving out of it (`std::get<...>(std::move(fr.node))`
+    // rather than `std::visit(overloaded{...}, ...)`): both alternatives of
+    // `overloaded` are constructed eagerly before dispatch, so two lambdas
+    // sharing one move-captured `fn` would race to move the same object;
+    // branching on `std::holds_alternative` first and constructing only the
+    // live alternative's closure sidesteps that. Capture-ownership rule
+    // (FD4): the closure handed to `layer_fmap` owns `self` and `fn` by
+    // value -- no `[&self, &fn]`, ever, on this path.
+    //
+    // The recursive closure's `child` parameter is `auto&&`, not a fixed
+    // `Free<F, A>&&`: a lazy layer's Functor instance delivers a genuine
+    // rvalue child (S03's Coyoneda), but a *pure-data* F (e.g. IntListF)
+    // only ever owned the const-lvalue fmap above -- FD4's fallthrough
+    // rule -- and that legacy traversal hands children out as lvalues
+    // (`*c.tail`, box.hpp's `operator*() const -> A&`). Forwarding
+    // `child` on to the recursive `self.fmap(...)` call, rather than
+    // hard-coding `std::move`, lets ordinary overload resolution pick
+    // whichever of the two `fmap` overloads matches what the layer
+    // actually delivered. This is what keeps chained/prvalue-composed
+    // calls over pure-data F (e.g. this file's pre-existing const-path
+    // tests, reached via this overload whenever an intermediate Free
+    // value is a prvalue) correct without touching that const path.
+    template <class Fn>
+    constexpr auto fmap(this auto &&self, Fn &&fn,
+                        smd::fixpoint::Free<F, A> &&fr)
+        -> smd::fixpoint::Free<F,
+                               remove_cvref_t<std::invoke_result_t<Fn, A &&>>> {
+        using B = remove_cvref_t<std::invoke_result_t<Fn, A &&>>;
+        if (std::holds_alternative<A>(fr.node)) {
+            return smd::fixpoint::pure_free<F>(std::invoke(
+                std::forward<Fn>(fn), std::get<A>(std::move(fr.node))));
+        }
+        auto layer = std::get<F<smd::fixpoint::Free<F, A>>>(std::move(fr.node));
+        auto mapped = smd::fixpoint::layer_fmap(
+            [self, fn = std::forward<Fn>(fn)](
+                auto &&child) -> smd::fixpoint::Free<F, B> {
+                return self.fmap(fn, std::forward<decltype(child)>(child));
+            },
+            std::move(layer));
+        return smd::fixpoint::roll_free<F>(std::move(mapped));
+    }
 };
 
 template <template <class> class F, class A>
@@ -162,6 +206,35 @@ struct FreeMonadImpl {
                 },
             },
             m.node);
+    }
+
+    // FD4: consuming overload -- the load-bearing one for S03's Coyoneda
+    // layer, whose stored continuation is move-only. Same visitation and
+    // capture-ownership reasoning as FreeFunctorImpl::fmap's consuming
+    // overload above (branch on holds_alternative rather than
+    // std::visit(overloaded{...}) to avoid two lambdas racing to move one
+    // `fn`; the closure handed to `layer_fmap` owns `self`/`fn` by value,
+    // never `[&self, &fn]`; `child` is `auto&&` and forwarded, not
+    // hard-coded `&&`, so a pure-data F's lvalue-yielding legacy fmap
+    // still routes to the matching const-path `bind` overload -- see the
+    // comment on FreeFunctorImpl::fmap's consuming overload above for why).
+    // `pure` needs no rvalue overload: it is already by-value.
+    template <class X, class Fn>
+    constexpr auto bind(this auto &&self, smd::fixpoint::Free<F, X> &&m,
+                        Fn &&fn)
+        -> remove_cvref_t<std::invoke_result_t<Fn, X &&>> {
+        using ResultFree = remove_cvref_t<std::invoke_result_t<Fn, X &&>>;
+        if (std::holds_alternative<X>(m.node)) {
+            return std::invoke(std::forward<Fn>(fn),
+                               std::get<X>(std::move(m.node)));
+        }
+        auto layer = std::get<F<smd::fixpoint::Free<F, X>>>(std::move(m.node));
+        auto mapped = smd::fixpoint::layer_fmap(
+            [self, fn = std::forward<Fn>(fn)](auto &&child) -> ResultFree {
+                return self.bind(std::forward<decltype(child)>(child), fn);
+            },
+            std::move(layer));
+        return smd::fixpoint::roll_free<F>(std::move(mapped));
     }
 };
 

@@ -68,6 +68,28 @@ constexpr auto layer_fmap(Fn &&fn, const Layer &layer) {
 }
 // d1f5f4d6-a17a-47c6-b5cb-b97d08a0af6b end
 
+// FD4: consuming (rvalue) traversal. A move-only, lazily-mapped layer
+// (S03's Coyoneda impure_node) cannot compile against the const-lvalue
+// overloads above -- they rebuild by copy. These overloads take the layer
+// by rvalue and forward std::move(layer) into Typeclass.fmap, so `bind`
+// (free.hpp) and later the Coyoneda instance can move through instead of
+// copying. `Layer` is a genuine forwarding reference here, constrained to
+// `!std::is_lvalue_reference_v<Layer>` so it never wins over the const&
+// overloads above for an lvalue argument -- ordinary overload resolution
+// then prefers this rvalue-parameter overload over the const&-binds-to-
+// rvalue fallback for an actual rvalue call. A pure-data instance that
+// only ever wrote a `const Layer&` fmap is still reachable through this
+// overload: `Typeclass.fmap(fn, std::move(layer))` binds the moved-from
+// rvalue to that `const Layer&` parameter same as any rvalue would.
+template <class Layer,
+          const auto &Typeclass =
+              smd::typeclass::functor_typeclass<std::remove_cvref_t<Layer>>,
+          class Fn>
+    requires(!std::is_lvalue_reference_v<Layer>)
+constexpr auto layer_fmap(Fn &&fn, Layer &&layer) {
+    return Typeclass.fmap(std::forward<Fn>(fn), std::forward<Layer>(layer));
+}
+
 // c7e66aa1-1de1-4776-97d1-dc831115749a
 /** Mode 3 (explicit object): apply the functor object @p tc directly instead
  * of consulting the global registry. The typeclass object is the first
@@ -82,6 +104,25 @@ constexpr auto layer_fmap(const Typeclass &tc, Fn &&fn, const Layer &layer) {
     return tc.fmap(std::forward<Fn>(fn), layer);
 }
 // c7e66aa1-1de1-4776-97d1-dc831115749a end
+
+// FD4: rvalue mirror of `functor_instance_for` for mode 3's consuming
+// overload below -- checks that @p tc.fmap accepts @p layer by rvalue
+// instead of `const Layer&`. Constrained to `!std::is_lvalue_reference_v`
+// for the same reason as the mode 1/2 rvalue overload above: keep the
+// existing const-lvalue mode-3 overload winning for lvalue calls.
+template <class Typeclass, class Fn, class Layer>
+concept functor_instance_for_rvalue =
+    (!std::is_lvalue_reference_v<Layer>) &&
+    requires(const Typeclass &tc, Fn &&fn, Layer &&layer) {
+        tc.fmap(std::forward<Fn>(fn), std::forward<Layer>(layer));
+    };
+
+/** Mode 3, consuming: explicit-object overload taking @p layer by rvalue. */
+template <class Typeclass, class Fn, class Layer>
+    requires functor_instance_for_rvalue<Typeclass, Fn, Layer>
+constexpr auto layer_fmap(const Typeclass &tc, Fn &&fn, Layer &&layer) {
+    return tc.fmap(std::forward<Fn>(fn), std::forward<Layer>(layer));
+}
 
 } // namespace smd::fixpoint
 

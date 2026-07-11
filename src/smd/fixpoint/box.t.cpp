@@ -31,3 +31,32 @@ TEST_CASE("Box - DeepCopyOnCopy") {
     CHECK(*b1 == 7);
     CHECK(*b2 == 99);
 }
+
+// FD4: rvalue operator* moves out of the Box instead of copying.
+
+TEST_CASE("Box - RvalueDerefMovesOut") {
+    auto b = make_box<std::string>("move me");
+    std::string moved = *std::move(b);
+    CHECK(moved == "move me");
+}
+
+namespace {
+
+struct MoveOnly {
+    int value;
+
+    MoveOnly() = default;
+    explicit MoveOnly(int v) : value(v) {}
+    MoveOnly(const MoveOnly &) = delete;
+    auto operator=(const MoveOnly &) -> MoveOnly & = delete;
+    MoveOnly(MoveOnly &&) = default;
+    auto operator=(MoveOnly &&) -> MoveOnly & = default;
+};
+
+} // namespace
+
+TEST_CASE("Box - RvalueDerefRoundTripsMoveOnlyType") {
+    auto b = make_box<MoveOnly>(42);
+    MoveOnly out = *std::move(b);
+    CHECK(out.value == 42);
+}
