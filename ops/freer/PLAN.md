@@ -121,7 +121,7 @@ compiler evidence) before dispatching S03.
 
 ### Phase E — Interpreters (E1 ∥ E2)
 - [ ] **S06** Cofree pairing mock: unfold_cofree + lazy co-signature + pairing — `ops/freer/steps/06-cofree-pairing.md` (dep: S05)
-- [ ] **S07d** Provision beman.execution/beman.task (dual-mode) — `ops/freer/steps/07d-beman-deps.md` (dep: S00; parallel to anything)
+- [x] **S07d** Provision beman.execution/beman.task (dual-mode) — `ops/freer/steps/07d-beman-deps.md` (dep: S00; parallel to anything)
 - [ ] **S07** S/R interpreter: mcata_free + task carrier — `ops/freer/steps/07-sr-interpreter.md` (dep: S05, S07d)
 
 ### Phase F — Integration
@@ -132,3 +132,4 @@ compiler evidence) before dispatching S03.
 | Step | Agent date | Commit | Gate result (per toolchain test counts) | Handoff |
 |------|-----------|--------|------------------------------------------|---------|
 | S00 | Sonnet 2026-07-11 | 88072d8 | gcc-16: 220/220 passed; clang-23: 220/220 passed | `ops/freer/handoffs/00-ground.handoff.md` |
+| S07d | Sonnet 2026-07-11 | a5f406c | gcc-16: 222/222 passed; clang-23: 222/222 passed | `ops/freer/handoffs/07d-beman-deps.handoff.md` |
