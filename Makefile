@@ -52,13 +52,19 @@ _build_path := $(patsubst %/,%,$(_build_path))
 
 VCPKG ?= $(shell command -v vcpkg 2> /dev/null)
 
+# cmake/beman-deps.cmake (S07d) provisions beman::execution/beman::task via
+# FetchContent regardless of mode -- neither has a vcpkg port, so it must
+# fire even in the vcpkg branch below. Appended after the mode-specific
+# top-level include; semicolon-joined, so the -D below must be quoted.
+_beman_deps_top_level:=$(CURDIR)/cmake/beman-deps.cmake
+
 ifeq ($(VCPKG),)
-	_cmake_top_level?="infra/cmake/use-fetch-content.cmake"
+	_cmake_top_level?="infra/cmake/use-fetch-content.cmake;$(_beman_deps_top_level)"
 	_toolchain:=$(_local_toolchain)
 	_args=-DBEMANINFRA_googletest_REPO=file:///home/sdowney/bld/googletest/googletest.git
 else
 	_vcpkg_toolchain:=$(VCPKG_ROOT)/scripts/buildsystems/vcpkg.cmake
-	_cmake_top_level?=$(_vcpkg_toolchain)
+	_cmake_top_level?="$(_vcpkg_toolchain);$(_beman_deps_top_level)"
 	export PROJECT_VCPKG_TOOLCHAIN=$(_local_toolchain)
 	_toolchain:=$(_local_toolchain)
 	_args=-DVCPKG_OVERLAY_TRIPLETS=$(CURDIR)/cmake -DVCPKG_TARGET_TRIPLET=x64-linux-custom

@@ -81,4 +81,30 @@ if(FIXPOINT_ENABLE_TESTING)
 
     include(Catch)
     catch_discover_tests(smd_fixpoint_test)
+
+    # S07d: beman.execution / beman.task probe. Deliberately its own
+    # executable, separate from smd_fixpoint_test and NOT linked into
+    # fixpoint.fixpoint -- this step only proves the deps are fetchable and
+    # linkable, S07 does the real interpreter work against them.
+    #
+    # cmake/beman-deps.cmake (loaded via CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
+    # only FetchContent_Declare()s beman-execution/beman-task; the actual
+    # FetchContent_MakeAvailable() has to happen here, outside the
+    # top-level project() call, to avoid a recursive project() error (see
+    # that file's comment for why).
+    include(FetchContent)
+    FetchContent_MakeAvailable(execution task)
+
+    add_executable(freer_beman_probe_test)
+
+    target_sources(freer_beman_probe_test PRIVATE freer_beman_probe.t.cpp)
+
+    target_link_libraries(
+        freer_beman_probe_test
+        Catch2::Catch2WithMain
+        beman::execution_headers
+        beman::task
+    )
+
+    catch_discover_tests(freer_beman_probe_test)
 endif()
