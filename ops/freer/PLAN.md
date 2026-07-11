@@ -48,20 +48,31 @@ Opus orchestrator**. The division of labor is absolute:
   equality-comparable; tests assert on `run(handler, prog)` results
   and traces, never on structural equality.
 
-## Build & test (S00 pins actuals; expected values below)
+## Build & test (S00-pinned actuals)
 
 ```bash
 cd <repo root>
 make TOOLCHAIN=gcc-16 test        # primary GCC, Asan config
-make TOOLCHAIN=clang-22 test      # primary Clang, Asan config
+make TOOLCHAIN=clang-23 test      # primary Clang, Asan config
 make lint                         # pre-commit hooks
 ```
 
-Expected pins: gcc-16 primary GCC (matches the recursion-schemes
-plan), newest clang-NN with a toolchain file in `etc/` that is on
-PATH as primary Clang. S00 verifies and records the real names plus
-baseline test counts; if a baseline compiler fails the *pre-existing*
-suite, that is recorded, not fixed, and the orchestrator decides.
+Pins (S00): **gcc-16** primary GCC (`g++-16` on PATH,
+`etc/gcc-16-toolchain.cmake`), **clang-23** primary Clang (`clang++-23`
+on PATH, `etc/clang-23-toolchain.cmake` — newest clang with both a
+binary and a toolchain file; clang++-17..23 are all on PATH but 23 is
+the newest pairing). No substitution needed. Baseline (untouched
+tree): 220/220 passed under gcc-16, 220/220 passed under clang-23.
+`__cpp_lib_move_only_function` (D-B input, S00 probe): defined as
+`202110L` and `std::move_only_function<int(int) &&>` well-formed under
+both gcc-16 (libstdc++) and clang-23 (libstdc++, the toolchain's
+default stdlib). Under clang-23 `-stdlib=libc++` (libc++-23-dev
+installed locally): the feature-test macro is **not** defined (libc++'s
+`version` header has the `#define` for it commented out) and
+`std::move_only_function` is not even a known name in `namespace std`
+under that libc++ — the type is unimplemented there, not merely
+untagged. See `ops/freer/handoffs/00-ground.handoff.md` for the full
+probe transcript.
 
 ## Branch & merge strategy (orchestrator-owned)
 
