@@ -217,6 +217,106 @@ TEST_CASE("fmap - mode 3 explicit object argument threads the instance") {
     CHECK(*succ->pred == 108);
 }
 
+// --- FD4: consuming (rvalue) traversal ---------------------------------
+//
+// `layer_fmap` gains &&-constrained overloads in all three lookup modes
+// (fmap.hpp). These tests check two things per mode: (1) a pure-data
+// instance that only ever wrote a `const Layer&` fmap is still reachable
+// through the new rvalue overload (rvalue binds to const&, same result as
+// the lvalue call); (2) when an instance offers *both* a `const&` and a
+// `&&` fmap, an lvalue argument keeps picking the `const&` overload and an
+// rvalue argument picks the new `&&` one -- the load-bearing overload-
+// resolution check the step's Pitfalls section calls out.
+
+TEST_CASE("fmap - mode 1 rvalue call falls through to a const&-only "
+          "registered instance") {
+    NatF<int> layer = Succ<int>{make_box<int>(7)};
+    auto mapped = layer_fmap([](int x) { return x + 1; }, std::move(layer));
+    auto *succ = std::get_if<Succ<int>>(&mapped);
+    REQUIRE(succ != nullptr);
+    CHECK(*succ->pred == 8);
+}
+
+TEST_CASE("fmap - mode 3 rvalue call falls through to a const&-only "
+          "explicit instance") {
+    NatF<int> layer = Succ<int>{make_box<int>(7)};
+    auto mapped = layer_fmap(
+        tagging_nat_functor, [](int x) { return x + 1; }, std::move(layer));
+    auto *succ = std::get_if<Succ<int>>(&mapped);
+    REQUIRE(succ != nullptr);
+    CHECK(*succ->pred == 108);
+}
+
+namespace {
+
+// An instance offering BOTH a const& and a && fmap, tagging each path
+// differently (+1000 vs +2000) so the selected overload is observable.
+struct DualPathFunctorImpl {
+    template <typename Fn>
+    constexpr auto fmap(this auto &&, Fn &&fn, const NatF<int> &layer)
+        -> NatF<int> {
+        return std::visit(overloaded{
+                              [](const Zero &) -> NatF<int> { return Zero{}; },
+                              [&](const Succ<int> &s) -> NatF<int> {
+                                  return Succ<int>{make_box<int>(
+                                      std::invoke(fn, *s.pred) + 1000)};
+                              },
+                          },
+                          layer);
+    }
+
+    template <typename Fn>
+    constexpr auto fmap(this auto &&, Fn &&fn, NatF<int> &&layer) -> NatF<int> {
+        return std::visit(
+            overloaded{
+                [](Zero &&) -> NatF<int> { return Zero{}; },
+                [&](Succ<int> &&s) -> NatF<int> {
+                    return Succ<int>{make_box<int>(
+                        std::invoke(fn, *std::move(s.pred)) + 2000)};
+                },
+            },
+            std::move(layer));
+    }
+};
+
+inline constexpr DualPathFunctorImpl dual_path_functor{};
+
+} // namespace
+
+TEST_CASE("fmap - mode 2 NTTP pin: lvalue keeps const&, rvalue selects &&") {
+    NatF<int> lvalue_layer = Succ<int>{make_box<int>(7)};
+    auto lvalue_mapped = layer_fmap<NatF<int>, dual_path_functor>(
+        [](int x) { return x + 1; }, lvalue_layer);
+    auto *lvalue_succ = std::get_if<Succ<int>>(&lvalue_mapped);
+    REQUIRE(lvalue_succ != nullptr);
+    CHECK(*lvalue_succ->pred == 1008);
+
+    NatF<int> rvalue_layer = Succ<int>{make_box<int>(7)};
+    auto rvalue_mapped = layer_fmap<NatF<int>, dual_path_functor>(
+        [](int x) { return x + 1; }, std::move(rvalue_layer));
+    auto *rvalue_succ = std::get_if<Succ<int>>(&rvalue_mapped);
+    REQUIRE(rvalue_succ != nullptr);
+    CHECK(*rvalue_succ->pred == 2008);
+}
+
+TEST_CASE("fmap - mode 3 explicit object: lvalue keeps const&, rvalue "
+          "selects &&") {
+    NatF<int> lvalue_layer = Succ<int>{make_box<int>(7)};
+    auto lvalue_mapped = layer_fmap(
+        dual_path_functor, [](int x) { return x + 1; }, lvalue_layer);
+    auto *lvalue_succ = std::get_if<Succ<int>>(&lvalue_mapped);
+    REQUIRE(lvalue_succ != nullptr);
+    CHECK(*lvalue_succ->pred == 1008);
+
+    NatF<int> rvalue_layer = Succ<int>{make_box<int>(7)};
+    auto rvalue_mapped = layer_fmap(
+        dual_path_functor, [](int x) { return x + 1; },
+        std::move(rvalue_layer));
+    auto *rvalue_succ = std::get_if<Succ<int>>(&rvalue_mapped);
+    REQUIRE(rvalue_succ != nullptr);
+    CHECK(*rvalue_succ->pred == 2008);
+}
+
 TEST_CASE("fmap - explicit modes are constexpr") {
     constexpr auto pinned = [] {
         NatF<int> layer = Succ<int>{make_box<int>(7)};

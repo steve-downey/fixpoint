@@ -110,7 +110,7 @@ compiler evidence) before dispatching S03.
 - [ ] **D-A / D-B** resolved by orchestrator (dep: S01)
 
 ### Phase B — Substrate (parallel with Phase A after S00)
-- [ ] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
+- [x] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
 
 ### Phase C — The layer
 - [ ] **S03** unit/operation/impure_node/signature/Freer + generic Coyoneda instance — `ops/freer/steps/03-signature-layer.md` (dep: S01+D-A+D-B, S02)
@@ -133,3 +133,4 @@ compiler evidence) before dispatching S03.
 |------|-----------|--------|------------------------------------------|---------|
 | S00 | Sonnet 2026-07-11 | 88072d8 | gcc-16: 220/220 passed; clang-23: 220/220 passed | `ops/freer/handoffs/00-ground.handoff.md` |
 | S01 | Sonnet 2026-07-11 | f3f906c (+ lint fixup 1ccd967) | gcc-16: 223/223 passed; clang-23: 223/223 passed | `ops/freer/handoffs/01-baseline-gate.handoff.md` |
+| S02 | Sonnet 2026-07-11 | e8751c3 | gcc-16: 229/229 passed; clang-23: 229/229 passed | `ops/freer/handoffs/02-consuming-traversal.handoff.md` |
