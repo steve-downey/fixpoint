@@ -50,10 +50,16 @@ struct Empty {
     friend constexpr auto operator==(Empty, Empty) -> bool { return true; }
 };
 
+// Both hidden friends above exist so Unit/Empty are Regular (equality is
+// part of the discipline, even for types this trivial); exercise them here
+// so that stays true rather than aspirational.
+static_assert(Unit{} == Unit{});
+static_assert(Empty{} == Empty{});
+
 // Fix<NatF>  <->  Cofree<NatF, Unit>   (Cofree f () ~= Fix f)
 constexpr auto fix_to_cofree(const Nat &n) -> Cofree<NatF, Unit> {
-    auto tail = layer_fmap([](const Nat &child) { return fix_to_cofree(child); },
-                           unwrap_fix(n));
+    auto tail = layer_fmap(
+        [](const Nat &child) { return fix_to_cofree(child); }, unwrap_fix(n));
     return Cofree<NatF, Unit>{Unit{}, std::move(tail)};
 }
 
@@ -66,8 +72,8 @@ constexpr auto cofree_to_fix(const Cofree<NatF, Unit> &c) -> Nat {
 
 // Fix<NatF>  <->  Free<NatF, Empty>    (Free f Void ~= Fix f)
 constexpr auto fix_to_free(const Nat &n) -> Free<NatF, Empty> {
-    auto layer = layer_fmap(
-        [](const Nat &child) { return fix_to_free(child); }, unwrap_fix(n));
+    auto layer = layer_fmap([](const Nat &child) { return fix_to_free(child); },
+                            unwrap_fix(n));
     return roll_free<NatF>(std::move(layer));
 }
 
@@ -75,7 +81,8 @@ constexpr auto free_to_fix(const Free<NatF, Empty> &f) -> Nat {
     // The Pure alternative is never used, so the Roll layer is always present.
     const auto &roll = std::get<1>(f.node);
     auto layer = layer_fmap(
-        [](const Free<NatF, Empty> &child) { return free_to_fix(child); }, roll);
+        [](const Free<NatF, Empty> &child) { return free_to_fix(child); },
+        roll);
     return wrap_fix<NatF>(std::move(layer));
 }
 // 2ecd0000-0000-4000-8000-000000000001 end
