@@ -106,7 +106,7 @@ compiler evidence) before dispatching S03.
 
 ### Phase A — Ground truth
 - [x] **S00** Toolchain pins + baseline capture + feature probe — `ops/freer/steps/00-ground.md`
-- [ ] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
+- [x] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
 - [ ] **D-A / D-B** resolved by orchestrator (dep: S01)
 
 ### Phase B — Substrate (parallel with Phase A after S00)
@@ -132,3 +132,4 @@ compiler evidence) before dispatching S03.
 | Step | Agent date | Commit | Gate result (per toolchain test counts) | Handoff |
 |------|-----------|--------|------------------------------------------|---------|
 | S00 | Sonnet 2026-07-11 | 88072d8 | gcc-16: 220/220 passed; clang-23: 220/220 passed | `ops/freer/handoffs/00-ground.handoff.md` |
+| S01 | Sonnet 2026-07-11 | f3f906c (+ lint fixup 1ccd967) | gcc-16: 223/223 passed; clang-23: 223/223 passed | `ops/freer/handoffs/01-baseline-gate.handoff.md` |
