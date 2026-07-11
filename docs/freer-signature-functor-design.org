@@ -1,0 +1,686 @@
+#+TITLE: Freer over Fixpoint: The Signature Functor (Design Fragment, §4)
+#+AUTHOR: Steve Downey
+#+OPTIONS: toc:2
+#+STARTUP: showall
+
+* Scope
+
+This fragment specifies the /signature functor/ layer that turns the
+existing =smd::fixpoint::Free= into a Freer monad: the closed-world
+Coyoneda encoding of an effect signature. It records design decisions
+in the FD-series (numbering local to this document; the backtick
+proposal's D-series is unrelated). Interpretation into senders
+(=mcata= to a type-erased task carrier) and the open union of
+signatures are §5 and §6 respectively and are only forward-referenced
+here.
+
+The governing identity:
+
+#+BEGIN_SRC haskell
+  -- Kiselyov & Ishii 2015, §2.5–2.6
+  data Freer f a where
+    Pure   :: a -> Freer f a
+    Impure :: f r -> (r -> Freer f a) -> Freer f a
+
+  data Coyoneda f b where
+    Coyoneda :: f r -> (r -> b) -> Coyoneda f b
+
+  -- Freer f  ≅  Free (Coyoneda f)
+#+END_SRC
+
+We do not build a second fixpoint. =Freer<Sig, A>= is
+=Free<Coyo(Sig), A>= for the existing =Free= in =free.hpp=; all new
+machinery lives in the layer functor.
+
+Paper narrative (recorded here because it determines which artifacts
+gate which sections): the paper leads with dependency injection and
+mocking of asynchronous programs — the thing C++ programmers already
+do (constructor-injected interfaces) extended to the thing they
+currently cannot do at all (deterministic, inspectable,
+single-threaded testing of async workflows). The motivating example
+(FD10) opens the paper; the Kan/Coyoneda/Mendler material is the "why
+this is principled and where the boundaries are" section, not the
+front door. Consequence: the demo artifacts (FD8, FD10) are in scope
+for paper one and sit on the critical path.
+
+* FD1 — Closed-world signatures dissolve the existential
+
+*Status: decided.*
+
+Haskell's =Impure= hides the response type =r= existentially. In the
+closed-world encoding, a signature is a finite set of operations, and
+each operation /names its own response type/. The existential
+quantifier dissolves into the sum: the GADT
+
+#+BEGIN_SRC haskell
+  data KV x where
+    Get :: Key -> KV (Maybe Val)   -- r = Maybe Val, per constructor
+    Put :: Key -> Val -> KV ()     -- r = ()
+#+END_SRC
+
+becomes a variant whose alternatives each carry a statically known
+response:
+
+#+BEGIN_SRC c++
+  struct Get {
+      key k;
+      using response = std::optional<val>;
+  };
+  struct Put {
+      key k;
+      val v;
+      using response = unit;
+  };
+  using KV = signature<Get, Put>;
+#+END_SRC
+
+Rationale: handlers must pattern-match on requests (a =std::visit=
+over the alternatives); an open existential erased behind a callable
+makes the request opaque and defeats the purpose. The correspondence
+to S/R is direct: this is the same move =completion_signatures= makes,
+replacing answer-type polymorphism with an enumerated set.
+
+Alternatives considered: open-world type erasure of =(f r, r → x)=
+pairs (rejected: opaque to handlers, forces virtual dispatch in
+=mcata=); Typeable-style tagging (rejected: reintroduces exactly the
+mechanism the 2015 paper removed).
+
+Openness is /recovered/, not abandoned: rows of signatures compose as
+variant-of-signatures with concept-checked injection (§6, the C++
+image of =Member=). Per-signature closure composes to inter-signature
+openness.
+
+* FD2 — The operation concept
+
+*Status: decided.*
+
+#+BEGIN_SRC c++
+  namespace smd::fixpoint {
+
+  /** unit: the response of operations that return no information.
+   * A bespoke empty type rather than std::monostate: monostate carries
+   * "empty variant alternative" connotations and comparison semantics we
+   * do not want conflated with "trivial response".
+   */
+  struct unit {
+      friend constexpr auto operator==(const unit &, const unit &)
+          -> bool = default;
+  };
+
+  /** An effect operation: a movable request payload that names the type
+   * a handler must supply to resume the program.
+   */
+  template <class Op>
+  concept operation = std::movable<Op> && requires {
+      typename Op::response;
+  };
+
+  } // namespace smd::fixpoint
+#+END_SRC
+
+The =response= member type is the entire protocol: an operation is a
+question, its response type is the shape of the answer. This is the
+per-constructor index of the Haskell GADT, spelled the only way C++
+can spell it.
+
+* FD3 — The Coyoneda node: payload plus one-shot continuation
+
+*Status: decided.*
+
+#+BEGIN_SRC c++
+  namespace smd::fixpoint {
+
+  /** impure_node<Op, X>: one suspended request. Holds the operation
+   * payload and the continuation from the handler's response to the rest
+   * of the program.
+   *
+   * The continuation returns Box<X>, not X, for the same complete-type
+   * reasoning as Fix/Free/Cofree (design §4): at the point this member
+   * is declared, X = Free<..., A> is still incomplete, and Box is the
+   * completeness firewall. (Forming move_only_function<X(R)> with
+   * incomplete X is at best implementation-defined territory; Box<X> is
+   * pointer-like and always complete.)
+   *
+   * The && qualifier on the call signature makes one-shot-ness a type
+   * property: the continuation can only be invoked on an rvalue,
+   * i.e. std::move(k)(r). See FD4.
+   */
+  template <operation Op, class X>
+  struct impure_node {
+      Op op;
+      std::move_only_function<Box<X>(typename Op::response) &&> k;
+  };
+
+  /** signature<Ops...>: a closed effect signature. Its nested member
+   * template `type` is the layer functor handed to Free — the
+   * closed-world Coyoneda of the signature.
+   *
+   * A member template rather than an alias template: alias templates as
+   * template-template arguments sit on P0522 matching, where GCC and
+   * Clang still diverge in practice. The nested class template is the
+   * portable spelling. (Cross-compiler divergence noted as evidence for
+   * the paper's implementation-experience section.)
+   */
+  template <operation... Ops>
+  struct signature {
+      template <class X>
+      struct type {
+          std::variant<impure_node<Ops, X>...> node;
+      };
+  };
+
+  /** Freer<Sig, A>: the freer monad over a closed signature — the
+   * existing Free applied to the signature's Coyoneda layer. No new
+   * fixpoint.
+   */
+  template <class Sig, class A>
+  using Freer = Free<Sig::template type, A>;
+
+  } // namespace smd::fixpoint
+#+END_SRC
+
+Haskell correspondence, made exact by the closed world:
+
+#+BEGIN_SRC haskell
+  -- impure_node<Op, X> for Op with response R:
+  --     (payload of Op, R -> X)        -- one summand of Coyoneda at X
+  -- signature<Ops...>::type<X>:
+  --     Σ_op (op, response(op) -> X)   -- Coyoneda (Σ ops) at X
+#+END_SRC
+
+Consequence worth recording: the hand-written (non-defaulted)
+=operator== = on =Free= — originally a workaround for Clang's eager
+defaulted-comparison completeness check — is what makes this layer
+viable at all. =impure_node= is not equality-comparable
+(=move_only_function= is not), but a plain friend body is only
+instantiated when called. A defaulted comparison could be eagerly
+checked while forming the variant. The workaround was
+load-bearing. See FD5 for what replaces equality.
+
+Code-audit addendum (2026-07-09, against the landed library):
+
+- Confirmed: =Free='s ~operator==~ (=free.hpp:45=) is a non-template
+  friend, body instantiated only on call, exactly as required. The
+  cascade FD9 gates against is documented verbatim in
+  =cofree.hpp:39-50= and =concrete/functors.hpp= (=Zero='s comment).
+- Windfall: the existing =functor_typeclass<Free<F,A>>= and
+  =monad_typeclass<Free<F,A>>= partial specializations deduce their
+  template-template parameter =F= against =Sig::template type= — a
+  member class template is a legal template-template argument — so the
+  /Free-level/ instances extend to =Freer= with no new registrations.
+  Only the new consuming overloads (FD4) need adding. This deduction
+  is itself a cross-compiler probe in the S01 baseline TU.
+- Cost of the nested-member spelling: the /layer-level/ instance
+  (=functor_typeclass<Sig::template type<X>>=) cannot be registered by
+  partial specialization at all — a member class template of a class
+  template is a non-deduced context. This is FD11, an open decision
+  the baseline gate must produce evidence for.
+
+* FD4 — Consuming traversal; linearity as the shared invariant
+
+*Status: decided (structural, not stylistic).*
+
+The stored continuation is move-only and consumed on resumption. This
+forces consuming (rvalue) traversal through the whole stack:
+
+- =Free= layer access needs consuming visitation: =Free= has no
+  unwrap function — traversals =std::visit= the =node= member
+  directly — so the =&&= story is visiting =std::move(m.node)=.
+  (=unwrap_fix= in =fix.hpp= gains a =&&= overload only if the
+  Fix-side =mcata= is also extended; the Freer path does not need it.)
+- =FreeMonadImpl::bind= and the layer's =fmap= need
+  consuming overloads (=Free&&= in, moved through);
+- =layer_fmap= itself (=fmap.hpp=) needs =&&= overloads in all three
+  lookup modes — its current signatures and the
+  =functor_instance_for= concept are =const Layer&=-shaped — so FD4's
+  scope is =fmap.hpp= as well as =free.hpp=;
+- the §5 interpreter's recursor takes =Free&&= (a /new/ Mendler fold
+  over =Free=; see the §5 forward reference — the existing =mcata= is
+  =Fix=-only and =const&=).
+- =Box= needs an rvalue deref: =Box::operator*= is const-qualified
+  returning =A&= (=box.hpp:54=), so the consuming path cannot move
+  out of a =Box= without either =operator*() && -> A&&= or
+  =std::move(*b)= at every site. Add the overload.
+
+The const-lvalue traversals in =free.hpp= today rebuild by copy and
+cannot compile against this layer. They are not deleted for other
+functors — pure-data signatures keep them — but the impure layer only
+admits the consuming path.
+
+*Capture-ownership rule* (code audit 2026-07-09): every closure
+handed to =layer_fmap= must /own/ its captures when the layer may be
+lazy. The existing traversals capture =[&self, &fn]=
+(=free.hpp:100,158=) — safe only because every pure-data functor
+instance applies the closure eagerly, inside the call. The Coyoneda
+layer instead /stores/ the closure in the continuation; a
+reference-captured =fn= dangles the moment =bind= returns. The
+consuming overloads capture =fn= by value/move (FD6's sketch already
+does; this paragraph makes it a rule, not an accident of the sketch).
+
+Same latent assumption in the derived typeclass operations:
+=monad_applicative_adapter::apply= captures =[&self, &ma]= and
+=Monad::kleisli= captures =&self= (=monad.hpp:37,91=). On =Freer=,
+invocation is deferred past those lifetimes. Recorded consequence:
+*derived Monad operations (apply, join-via-apply chains, kleisli) are
+off-limits for Freer values* until their captures own; paper one
+needs only =pure=/=bind=, so this is a documented boundary, not a
+blocker. The S02 gate includes a deferred-invocation test run under
+the default Asan config to police exactly this class of bug.
+
+Rationale beyond mechanics: one-shot continuations are exactly what
+the CPS translation of effect handlers requires (Hillerström, Lindley,
+Atkey, Sivaramakrishnan), and P2300 /structurally enforces/ them —
+operation states are address-stable, receivers are one-shot rvalues.
+Linearity of the continuation is the invariant Freer-in-C++ and
+=std::execution= share; the type system carries it via move-only +
+=&&=-qualified invocation.
+
+Recorded limitation (paper, stated up front): multi-shot handlers —
+LogicT-style nondeterminism, the flagship demo of the 2015 paper — do
+not map onto S/R without copying operation state, which the model
+forbids. Out of scope by construction, not by omission.
+
+* FD5 — No structural equality; observational testing
+
+*Status: decided.*
+
+Freer programs containing continuations are not comparable. Equality
+of programs is /observational/: interpret both sides against a
+reference handler and compare results and traces. The
+trace-collecting handler is therefore the first handler built, and is
+itself the first mock — the testing story begins at the same place the
+semantics does (interpretation, not inspection).
+
+Test gating consequence: the fixpoint test suite's equality-based
+assertions do not extend to Freer values; the Freer tests assert on
+=run(trace_handler, prog)= pairs.
+
+* FD6 — layer_fmap for the impure layer is closure post-composition
+
+*Status: decided.*
+
+The reason Freer earns its keep. For a pure-data layer, =layer_fmap=
+traverses children. For the Coyoneda layer, mapping the recursive
+position is composition onto the stored continuation — O(1), no
+traversal, no per-signature Functor instance:
+
+#+BEGIN_SRC c++
+  /** layer_fmap over one impure node: post-compose onto the stored
+   * continuation. Consuming; adds one closure frame, touches no
+   * children. This is the generic Functor instance for every
+   * closed-world signature — user signatures never write fmap.
+   */
+  template <class Fn, operation Op, class X>
+  auto layer_fmap(Fn fn, impure_node<Op, X> &&n)
+      -> impure_node<Op, std::invoke_result_t<Fn, X &&>> {
+      using Y = std::invoke_result_t<Fn, X &&>;
+      return impure_node<Op, Y>{
+          std::move(n.op),
+          [k = std::move(n.k), fn = std::move(fn)](
+              typename Op::response r) mutable -> Box<Y> {
+              return make_box(fn(*std::move(k)(std::move(r))));
+          }};
+  }
+#+END_SRC
+
+#+BEGIN_SRC haskell
+  -- fmap g (Coyoneda payload k) = Coyoneda payload (g . k)
+#+END_SRC
+
+Granularity correction (code audit 2026-07-09): the sketch above
+shows the per-node essence, but the artifact that ships is shaped
+like every other instance in the library (=NatFFunctorImpl= et al.,
+=concrete/functors.hpp=): a Functor typeclass /instance object/ whose
+=fmap= takes the *whole variant layer* =Sig::template type<X>&&= and
+=std::visit=s it, doing the post-composition above inside each
+alternative's visitor. =layer_fmap= dispatches on the layer type, not
+on individual nodes; there is no free-function =layer_fmap= on
+=impure_node=. How that instance object gets /found/ is FD11. Note
+also the sketch's =fn(*std::move(k)(...))= needs the =Box= rvalue
+deref from FD4 (or an explicit =std::move(*b)=) — =invoke_result_t<Fn,
+X&&>= is computed for an rvalue and =Box::operator*= yields an lvalue.
+
+With this, =bind= no longer walks the accumulated tree on every use;
+it walks to the =Pure= leaves once and extends continuations by
+composition. What remains is the linear closure chain from
+left-nested binds — the residue "Reflection without Remorse" removes
+with a type-aligned deque. Recorded as future work, not a blocker;
+the O(n²) tree re-traversal, which was the disqualifying cost, is
+gone.
+
+Costs recorded for the implementation-notes section: one =Box=
+allocation per resumption step (the =make_box= above and in =send=);
+one closure frame per =fmap=/=bind= layer. Arena or intrusive layout
+is the eventual answer; explicitly not solved now.
+
+* FD7 — send: the unit of the adjunction
+
+*Status: decided.*
+
+#+BEGIN_SRC c++
+  /** send<Sig>(op): lift one operation into Freer. The continuation is
+   * the identity-into-Pure — Coyoneda's `id` — so the program suspends
+   * with the request and resumes with the handler's response as its
+   * value.
+   */
+  template <class Sig, operation Op>
+  auto send(Op op) -> Freer<Sig, typename Op::response> {
+      using R = typename Op::response;
+      using X = Freer<Sig, R>;
+      return roll_free<Sig::template type>(
+          typename Sig::template type<X>{
+              impure_node<Op, X>{
+                  std::move(op),
+                  [](R r) -> Box<X> {
+                      return make_box(
+                          pure_free<Sig::template type>(std::move(r)));
+                  }}});
+  }
+#+END_SRC
+
+#+BEGIN_SRC haskell
+  send :: f a -> Freer f a
+  send op = Impure op Pure          -- eta of the adjunction
+#+END_SRC
+
+Usage sketch (with monadic bind from the existing =Monad= instance,
+once consuming overloads land per FD4):
+
+#+BEGIN_SRC c++
+  // get(k) >>= \v -> put(k, f(v)) >>= \_ -> pure(v)
+  auto prog = bind(send<KV>(Get{k}), [&](std::optional<val> v) {
+      return bind(send<KV>(Put{k, f(*v)}),
+                  [v](unit) { return pure_free<KV::template type>(*v); });
+  });
+#+END_SRC
+
+* FD8 — Cofree pairing as the mock environment
+
+*Status: decided — in scope; central demo artifact.*
+
+The Free/Cofree pairing (Piponi, "Cofree Meets Free"): a pairing
+between the request functor and a responder functor lifts to
+=Free<F,A> × Cofree<G,B> → (A,B)=. Under this lens a deterministic
+mock is a =Cofree= value over the co-signature — head = mock state,
+tail = "my answer to each possible next request" — built with a
+Cofree-targeted unfold, and running a test is executing the pairing.
+
+Correction (code audit 2026-07-09): "the existing =ana=" does not
+exist for this. =unfold_fix= targets =Fix<F>= only, and =histo=
+builds its =Cofree= carrier by /folding/, not unfolding. S06 adds a
+small =unfold_cofree= — coalgebra pair =(S → B, S → G<S>) →
+Cofree<G,B>= — as a new public scheme (it is also independently
+useful; it is Cofree's =ana= half that the recursion-schemes plan
+never needed).
+
+Structural consequence that is a design decision, not an
+implementation detail: =Cofree='s tail is a /by-value/ member
+(=cofree.hpp:37=) — the library's =Cofree= is strict and finite. A
+responder must answer *every possible* next request, i.e. the
+responder tree is infinite in the request dimension. The only way a
+strict =Cofree= represents it is if the co-signature functor =G= is
+*function-space-shaped* — per operation, a callable =Op → (response,
+rest)= — and its Functor instance is /lazy/: =fmap= post-composes
+onto the stored callable without invoking it, the exact dual of FD6's
+Coyoneda =fmap=. With an eager =G=, =unfold_cofree= diverges. So the
+co-signature carries the same closure-post-composition discipline as
+the signature, and the same capture-ownership rule (FD4) applies to
+its instance.
+
+Decision: in scope for paper one, as prototype, not sketch. With the
+mocking-first narrative this is no longer a strengthening flourish;
+it is the paper's central demonstration. The Cofree mock is a
+/scripted mock object/ in exactly the sense GMock users already hold:
+=EXPECT_CALL=-style interaction testing, except the expectation
+script is a value constructed with =ana= rather than macro-registered
+global state, composed rather than inherited. It also gives =Cofree=
+a second independent role in the library beyond histo's carrier.
+
+The pairing is a second, synchronous interpreter alongside the S/R
+one (§5); the two share the trace handler's assertion vocabulary
+(FD5) so tests read identically against either.
+
+* FD9 — Baseline gate: the completeness cascade, cross-compiler
+
+*Status: decided (gate precedes any S-step).*
+
+The impure layer stacks precisely the constructs implicated in the
+clang-22 incomplete-type cascade documented in =cofree.hpp=:
+=std::variant= whose alternatives are self-embedding through
+=move_only_function= returning =Box<Free<...>>=. Before any
+interpreter work:
+
+1. Minimal translation unit: =signature<Get, Put>=, =Freer<KV, int>=,
+   one =send=, one =bind= — compiled under current Clang and GCC,
+   plus the oldest supported of each (floor defined below).
+2. Assert non-instantiation of comparison: form the type, never call
+   ~==~, confirm no eager deleted-ness check fires (the FD3
+   observation, as a test).
+3. Mechanics probes added by the 2026-07-09 code audit — each is a
+   separate minimal TU so a failure names its construct:
+   - (a) template-template deduction against a member class template:
+     does the existing =functor_typeclass<Free<F,A>>= partial
+     specialization match =Free<Sig::template type, A>= on both
+     compilers? (Gates the FD3 windfall.)
+   - (b) constrained variable-template partial specialization
+     (=template <class L> requires coyo_layer<L> ...
+     functor_typeclass<L>=): accepted and preferred over the primary
+     on both compilers? (Gates FD11 option (a).)
+   - (c) =std::move_only_function= with an =&&=-qualified call
+     signature stored inside the self-embedding variant. (Gates
+     FD12.)
+4. Capture divergences verbatim as implementation-experience evidence.
+
+Toolchain floor (code audit): the CI matrix runs clang 19–22 against
+*libc++* and appleclang; libc++ shipped =std::move_only_function=
+only in LLVM 20, and Apple's libc++ lags further, while libstdc++
+has had it since GCC 12. "Oldest supported of each" for the Freer
+layer therefore cannot mean the repo's full toolchain-file range
+(gcc-10…, clang-11…). The baseline step pins a concrete floor
+(probe =__cpp_lib_move_only_function= per toolchain) and the outcome
+feeds FD12: gate the header on the feature-test macro, shrink the
+Freer CI rows, or sidestep with a bespoke one-shot callable.
+
+Baseline results recorded in the same format as the backtick
+worktree's baseline capture.
+
+* FD10 — Motivating example: retry-with-backoff over Clock + Network
+
+*Status: decided.*
+
+The paper's opening example, and the integration target the S-steps
+build toward. Two independent signatures, so composition of mocked
+algebras appears in the /first/ example rather than as a later
+generalization:
+
+#+BEGIN_SRC c++
+  struct Now      { using response = time_point; };
+  struct SleepFor { duration d; using response = unit; };
+  using Clock = signature<Now, SleepFor>;
+
+  struct Send { request req; using response = std::expected<reply, net_error>; };
+  using Network = signature<Send>;
+#+END_SRC
+
+The program: send a request; on failure, back off (=SleepFor= with
+growing =duration=) and retry up to N times. Small enough to fit on a
+slide; real enough that everyone has written it and everyone has
+flaked a test on it.
+
+The test, in the paper's opening section, demonstrates in one page:
+- mock =Network=: scripted =Cofree= responder (FD8) failing twice
+  then succeeding;
+- real-shaped =Clock= mock: virtual time, no =sleep_for=, no threads;
+- trace assertion (FD5): exactly three =Send=s, backoff durations
+  1s/2s, no fourth attempt;
+- the /same/ program interpreted through the S/R handler (§5) against
+  live effects — the separation-of-concerns claim as running code.
+
+The preempted objection gets its own short section with side-by-side
+code: "why not inject a virtual interface?" Three-part answer,
+recorded here so the example is built to exhibit it: (1) interfaces
+couple mocking to inheritance and reference semantics imposed on
+domain types; (2) an interface cannot express "this async program is
+suspended on /this/ request," so interaction tests devolve to
+side-channel logging; (3) handlers compose where interfaces do not —
+mocking =Network= while keeping the real =Clock= is handler stacking,
+not a new fixture class. The retry example must be written so all
+three are visible in the diff.
+
+Non-goal for the example: performance claims. FD6's recorded costs
+(Box per resumption, closure chains) are acceptable at demo scale and
+are disclosed in implementation notes, not hidden by the example.
+
+* FD11 — Layer-level typeclass registration
+
+*Status: open — decided by S01 evidence, decision owned by the
+orchestrator, not a worker agent.*
+
+The problem (surfaced by the 2026-07-09 code audit): =layer_fmap='s
+implicit mode dispatches on
+=functor_typeclass<remove_cvref_t<Layer>>= (=fmap.hpp:63=), so the
+Coyoneda layer needs a registration keyed on =signature<Ops...>::type<X>=.
+A partial specialization over a member class template of a class
+template is a *non-deduced context* — the registration FD6 assumes is
+unwritable as such. FD3's nested-class choice (made to dodge P0522
+alias-template divergence) traded one portability problem for a
+registration problem.
+
+Candidate resolutions, in preference order:
+
+- (a) /Constrained variable-template partial specialization/:
+  #+BEGIN_SRC c++
+    template <class Layer>
+        requires coyo_layer<Layer>  // concept over nested typedefs
+    inline constexpr auto functor_typeclass<Layer> = /* generic instance */;
+  #+END_SRC
+  Requires =signature<Ops...>::type<X>= to expose nested typedefs
+  (the signature type, the recursive position =X=) so the generic
+  instance can recover them. Legal C++20; itself cross-compiler risk
+  territory, hence baseline probe (b) in FD9.
+- (b) /Registry bypass/: the consuming =fmap=/=bind= overloads (FD4)
+  detect the Coyoneda layer by concept and dispatch through
+  =layer_fmap='s NTTP-pinned or explicit-object modes (modes 2/3,
+  which =fmap.hpp= explicitly documents as the escape hatch for
+  unregistered instances). No registration at all; the cost is a
+  concept branch inside =Free='s instances.
+- (c) /Top-level layer template/ with =signature::type= an alias to
+  it — resurrects exactly the P0522 concern FD3 rejected; last
+  resort, only if (a) fails a baseline compiler and (b) proves
+  unworkable.
+
+Whichever lands, the choice is recorded here with the compiler
+evidence attached.
+
+* FD12 — One-shot callable representation
+
+*Status: open — decided by S01 evidence, decision owned by the
+orchestrator.*
+
+FD3 spells the continuation =std::move_only_function<Box<X>(R) &&>=.
+Two facts complicate that (code audit + CI matrix):
+
+- Availability: libc++ gained =move_only_function= in LLVM 20;
+  appleclang's libc++ later still; libstdc++ has it since GCC 12.
+  The CI matrix includes clang-19/libc++ and appleclang rows that
+  would fail to find it (FD9's floor).
+- Novelty: an =&&=-qualified call signature on =move_only_function=,
+  stored inside a self-embedding variant, is lightly-trodden
+  territory on every implementation — stacked on top of the FD9
+  cascade it multiplies baseline risk.
+
+Alternative: a small bespoke one-shot callable box (=one_shot<Sig>=,
+~30 lines: type-erased heap allocation, call-consumes, mirrors
+=Box='s completeness-firewall role). Independent appeal beyond
+portability: it carries the one-shot invariant /directly/ (invoking
+destroys the target; a second call is a hard error rather than a
+UB-adjacent moved-from call), and its guts are inspectable when the
+paper discusses the encoding. Cost: one more bespoke vocabulary type
+to justify.
+
+Decision rule: if S01's probe (c) is green on every compiler the
+Freer layer will claim, keep =std::move_only_function= and gate the
+header on =__cpp_lib_move_only_function=; otherwise, or if
+divergences look expensive to babysit, take the bespoke type and
+record the probe results as the paper's implementation-experience
+evidence either way.
+
+* Proposed S-step sequence
+
+Decomposition for the operational plan, revised after the 2026-07-09
+code audit; transcribed into =ops/freer/PLAN.md=, where each step
+carries its test gate, step file, and handoff notes. Rationale stays
+here; instructions live there.
+
+- S00 :: Ground: feature branch, toolchain pins (primary GCC +
+  primary Clang), baseline test-count capture,
+  =__cpp_lib_move_only_function= probe per pinned toolchain (feeds
+  FD9's floor).
+- S01 :: FD9 baseline gate. Minimal =signature<Get, Put>= TU under
+  the pinned compilers; the non-instantiation test for ~==~; the
+  three mechanics probes (member-template deduction, constrained
+  variable-template partial specialization, =&&=-qualified
+  =move_only_function= in the self-embedding variant); divergences
+  captured verbatim. *Orchestrator decision checkpoint follows:
+  FD11 and FD12 are resolved on this evidence before S03 starts.*
+- S02 :: Consuming traversal (FD4) — scope is =fmap.hpp= (=&&=
+  overloads of =layer_fmap=, all three modes) /and/ =free.hpp=
+  (consuming =fmap=/=bind= obeying the capture-ownership rule) /and/
+  =box.hpp= (=operator*() &&=); existing const paths untouched for
+  pure-data functors. Gate: existing fixpoint suite green (no
+  regression), move-only smoke test, deferred-invocation lifetime
+  test under Asan.
+- S03 :: The layer: =unit=, =operation=, =impure_node=, =signature=,
+  =Freer=, generic Coyoneda Functor instance registered per the FD11
+  decision, continuation type per the FD12 decision (FD2/FD3/FD6).
+  Gate: S01 TU compiles against real headers, both compilers.
+- S04 :: =send= (FD7) + trace handler + observational test vocabulary
+  (FD5). Gate: KV example program's trace assertions pass.
+- S05 :: Rows: variant-of-signatures, concept-checked =Member=
+  injection, handler-as-adaptor discharging one row (§6). Gate:
+  Clock + Network composed; Network mocked while Clock real-shaped.
+- S06 :: Cofree pairing mock (FD8): =unfold_cofree= (new scheme),
+  lazy function-space co-signature functor, pairing, scripted
+  responder. Gate: FD10's failing-twice script drives the retry
+  program synchronously.
+- S07d :: Dependency provisioning for §5: beman.execution/beman.task
+  in both provisioning modes (vcpkg manifest + FetchContent
+  fallback), per the Makefile's dual-mode convention. Pure build
+  machinery; independent of S02–S06, can run any time after S00.
+- S07 :: S/R interpreter (§5): =mcata_free= — a /new/ consuming
+  Mendler-style fold over =Free= (Pure algebra + =phi(recurse,
+  layer&&)=; the existing =mcata= is =Fix=-only, =const&=) — with
+  =beman::task<A>= carrier, handler = op → sender. Gate: same
+  program, live interpretation, Beman::execution only.
+- S08 :: FD10 integration: the paper's opening example end-to-end,
+  both interpreters, side-by-side virtual-interface comparison.
+
+S06 and S07 are independent after S05 (S07 additionally needs S07d)
+and proceed in parallel worktrees.
+
+* Forward references
+
+- §5: interpretation — =mcata_free= (new: the existing =mcata= is
+  defined over =Fix<F>= by =const&= only; the interpreter needs a
+  consuming Mendler fold over =Free= with a Pure-leaf algebra) with
+  carrier =beman::task<A>=; the Mendler algebra's monomorphic carrier
+  as the C++ image of the quantified answer type; handler =
+  =op → sender=. beman.execution/beman.task are not yet provisioned
+  in this repo (S07d).
+- §6: rows — variant-of-signatures, concept-checked injection
+  (=Member=), handlers as adaptors discharging one row; modeled on
+  =completion_signatures= set manipulation rather than parallel to it.
+
+* References
+
+- O. Kiselyov, H. Ishii. /Freer Monads, More Extensible Effects/.
+  Haskell Symposium 2015. (Lan/Coyoneda construction; =send=; open
+  union.)
+- A. van der Ploeg, O. Kiselyov. /Reflection without Remorse/. Haskell
+  Symposium 2014. (Type-aligned continuation queue; FD6 future work.)
+- D. Hillerström, S. Lindley, R. Atkey, KC Sivaramakrishnan.
+  /Continuation Passing Style for Effect Handlers/. FSCD 2017.
+  (One-shot continuations in the CPS translation; FD4.)
+- D. Piponi. /Cofree Meets Free/. Blog, 2014. (Pairing; FD8.)
+- T. Uustalu, V. Vene. /Mendler-style Inductive Types, Categorically/.
+  NJC 1999. (§5's interpreter foundation.)
