@@ -1,0 +1,20 @@
+var NAVTREEINDEX8 =
+{
+"typeclass__base_8hpp_source.html":[22,0,1,1,3,0,0],
+"typeclass__base_8t_8cpp.html":[22,0,1,1,3,0,1],
+"typeclass__base_8t_8cpp.html#a6b16744de0844401a8a945cdedad9024":[22,0,1,1,3,0,1,0],
+"zygo_8hpp.html":[22,0,1,1,2,42],
+"zygo_8hpp.html#a96544690ad4104f56239fef4102cc4c0":[22,0,1,1,2,42,0],
+"zygo_8hpp_source.html":[22,0,1,1,2,42],
+"zygo_8t_8cpp.html":[22,0,1,1,2,43],
+"zygo_8t_8cpp.html#a5ef7d4a07a946c2d3e447ee6d52daff9":[22,0,1,1,2,43,1],
+"zygo_8t_8cpp.html#a838167f4bad11dbfebed3471b51c00b7":[22,0,1,1,2,43,3],
+"zygo_8t_8cpp.html#ab7301f9944d667395089d4b62d61a966":[22,0,1,1,2,43,4],
+"zygo_8t_8cpp.html#ad450b91cff70ddfccfb4d9ddd4412a45":[22,0,1,1,2,43,2],
+"zygo_8t_8cpp.html#adb0df535d2e038d31b9425e12a806eba":[22,0,1,1,2,43,0],
+"zygo_8t_8cpp.html#adc0d7f12b91f752c983922bedc2b6aa7":[22,0,1,1,2,43,5],
+"zygo__balanced_8cpp.html":[22,0,1,0,13],
+"zygo__balanced_8cpp.html#a760d6ccf152a31137e91b915f4d7f440":[22,0,1,0,13,0],
+"zygo__balanced_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4":[22,0,1,0,13,2],
+"zygo__balanced_8cpp.html#ae785eb73028135a5e0df0b3c45625428":[22,0,1,0,13,1]
+};
