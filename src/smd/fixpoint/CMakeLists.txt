@@ -64,6 +64,7 @@ if(FIXPOINT_ENABLE_TESTING)
             cofree.t.cpp
             histo.t.cpp
             free.t.cpp
+            freer_baseline.t.cpp
             futu.t.cpp
             chrono.t.cpp
             mendler.t.cpp
