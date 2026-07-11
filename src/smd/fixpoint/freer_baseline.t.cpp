@@ -61,8 +61,7 @@ struct Put {
 template <class Op, class X>
 struct impure_node {
     Op op;
-    std::move_only_function<smd::fixpoint::Box<X>(typename Op::response) &&>
-        k;
+    std::move_only_function<smd::fixpoint::Box<X>(typename Op::response) &&> k;
 };
 
 // FD3's signature<Ops...>::type<X> shape, hand-rolled for exactly
@@ -89,8 +88,8 @@ TEST_CASE("freer baseline [FD3][FD9]: hand-built impure_node/Free "
           "constructs and resumes") {
     // Identity-into-Pure continuation, FD7's send() shape inlined: the
     // continuation's only job is to lift the handler's response into a
-    // Pure leaf. Get's response is std::optional<int> while the Free's
-    // value type A is fixed at int (per the step: "form
+    // Pure leaf. The response type of Get is std::optional<int> while the
+    // Free's value type A is fixed at int (per the step: "form
     // Free<KVSig::template type, int>"), so this forwards the response's
     // value rather than being a byte-for-byte identity — same *shape* as
     // FD7 (a single lambda, no other capture, wraps r into pure_free),
@@ -98,23 +97,24 @@ TEST_CASE("freer baseline [FD3][FD9]: hand-built impure_node/Free "
     impure_node<Get, KVFree> get_node{
         Get{42}, [](std::optional<int> r) -> smd::fixpoint::Box<KVFree> {
             return smd::fixpoint::make_box<KVFree>(
-                smd::fixpoint::pure_free<KVSig::template type>(
-                    r.value_or(-1)));
+                smd::fixpoint::pure_free<KVSig::template type>(r.value_or(-1)));
         }};
 
     // std::variant's converting constructor gets confused by variants of
     // move-only alternatives here (impure_node holds a
     // move_only_function); std::in_place_type sidesteps overload
     // resolution entirely — the pitfall the step file calls out.
-    KVLayer layer{std::variant<impure_node<Get, KVFree>, impure_node<Put, KVFree>>{
-        std::in_place_type<impure_node<Get, KVFree>>, std::move(get_node)}};
+    KVLayer layer{
+        std::variant<impure_node<Get, KVFree>, impure_node<Put, KVFree>>{
+            std::in_place_type<impure_node<Get, KVFree>>, std::move(get_node)}};
 
     KVFree suspended =
         smd::fixpoint::roll_free<KVSig::template type>(std::move(layer));
     REQUIRE_FALSE(smd::fixpoint::is_pure(suspended));
 
     auto &suspended_layer = std::get<KVLayer>(suspended.node);
-    auto &suspended_get = std::get<impure_node<Get, KVFree>>(suspended_layer.node);
+    auto &suspended_get =
+        std::get<impure_node<Get, KVFree>>(suspended_layer.node);
 
     // Resume by hand: std::move(k)(response).
     smd::fixpoint::Box<KVFree> resumed =
@@ -174,9 +174,9 @@ TEST_CASE("freer baseline [FD5][FD9]: no == is ever named on KVFree") {
 // =======================================================================
 
 static_assert(
-    !std::is_same_v<
-        std::remove_cvref_t<decltype(smd::typeclass::functor_typeclass<KVFree>)>,
-        std::false_type>,
+    !std::is_same_v<std::remove_cvref_t<
+                        decltype(smd::typeclass::functor_typeclass<KVFree>)>,
+                    std::false_type>,
     "D-A probe (a): functor_typeclass<Free<KVSig::type, int>> selects the "
     "Free partial specialization (F deduces against the member class "
     "template KVSig::type), not the unregistered std::false_type sentinel");
@@ -224,14 +224,13 @@ inline constexpr auto probe_tc<T> = marker_t{};
 
 static_assert(
     std::is_same_v<std::remove_cvref_t<decltype(probe_tc<local_layer<int>>)>,
-                    marker_t>,
+                   marker_t>,
     "D-A probe (b): the constrained partial specialization is selected "
     "for a type exposing the keyed nested typedef");
-static_assert(
-    std::is_same_v<std::remove_cvref_t<decltype(probe_tc<int>)>,
-                    std::false_type>,
-    "D-A probe (b): the unconstrained primary is selected for a type "
-    "that does not expose the nested typedef (int)");
+static_assert(std::is_same_v<std::remove_cvref_t<decltype(probe_tc<int>)>,
+                             std::false_type>,
+              "D-A probe (b): the unconstrained primary is selected for a type "
+              "that does not expose the nested typedef (int)");
 
 } // namespace probe_b
 
@@ -258,8 +257,9 @@ TEST_CASE("freer baseline [FD12][FD9]: KVFree move-construction propagates "
             return smd::fixpoint::make_box<KVFree>(
                 smd::fixpoint::pure_free<KVSig::template type>(99));
         }};
-    KVLayer layer{std::variant<impure_node<Get, KVFree>, impure_node<Put, KVFree>>{
-        std::in_place_type<impure_node<Put, KVFree>>, std::move(put_node)}};
+    KVLayer layer{
+        std::variant<impure_node<Get, KVFree>, impure_node<Put, KVFree>>{
+            std::in_place_type<impure_node<Put, KVFree>>, std::move(put_node)}};
     KVFree original =
         smd::fixpoint::roll_free<KVSig::template type>(std::move(layer));
 
