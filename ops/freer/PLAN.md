@@ -125,7 +125,7 @@ compiler evidence) before dispatching S03.
 - [x] **S07** S/R interpreter: mcata_free + task carrier — `ops/freer/steps/07-sr-interpreter.md` (dep: S05, S07d)
 
 ### Phase F — Integration
-- [ ] **S08** FD10 end-to-end: retry example, both interpreters, interface comparison — `ops/freer/steps/08-integration.md` (dep: S06, S07)
+- [x] **S08** FD10 end-to-end: retry example, both interpreters, interface comparison — `ops/freer/steps/08-integration.md` (dep: S06, S07)
 
 ## Status log (S00 + each worker appends one line)
 
@@ -140,3 +140,4 @@ compiler evidence) before dispatching S03.
 | S06 | Sonnet 2026-07-12 | 1056370 | gcc-16: 260/260 passed; clang-23: 260/260 passed | `ops/freer/handoffs/06-cofree-pairing.handoff.md` |
 | S07d | Sonnet 2026-07-11 | a5f406c | gcc-16: 222/222 passed; clang-23: 222/222 passed | `ops/freer/handoffs/07d-beman-deps.handoff.md` |
 | S07 | Sonnet 2026-07-12 | 5298658 | gcc-16: 264/264 passed; clang-23: 264/264 passed (256 pre-S07 baseline + 8 new) | `ops/freer/handoffs/07-sr-interpreter.handoff.md` |
+| S08 | Sonnet 2026-07-12 | 91f82af | gcc-16: 271/271 passed; clang-23: 271/271 passed (270 branch baseline + 1 new `freer_retry_test`); testinstall 1/1 both pins; `freer_retry` example exits 0 both pins | `ops/freer/handoffs/08-integration.handoff.md` |
