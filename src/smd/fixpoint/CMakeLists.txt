@@ -31,6 +31,8 @@ target_sources(
                 freer.hpp
                 freer_run.hpp
                 freer_row.hpp
+                mcata_free.hpp
+                freer_task.hpp
 )
 
 ## Tests
@@ -83,6 +85,7 @@ if(FIXPOINT_ENABLE_TESTING)
             freer.t.cpp
             freer_run.t.cpp
             freer_row.t.cpp
+            mcata_free.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
@@ -116,4 +119,24 @@ if(FIXPOINT_ENABLE_TESTING)
     )
 
     catch_discover_tests(freer_beman_probe_test)
+
+    # S07: the sender/receiver interpreter (freer_task.hpp). Its own
+    # executable, linking the same two beman targets the probe uses -- so
+    # beman::execution / beman::task stay confined to freer_task.hpp and this
+    # test, never entering smd_fixpoint_test or fixpoint.fixpoint (the core
+    # fold mcata_free.hpp has no beman dependency and is tested in
+    # smd_fixpoint_test).
+    add_executable(freer_task_test)
+
+    target_sources(freer_task_test PRIVATE freer_task.t.cpp)
+
+    target_link_libraries(
+        freer_task_test
+        fixpoint.fixpoint
+        Catch2::Catch2WithMain
+        beman::execution_headers
+        beman::task
+    )
+
+    catch_discover_tests(freer_task_test)
 endif()
