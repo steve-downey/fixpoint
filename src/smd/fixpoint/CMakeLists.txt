@@ -33,6 +33,8 @@ target_sources(
                 freer_row.hpp
                 unfold_cofree.hpp
                 freer_cosignature.hpp
+                mcata_free.hpp
+                freer_task.hpp
 )
 
 ## Tests
@@ -86,6 +88,7 @@ if(FIXPOINT_ENABLE_TESTING)
             freer_run.t.cpp
             freer_row.t.cpp
             freer_cosignature.t.cpp
+            mcata_free.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
@@ -93,4 +96,50 @@ if(FIXPOINT_ENABLE_TESTING)
 
     include(Catch)
     catch_discover_tests(smd_fixpoint_test)
+
+    # S07d: beman.execution / beman.task probe. Deliberately its own
+    # executable, separate from smd_fixpoint_test and NOT linked into
+    # fixpoint.fixpoint -- this step only proves the deps are fetchable and
+    # linkable, S07 does the real interpreter work against them.
+    #
+    # cmake/beman-deps.cmake (loaded via CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
+    # only FetchContent_Declare()s beman-execution/beman-task; the actual
+    # FetchContent_MakeAvailable() has to happen here, outside the
+    # top-level project() call, to avoid a recursive project() error (see
+    # that file's comment for why).
+    include(FetchContent)
+    FetchContent_MakeAvailable(execution task)
+
+    add_executable(freer_beman_probe_test)
+
+    target_sources(freer_beman_probe_test PRIVATE freer_beman_probe.t.cpp)
+
+    target_link_libraries(
+        freer_beman_probe_test
+        Catch2::Catch2WithMain
+        beman::execution_headers
+        beman::task
+    )
+
+    catch_discover_tests(freer_beman_probe_test)
+
+    # S07: the sender/receiver interpreter (freer_task.hpp). Its own
+    # executable, linking the same two beman targets the probe uses -- so
+    # beman::execution / beman::task stay confined to freer_task.hpp and this
+    # test, never entering smd_fixpoint_test or fixpoint.fixpoint (the core
+    # fold mcata_free.hpp has no beman dependency and is tested in
+    # smd_fixpoint_test).
+    add_executable(freer_task_test)
+
+    target_sources(freer_task_test PRIVATE freer_task.t.cpp)
+
+    target_link_libraries(
+        freer_task_test
+        fixpoint.fixpoint
+        Catch2::Catch2WithMain
+        beman::execution_headers
+        beman::task
+    )
+
+    catch_discover_tests(freer_task_test)
 endif()
