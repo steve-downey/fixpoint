@@ -29,6 +29,8 @@
 #include <smd/fixpoint/one_shot.hpp>
 #include <smd/fixpoint/overloaded.hpp>
 
+#include <examples/freer_retry_program.hpp>
+
 #include <smd/typeclass/detail/typeclass_base.hpp>
 #include <smd/typeclass/monad.hpp>
 
@@ -108,87 +110,22 @@ auto get_bump_put_program(int key, int (*f)(int)) -> KVFree {
 }
 
 // -- FD10 Clock + Network, for the retry example -----------------------
+//
+// The retry program, its Clock/Network vocabulary, and the domain data
+// types now live in ONE canonical place, examples/freer_retry_program.hpp
+// (S08 consolidation); this test drives that canonical program through the
+// live S/R interpreter. The Cofree pairing interpreter drives the SAME
+// program in freer_cosignature.t.cpp, and both meet on one program in
+// freer_retry.t.cpp.
 
-struct time_point {
-    int t = 0;
-};
-
-using duration = int;
-
-struct request {
-    std::string body;
-};
-
-struct reply {
-    std::string body;
-};
-
-struct net_error {
-    std::string message;
-};
-
-struct Now {
-    using response = time_point;
-};
-
-auto operator<<(std::ostream &out, const Now &) -> std::ostream & {
-    return out << "Now()";
-}
-
-struct SleepFor {
-    duration d;
-    using response = unit;
-};
-
-auto operator<<(std::ostream &out, const SleepFor &op) -> std::ostream & {
-    return out << "SleepFor(" << op.d << ")";
-}
-
-using Clock = signature<Now, SleepFor>;
-
-struct Send {
-    request req;
-    using response = std::expected<reply, net_error>;
-};
-
-auto operator<<(std::ostream &out, const Send &op) -> std::ostream & {
-    return out << "Send(" << op.req.body << ")";
-}
-
-using Network = signature<Send>;
-
-using Row = row<Clock, Network>;
-using RowFree = Freer<Row, int>;
-
-/** S07's OWN retry program (test-local: S06 keeps a separate copy; S08
- * consolidates). Fetch the time once, then attempt the request up to three
- * times, backing off `attempt` seconds after each failure (1s, then 2s).
- * The final value is the successful reply's length, or -1 if all three
- * attempts fail. FD10: exactly three Sends and backoffs 1s/2s when the
- * Network succeeds only on the third try; no fourth attempt.
- */
-auto retry_attempt(int attempt) -> RowFree {
-    return mbind(send<Row>(Send{request{"hello"}}),
-                 [attempt](std::expected<reply, net_error> res) -> RowFree {
-                     if (res) {
-                         return pure_free<Row::template type>(
-                             static_cast<int>(res->body.size()));
-                     }
-                     if (attempt >= 3) {
-                         return pure_free<Row::template type>(
-                             -1); // no fourth attempt
-                     }
-                     return mbind(send<Row>(SleepFor{attempt}),
-                                  [attempt](unit) -> RowFree {
-                                      return retry_attempt(attempt + 1);
-                                  });
-                 });
-}
-
-auto retry_program() -> RowFree {
-    return mbind(send<Row>(Now{}),
-                 [](time_point) -> RowFree { return retry_attempt(1); });
-}
+using retry_example::net_error;
+using retry_example::Now;
+using retry_example::reply;
+using retry_example::retry_program;
+using retry_example::Row;
+using retry_example::Send;
+using retry_example::SleepFor;
+using retry_example::time_point;
 
 // -- The deliberately-async signature ----------------------------------
 

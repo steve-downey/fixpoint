@@ -1,0 +1,191 @@
+#+TITLE: Freer vs. the virtual interface — the preempted objection, side by side
+#+OPTIONS: toc:nil num:nil
+
+This is the paper artifact for FD10's short "why not inject a virtual
+interface?" section. It puts the /same/ retry-with-backoff test in both
+styles and annotates the three ways the virtual-interface version pays for
+what Freer gets for free. The paper lifts excerpts from here.
+
+The honest ground rule (FD10 pitfall): the virtual-interface version below
+is written the way a competent C++ programmer writes it, not as a straw
+man. The three points have to survive that.
+
+Cross-references: the Freer program and its mock live in
+=src/examples/freer_retry_program.hpp=; the two interpreters meet on one
+program in =src/smd/fixpoint/freer_retry.t.cpp=; the runnable three-way
+demonstration is =src/examples/freer_retry.cpp=.
+
+* The two versions
+
+** Freer
+
+The program is a *value* over a *row of two independent signatures*,
+composed with =mbind= + =pure= and interpreted by a handler. It is written
+once and interpreted three ways (mock pairing, live S/R, mock-Network +
+live-Clock); the excerpt is the canonical spelling from
+=freer_retry_program.hpp=:
+
+#+BEGIN_SRC c++
+  struct Now      { using response = time_point; };
+  struct SleepFor { duration d; using response = unit; };
+  using Clock = signature<Now, SleepFor>;
+
+  struct Send { request req; using response = std::expected<reply, net_error>; };
+  using Network = signature<Send>;
+
+  using Row = row<Clock, Network>;
+  using RowFree = Freer<Row, int>;
+
+  // fetch time, then retry-with-backoff, up to three attempts
+  auto retry_attempt(int attempt) -> RowFree {
+      return mbind(send<Row>(Send{request{"hello"}}),
+          [attempt](std::expected<reply, net_error> res) -> RowFree {
+              if (res) return pure_free<Row::type>(int(res->body.size()));
+              if (attempt >= 3) return pure_free<Row::type>(-1);
+              return mbind(send<Row>(SleepFor{attempt}),
+                  [attempt](unit) { return retry_attempt(attempt + 1); });
+          });
+  }
+  auto retry_program() -> RowFree {
+      return mbind(send<Row>(Now{}), [](time_point) { return retry_attempt(1); });
+  }
+#+END_SRC
+
+The test is /observational/ (FD5): interpret the program, assert on the
+result value and the operation trace. The trace is not a side channel — it
+is what interpretation produces. The exact same assertion helper checks
+both interpreters:
+
+#+BEGIN_SRC c++
+  void expect_retry(int value, const trace &log) {
+      CHECK(value == 11);                          // "hello-reply".size()
+      CHECK(log == trace{"Now()", "Send(hello)", "SleepFor(1)",
+                         "Send(hello)", "SleepFor(2)", "Send(hello)"});
+  }
+#+END_SRC
+
+** Virtual interface
+
+The competent virtual-interface version. Two abstract bases, the program
+written against references to them, and per-interface mock classes that
+record into a shared side-channel log to recover an ordered trace:
+
+#+BEGIN_SRC c++
+  struct IClock {
+      virtual ~IClock() = default;
+      virtual time_point now() = 0;
+      virtual void sleep_for(duration d) = 0;
+  };
+  struct INetwork {
+      virtual ~INetwork() = default;
+      virtual std::expected<reply, net_error> send(request req) = 0;
+  };
+
+  int retry(IClock &clock, INetwork &net) {
+      clock.now();
+      for (int attempt = 1;; ++attempt) {
+          auto res = net.send(request{"hello"});
+          if (res) return int(res->body.size());
+          if (attempt >= 3) return -1;
+          clock.sleep_for(attempt);
+      }
+  }
+
+  // The mocks. A shared `log&` is threaded into BOTH so the trace is ordered
+  // across the two interfaces -- there is no single interpreter to produce it.
+  struct MockNetwork : INetwork {
+      std::vector<std::string> &log;
+      int calls = 0;
+      std::expected<reply, net_error> send(request req) override {
+          log.push_back("Send(" + req.body + ")");
+          if (++calls < 3) return std::unexpected(net_error{"boom"});
+          return reply{"hello-reply"};
+      }
+  };
+  struct VirtualClock : IClock {
+      std::vector<std::string> &log;
+      int t = 0;
+      time_point now() override { log.push_back("Now()"); return {t}; }
+      void sleep_for(duration d) override {
+          log.push_back("SleepFor(" + std::to_string(d) + ")");
+          t += d;
+      }
+  };
+
+  // the test
+  std::vector<std::string> log;
+  MockNetwork net{log};
+  VirtualClock clock{log};
+  int value = retry(clock, net);
+  CHECK(value == 11);
+  CHECK(log == std::vector<std::string>{"Now()", "Send(hello)", "SleepFor(1)",
+                                        "Send(hello)", "SleepFor(2)", "Send(hello)"});
+#+END_SRC
+
+* The three points
+
+** (1) Inheritance and reference semantics are imposed
+
+=retry= is written against =IClock&= and =INetwork&=. The effect surface is
+a set of virtual methods on abstract bases, so every collaborator is a
+polymorphic object reached by reference, and the caller owns the lifetime of
+each mock for the duration of the call. The program is not a value: it
+cannot be stored, passed by value, moved into a queue, re-interpreted, or
+inspected. Its "type" is a function signature over references, not a data
+type.
+
+The Freer version imposes none of this. =request=, =reply=, =net_error= are
+plain values; the signatures are closed-world type lists; the program is a
+=RowFree= value. Nothing inherits from anything, and =retry_program()= is a
+thing you can hold, move, and hand to different interpreters.
+
+** (2) "Suspended on THIS request" is inexpressible, so interaction testing devolves to side-channel logging
+
+=retry= /executes/ as it runs: =net.send(...)= performs the effect
+immediately and returns the result. At no point is there a value that says
+"the program is now suspended, awaiting a response to /this/ =Send(hello)=."
+There is nothing to look at. To assert "exactly three Sends, backoff 1s then
+2s, no fourth attempt," the mocks must record a side-channel =log=, and the
+test asserts on that log after the fact. The interaction is observable only
+because the mock was written to narrate itself.
+
+Worse, the ordered trace /across/ Clock and Network only exists because a
+single =log&= was threaded into both mocks by hand. Two independently
+authored mocks would produce two independent logs with no defined interleaving.
+
+In the Freer version the suspended node =impure_node<Send, X>= /is/ a value —
+the interpreter dispatches on it — and the single interpreter visits the
+whole =row= in order, so one ordered trace falls out of interpretation. The
+trace assertion is not extra test scaffolding; it is the semantics.
+
+** (3) Handlers compose; fixtures do not
+
+For this two-interface example, "mock the Network, keep the real Clock" is
+genuinely easy in both styles — pass =realClock= and =mockNet=. That is the
+interface approach at its best, and the fair fight admits it.
+
+The asymmetry appears the moment a /cross-cutting/ concern is added — trace
+every effect, count retries, inject latency. With interfaces, each such
+concern is a decorator /class per interface/: a =LoggingClock : IClock= that
+logs then delegates, a =LoggingNetwork : INetwork= that logs then delegates,
+and so on — O(interfaces) new classes, re-written for every new concern.
+With Freer, "trace every operation over the whole row" is one =tracing=
+adaptor regardless of how many signatures the row has, and "mock Network,
+keep the live Clock" is one expression:
+
+#+BEGIN_SRC c++
+  auto handler = overloaded{mock_network, live_clock};   // Run 3, one line
+#+END_SRC
+
+Interfaces compose by writing classes; handlers compose by combining values.
+The retry example exhibits this directly: Run 3 in =freer_retry.cpp= swaps
+the Clock handler by restacking the =overloaded=, with no new fixture class.
+
+* Non-goal (FD6)
+
+No performance claim is made here or in the example output. The Freer
+version's costs — one =Box= allocation per resumption, one coroutine frame
+per effect under the S/R interpreter — are real and are recorded as FD6
+implementation notes, not hidden and not spun as an advantage. At the demo's
+scale (~6 effects) they do not matter; the point of the comparison is
+expressiveness and testability, not speed.
