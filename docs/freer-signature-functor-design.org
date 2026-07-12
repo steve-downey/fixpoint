@@ -395,10 +395,22 @@ with a type-aligned deque. Recorded as future work, not a blocker;
 the O(n²) tree re-traversal, which was the disqualifying cost, is
 gone.
 
-Costs recorded for the implementation-notes section: one =Box=
-allocation per resumption step (the =make_box= above and in =send=);
-one closure frame per =fmap=/=bind= layer. Arena or intrusive layout
-is the eventual answer; explicitly not solved now.
+Costs recorded for the implementation-notes section (the single home
+for demo-scale cost disclosures — FD10's non-goal points here): one
+=Box= allocation per resumption step (the =make_box= above and in
+=send=); one closure frame per =fmap=/=bind= layer; and — added by the
+§5 S/R interpreter (S07) — *one coroutine frame per effect*. That last
+is structural to the shape that landed: =run_task= is =mcata_free= at
+=Result = beman::task<A>=, whose impure-layer algebra is itself a
+coroutine, so interpreting an N-effect program stacks N suspended
+=task= frames. A single-coroutine "resume-into-a-loop" rewrite
+(mirroring the synchronous =run='s while-loop) collapses that to O(1)
+live frames and is the available optimization if a later step needs
+it; likewise the =std::move_only_function= small-buffer fast path
+where the feature macro is defined (FD12). Arena or intrusive layout
+is the eventual answer for the =Box=/closure costs; all of this is
+explicitly not solved now, and none of it is a claim — the point of
+FD10's example is expressiveness and testability, not speed.
 
 * FD7 — send: the unit of the adjunction
 
@@ -528,6 +540,21 @@ layer therefore cannot mean the repo's full toolchain-file range
 feeds FD12: gate the header on the feature-test macro, shrink the
 Freer CI rows, or sidestep with a bespoke one-shot callable.
 
+/Floor correction (S00, DEV-S00-1)./ The "libc++ gained it in LLVM
+20" framing above turned out to *understate* the gap. Under the
+locally installed libc++-23-dev (an LLVM *23* packaged build),
+=clang++-23 -stdlib=libc++= still rejects
+=std::move_only_function<int(int)&&>= outright ("no template named
+'move_only_function' in namespace 'std'"); =<version>='s
+=# define __cpp_lib_move_only_function= line is present but commented
+out. So on at least this snapshot the gap is *non-implementation*,
+not a missing feature-test macro on an otherwise-present type — the
+feature-macro probe is necessary but not sufficient, and any
+header that named =std::move_only_function= unconditionally would
+fail to *compile* on that row, not merely mis-detect. This is what
+drove D-B to the uniform bespoke =one_shot= rather than a macro-gated
+=std::move_only_function= (FD12, Decision).
+
 Baseline results recorded in the same format as the backtick
 worktree's baseline capture.
 
@@ -575,8 +602,42 @@ not a new fixture class. The retry example must be written so all
 three are visible in the diff.
 
 Non-goal for the example: performance claims. FD6's recorded costs
-(Box per resumption, closure chains) are acceptable at demo scale and
-are disclosed in implementation notes, not hidden by the example.
+(Box per resumption, closure chains, and — under the §5 S/R
+interpreter — one coroutine frame per effect) are acceptable at demo
+scale and are disclosed in implementation notes, not hidden by the
+example.
+
+*Landed (S06–S08, 2026-07-12).* The example exists as running code and
+was built exactly to exhibit the three-part answer above. Recorded
+refinements from building it:
+
+- *The canonical program fetches the time first.* =retry_program= is
+  =mbind(send<Row>(Now{}), _ -> retry_attempt(1))=: it reads the clock
+  once, then does the recursive retry-with-backoff. This was a
+  deliberate S08 consolidation choice (the two E-phase interpreters had
+  each grown their own copy — one with a leading =Now=, one without).
+  Keeping the =Now= fetch means the program exercises *both* Clock
+  operations, so "Clock fully mocked" is a real claim rather than half
+  the signature going untouched, and it matches the "fetch time, retry
+  with backoff" narrative.
+- *The canonical trace both interpreters observe is therefore six
+  operations:* =Now(), Send(hello), SleepFor(1), Send(hello),
+  SleepFor(2), Send(hello)= — with final value 11, =send_count 3=,
+  virtual time 3s. The FD8 "tests read identically across interpreters"
+  claim is literal: one =expect_retry(value, trace)= helper checks the
+  Cofree-pairing run and the live S/R run in a single file.
+- *Artifacts.* The one canonical program + domain vocabulary + pairing
+  mock live in the (deliberately library-external, beman-free)
+  =src/examples/freer_retry_program.hpp=; the three-way runnable demo is
+  =src/examples/freer_retry.cpp= (Run 1 mock-everything / Run 2 live S/R
+  / Run 3 mock-Network-live-Clock by handler stacking); the
+  cross-interpreter test is =src/smd/fixpoint/freer_retry.t.cpp=; and
+  the honest side-by-side "why not a virtual interface?" comparison —
+  written as a competent interface programmer would, not a straw man —
+  is =docs/freer-vs-interface.org=. The virtual-interface point (3)
+  fairly concedes that "mock Network, keep real Clock" is easy in *both*
+  styles for two interfaces; the asymmetry it claims is cross-cutting
+  concerns (O(interfaces) decorator classes vs. one row-wide adaptor).
 
 * FD11 — Layer-level typeclass registration
 
