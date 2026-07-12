@@ -103,11 +103,11 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_2_typeclasses.html',
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_1_fixpoint.html">Part 1 - Fix and Box: Tying the Knot ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md55"></a>
+<h1><a class="anchor" id="autotoc_md58"></a>
 What the Schemes Need</h1>
 <p><code>fold_fix</code> recurses by saying "apply me at every child position of this layer." For <code>ExprF</code> that means both sides of an <code><a class="el" href="structAdd.html">Add</a></code>; for <code>NatF</code> the one predecessor of a <code>Succ</code>; for a <code><a class="el" href="structConst.html">Const</a></code> or <code>Zero</code>, nowhere at all. Only the functor knows its own shape. The operation is <code>fmap : (A -&gt; B) -&gt; F&lt;A&gt; -&gt; F&lt;B&gt;</code>, and every scheme in this series &amp;#x2014; all of them, until Mendler style in Part 9 opts out &amp;#x2014; consumes precisely this one hook.</p>
 <p>The question is dispatch. How does generic scheme code, holding a layer of unknown type, find the right <code>fmap</code>? Not virtual functions: the layers are <code>std::variant</code> values, and constexpr. Not ADL customization points: the invariants comment in the functor header is blunt about keeping lookup explicit rather than growing parallel ADL paths. The answer is the typeclass-object pattern I described in (Downey, Steve, 2023) and (Downey, Steve, 2024): a concept's operations live in an ordinary object, and a variable template maps types to instances.</p>
-<h1><a class="anchor" id="autotoc_md56"></a>
+<h1><a class="anchor" id="autotoc_md59"></a>
 The Instance Registry</h1>
 <p>From <a href="../../src/smd/typeclass/functor.hpp"><code>src/smd/typeclass/functor.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -163,7 +163,7 @@ The Instance Registry</h1>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1overloaded_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1overloaded.html">smd::fixpoint::overloaded</a></div><div class="ttdef"><b>Definition:</b> overloaded.hpp:26</div></div>
 </div><!-- fragment --><p>The <code>Impl</code> visits the variant: <code>Zero</code> crosses unchanged, <code>Succ</code> applies the function through the <code>Box</code> and reboxes at the new element type. The <code>Map</code> layers the CRTP base over it, and one <code>inline constexpr</code> variable per element type <code>A</code> registers it for the whole family.</p>
 <p>The keying choice matters and the design log defends it. Instances key on the <em>concrete layer instantiation</em> (<code>NatF&lt;A&gt;</code> for all <code>A</code>), not on the template-template parameter <code>NatF</code> itself. Deduced call sites always have a concrete layer in hand, and partial specialization over <code>&lt;E, A&gt;</code> lets one instance cover an element-parameterized family like <code>ListF&lt;E, A&gt;</code> &amp;#x2014; something keying on the template name cannot express.</p>
-<h1><a class="anchor" id="autotoc_md57"></a>
+<h1><a class="anchor" id="autotoc_md60"></a>
 layer_fmap: One Bridge, Three Doors</h1>
 <p>Scheme bodies do not touch <code>functor_typeclass</code> directly. They call <code>layer_fmap(fn, layer)</code>, the single point where the fixpoint library bridges into typeclass dispatch. From <a href="../../src/smd/fixpoint/fmap.hpp"><code>src/smd/fixpoint/fmap.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -192,7 +192,7 @@ layer_fmap: One Bridge, Three Doors</h1>
 <div class="line">    <span class="keywordflow">return</span> tc.fmap(std::forward&lt;Fn&gt;(fn), layer);</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>The object need not be registered in <code>functor_typeclass</code> at all. This is the escape hatch &amp;#x2014; above all for tests, which want the machinery without owning, or risking an ODR clash on, a global specialization. It is also the door through which a scheme can thread an instance by value down its own recursion. The <code>functor_instance_for</code> concept keeps this overload from ever competing with the two-argument form.</p>
-<h1><a class="anchor" id="autotoc_md58"></a>
+<h1><a class="anchor" id="autotoc_md61"></a>
 Why an Object, Not a Trait</h1>
 <p>The three modes are the payoff of making the instance a <b>value</b> rather than a type-level fact. A trait can answer "does `NatF&lt;int&gt;` have an `fmap`, and what is it?" &amp;#x2014; mode 1, and nothing else. An object can be defaulted from the registry, pinned as an NTTP, passed as an argument, built locally in a test, or composed with another instance. Registration (writing the instance) and declaration-for-the-program (specializing the variable) become separate, optional steps. The full theory is in the posts linked above; the fixpoint library is the consumer that keeps the design honest, because recursion schemes stress exactly the awkward corner &amp;#x2014; an operation reached from deep inside recursive generic code, where nothing can be spelled explicitly.</p>
 <p>One more consequence worth naming: the whole apparatus is ordinary C++. Variable templates, partial specialization, a concept, a reference NTTP. No macros, no code generation, and instances are about a dozen lines per functor.</p>
@@ -200,7 +200,7 @@ Why an Object, Not a Trait</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_3_classical.html">Next: Part 3 - Fold, Unfold, Refold →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md59"></a>
+<h1><a class="anchor" id="autotoc_md62"></a>
 References</h1>
 <p>Downey, Steve (2023). <b>Some Informal Remarks Towards a New Theory of Trait Customization</b>, <a href="https://sdowney.org/posts/index.php/2023/12/24/some-informal-remarks-towards-a-new-theory-of-trait-customization/">https://sdowney.org/posts/index.php/2023/12/24/some-informal-remarks-towards-a-new-theory-of-trait-customization/</a>.</p>
 <p>Downey, Steve (2024). <b>Concept Maps Using C++23 Library Tech</b>, <a href="https://sdowney.org/posts/index.php/2024/05/19/concept-maps-using-c23-library-tech/">https://sdowney.org/posts/index.php/2024/05/19/concept-maps-using-c23-library-tech/</a>. </p>

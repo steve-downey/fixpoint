@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_1_fixpoint.html','')
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_0_intro.html">Part 0 - Why a Field Guide? ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md27"></a>
+<h1><a class="anchor" id="autotoc_md30"></a>
 The Shape of One Layer</h1>
 <p>I want an arithmetic expression tree: constants, addition, multiplication. The usual C++ move is a class hierarchy, or a <code>std::variant</code> that names itself through a <code>unique_ptr</code>. Both weld the recursion into the type.</p>
 <p>Instead, I describe <em>one layer</em> of the tree, with a type parameter <code>A</code> standing wherever a child would go. From <a href="../../src/smd/concrete/functors.hpp"><code>src/smd/concrete/functors.hpp</code></a>:</p>
@@ -139,7 +139,7 @@ The Shape of One Layer</h1>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1Box_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1Box.html">smd::fixpoint::Box</a></div><div class="ttdef"><b>Definition:</b> box.hpp:23</div></div>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1Fix_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a></div><div class="ttdef"><b>Definition:</b> fix.hpp:20</div></div>
 </div><!-- fragment --><p><code>ExprF</code> never mentions <code>ExprF</code>. When <code>A</code> is <code>int</code>, an <code>ExprF&lt;int&gt;</code> is one layer whose children are already integers. When <code>A</code> is the full tree type, the children are subtrees. This parameterization &mdash; the <em>base functor</em> &mdash; is the whole idea (Milewski, Bartosz, 2013) (Milewski, Bartosz, 2017). Everything else in this series is machinery for choosing what to put in that <code>A</code> slot.</p>
-<h1><a class="anchor" id="autotoc_md28"></a>
+<h1><a class="anchor" id="autotoc_md31"></a>
 Fix: The Knot</h1>
 <p>The tree type is the fixed point of the layer template. From <a href="../../src/smd/fixpoint/fix.hpp"><code>src/smd/fixpoint/fix.hpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">typename</span>&gt; <span class="keyword">class </span>F&gt;</div>
@@ -161,7 +161,7 @@ Fix: The Knot</h1>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a49bcc722105256f83f930876d61e8897"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a49bcc722105256f83f930876d61e8897">smd::fixpoint::unwrap_fix</a></div><div class="ttdeci">constexpr auto unwrap_fix(const Fix&lt; F &gt; &amp;fixed) -&gt; const F&lt; Fix&lt; F &gt; &gt; &amp;</div><div class="ttdef"><b>Definition:</b> fix.hpp:34</div></div>
 </div><!-- fragment --><p><code>wrap_fix</code> packs a layer; <code>unwrap_fix</code> exposes it. Neither does work. They exist so the type system can watch the recursion cross the boundary, one layer at a time &mdash; this is iso-recursion, not equi-recursion, and the explicitness is a feature. Every scheme in this series is a dance of <code>unwrap_fix</code>, <code>fmap</code>, and <code>wrap_fix</code>.</p>
-<h1><a class="anchor" id="autotoc_md29"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
 The Magic Trick</h1>
 <p>Stare at that member declaration.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">typename</span>&gt; <span class="keyword">class </span>F&gt;</div>
@@ -175,7 +175,7 @@ The Magic Trick</h1>
 </blockquote>
 <p>Look back at <code>ExprF</code>: the children are <code>Box&lt;A&gt; left, right;</code> &mdash; never a bare <code>A</code>. A <code>Box&lt;A&gt;</code> contains only an <code>A*</code>, and C++ has always been happy to point at an incomplete type. So <code>ExprF&lt;<a class="el" href="structFix.html">Fix</a>&lt;ExprF&gt;&gt;</code> is a complete type &mdash; its size is known, its members are pointers &mdash; even while <code><a class="el" href="structFix.html">Fix</a>&lt;ExprF&gt;</code> itself is still being defined. The knot ties.</p>
 <p>That is the entire magic. Not a compiler extension, not a clever metaprogram &mdash; a convention about who owns the indirection. The functor boxes; <code><a class="el" href="structFix.html">Fix</a></code>, <code>Cofree</code> (the Interlude), and <code>Free</code> (the Interlude) all get to contain their own layers by value because of it.</p>
-<h1><a class="anchor" id="autotoc_md30"></a>
+<h1><a class="anchor" id="autotoc_md33"></a>
 Box: The Indirection That Survives constexpr</h1>
 <p><code>Box</code> could almost be <code>std::unique_ptr</code>, except trees are values here &mdash; they copy, they compare, and they fold at compile time. From <a href="../../src/smd/fixpoint/box.hpp"><code>src/smd/fixpoint/box.hpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> A&gt;</div>
@@ -232,10 +232,10 @@ Box: The Indirection That Survives constexpr</h1>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> make_box(Args &amp;&amp;...args) -&gt; <a class="code hl_typedef" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a5f98f6ba6596cc858c25bd7c716e179b">Box&lt;A&gt;</a> {</div>
 <div class="line">    <span class="keywordflow">return</span> <a class="code hl_typedef" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a5f98f6ba6596cc858c25bd7c716e179b">Box&lt;A&gt;</a>(<span class="keyword">new</span> A(std::forward&lt;Args&gt;(args)...));</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md34"></a>
 Composition, Not Inheritance</h1>
 <p>Eric Niebler's classic translation of this pattern (Niebler, Eric, 2013) ties the knot with inheritance: <code>struct <a class="el" href="structFix.html">Fix</a> : F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt; {}</code>. That satisfies the same equation, and unwrapping becomes an upcast. But is-a is stronger than the math requires. Inheritance implies substitutability &mdash; any function taking <code>F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;</code> would accept a <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> &mdash; and that uninvited conversion can ambush overload resolution. The single-member composition here says exactly what is true: a <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> <em>contains</em> one layer. Nothing more is promised, so nothing more can go wrong.</p>
-<h1><a class="anchor" id="autotoc_md32"></a>
+<h1><a class="anchor" id="autotoc_md35"></a>
 Smart Constructors, and a Tree at Last</h1>
 <p>Building nodes through <code>wrap_fix</code> and <code>make_box</code> by hand is ceremony. The functor header ships constructors that hide it:</p>
 <div class="fragment"><div class="line"> </div>
@@ -281,7 +281,7 @@ Smart Constructors, and a Tree at Last</h1>
 <div class="line">}</div>
 <div class="ttc" id="aapo__sorted__insert_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> apo_sorted_insert.cpp:84</div></div>
 </div><!-- fragment --><p>No tree-walking code anywhere in it. That absence is the product this library sells.</p>
-<h1><a class="anchor" id="autotoc_md33"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 The Rest of the Bestiary</h1>
 <p>The same header defines the other base functors the series uses: <code>NatF</code> (Peano naturals &mdash; <code>Zero</code> or <code>Succ</code>), <code>ListF&lt;E, ·&gt;</code> (cons lists carrying payload type <code>E</code>), and <code>TreeF&lt;E, ·&gt;</code> (leaf-valued binary trees).</p>
 <div class="fragment"><div class="line"><span class="keyword">struct </span>Zero {</div>
@@ -322,7 +322,7 @@ The Rest of the Bestiary</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_2_typeclasses.html">Next: Part 2 - Typeclass Objects and layer\_fmap →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md34"></a>
+<h1><a class="anchor" id="autotoc_md37"></a>
 References</h1>
 <p>Milewski, Bartosz (2013). <b>Understanding F-Algebras</b>, <a href="https://bartoszmilewski.com/2013/06/10/understanding-f-algebras/">https://bartoszmilewski.com/2013/06/10/understanding-f-algebras/</a>.</p>
 <p>Milewski, Bartosz (2017). <b>F-Algebras</b>, Category Theory for Programmers, chapter 24, <a href="https://bartoszmilewski.com/2017/02/28/f-algebras/">https://bartoszmilewski.com/2017/02/28/f-algebras/</a>.</p>

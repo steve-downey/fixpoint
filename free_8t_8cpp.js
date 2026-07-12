@@ -1,13 +1,25 @@
 var free_8t_8cpp =
 [
+    [ "anonymous_namespace{free.t.cpp}::MoveOnlyInt", "structanonymous__namespace_02free_8t_8cpp_03_1_1MoveOnlyInt.html", "structanonymous__namespace_02free_8t_8cpp_03_1_1MoveOnlyInt" ],
+    [ "anonymous_namespace{free.t.cpp}::LazyLayer< X >", "structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer.html", "structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer" ],
+    [ "smd::typeclass::LazyLayerFunctorImpl< X >", "structsmd_1_1typeclass_1_1LazyLayerFunctorImpl.html", "structsmd_1_1typeclass_1_1LazyLayerFunctorImpl" ],
+    [ "smd::typeclass::LazyLayerFunctorMap< X >", "structsmd_1_1typeclass_1_1LazyLayerFunctorMap.html", null ],
     [ "IntFree", "free_8t_8cpp.html#ac84dc0f6604f9f9817c6326603bc195d", null ],
+    [ "LazyFree", "free_8t_8cpp.html#a21616d44ce0a22d499da0b0e104ee880", null ],
+    [ "MOFree", "free_8t_8cpp.html#a7194f048c230c90525e691231dfa13e7", null ],
     [ "free_constexpr_smoke", "free_8t_8cpp.html#a433ce16a6b1746f2c0dcc1137df83783", null ],
+    [ "make_lazy_program", "free_8t_8cpp.html#a289cb25c2221e5a87b229b459abdd635", null ],
     [ "make_run", "free_8t_8cpp.html#a349ab364945e84fc2c4958f8a95aaff8", null ],
+    [ "make_run_mo", "free_8t_8cpp.html#a83f7cf340a6c645d33f2d560a8f38ced", null ],
+    [ "TEST_CASE", "free_8t_8cpp.html#ad1b12d4789e5781edb632eff000a5ad0", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#a8803e2add8bb932e3ea373272b371030", null ],
+    [ "TEST_CASE", "free_8t_8cpp.html#a1344958bb1a7c749b7597fd7f7fd9147", null ],
+    [ "TEST_CASE", "free_8t_8cpp.html#af050ba7163176e85e678ea49626dd0e0", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#a8bbd0e6d3d96e1940ab365cf809ba0b5", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#a8f271b37d2ff71e1c28d580c48298619", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#ade7b1e9cc794aa5922ca52b19fba2718", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#a88c252fef76e61683d316c86f7ddb715", null ],
     [ "TEST_CASE", "free_8t_8cpp.html#a2e3b2992de72e6aca56e8d1f3496af92", null ],
-    [ "TEST_CASE", "free_8t_8cpp.html#a1209d2470bd1d125edeffb5ef3f3ac67", null ]
+    [ "TEST_CASE", "free_8t_8cpp.html#a1209d2470bd1d125edeffb5ef3f3ac67", null ],
+    [ "functor_typeclass< LazyLayer< X > >", "free_8t_8cpp.html#a67cbc09fcba06134af4767dab55f6604", null ]
 ];

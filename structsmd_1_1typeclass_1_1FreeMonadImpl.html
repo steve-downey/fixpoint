@@ -124,10 +124,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad76b54479f402892d075ce7582209dc3"><td class="memTemplParams" colspan="2">template&lt;class X , class Fn &gt; </td></tr>
 <tr class="memitem:ad76b54479f402892d075ce7582209dc3"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1FreeMonadImpl.html#ad76b54479f402892d075ce7582209dc3">bind</a> (this auto &amp;&amp;self, const <a class="el" href="structsmd_1_1fixpoint_1_1Free.html">smd::fixpoint::Free</a>&lt; F, X &gt; &amp;m, Fn &amp;&amp;fn) -&gt; <a class="el" href="namespacesmd_1_1typeclass.html#a0d0193f576c56eba295392d72ccbf39b">remove_cvref_t</a>&lt; std::invoke_result_t&lt; Fn, const X &amp; &gt; &gt;</td></tr>
 <tr class="separator:ad76b54479f402892d075ce7582209dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a543128757a05b79fc574d51a9a82482e"><td class="memTemplParams" colspan="2">template&lt;class X , class Fn &gt; </td></tr>
+<tr class="memitem:a543128757a05b79fc574d51a9a82482e"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1FreeMonadImpl.html#a543128757a05b79fc574d51a9a82482e">bind</a> (this auto &amp;&amp;self, <a class="el" href="structsmd_1_1fixpoint_1_1Free.html">smd::fixpoint::Free</a>&lt; F, X &gt; &amp;&amp;m, Fn &amp;&amp;fn) -&gt; <a class="el" href="namespacesmd_1_1typeclass.html#a0d0193f576c56eba295392d72ccbf39b">remove_cvref_t</a>&lt; std::invoke_result_t&lt; Fn, X &amp;&amp; &gt; &gt;</td></tr>
+<tr class="separator:a543128757a05b79fc574d51a9a82482e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="ad76b54479f402892d075ce7582209dc3" name="ad76b54479f402892d075ce7582209dc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad76b54479f402892d075ce7582209dc3">&#9670;&#160;</a></span>bind()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad76b54479f402892d075ce7582209dc3">&#9670;&#160;</a></span>bind() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -161,6 +164,52 @@ template&lt;class X , class Fn &gt; </div>
           <td></td>
           <td>)</td>
           <td></td><td> -&gt; <a class="el" href="namespacesmd_1_1typeclass.html#a0d0193f576c56eba295392d72ccbf39b">remove_cvref_t</a>&lt;std::invoke_result_t&lt;Fn, const X &amp;&gt;&gt; </td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a543128757a05b79fc574d51a9a82482e" name="a543128757a05b79fc574d51a9a82482e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a543128757a05b79fc574d51a9a82482e">&#9670;&#160;</a></span>bind() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;template&lt; class &gt; class F, class A &gt; </div>
+<div class="memtemplate">
+template&lt;class X , class Fn &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="structsmd_1_1typeclass_1_1FreeMonadImpl.html">smd::typeclass::FreeMonadImpl</a>&lt; F, A &gt;::bind </td>
+          <td>(</td>
+          <td class="paramtype">this auto &amp;&amp;&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structsmd_1_1fixpoint_1_1Free.html">smd::fixpoint::Free</a>&lt; F, X &gt; &amp;&amp;&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Fn &amp;&amp;&#160;</td>
+          <td class="paramname"><em>fn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> -&gt; <a class="el" href="namespacesmd_1_1typeclass.html#a0d0193f576c56eba295392d72ccbf39b">remove_cvref_t</a>&lt;std::invoke_result_t&lt;Fn, X &amp;&amp;&gt;&gt; </td>
         </tr>
       </table>
   </td>

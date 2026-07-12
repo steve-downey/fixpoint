@@ -103,11 +103,11 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_11_generalized.html'
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_10_elgot.html">Part 10 - Elgot Algebras ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 The Carriers Were (Co)monads All Along</h1>
 <p>Line up the fold carriers this series has used: <code>Result</code> bare, then <code>pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;</code> (para), <code>pair&lt;Helper, Result&gt;</code> (zygo), <code>Cofree&lt;F, Result&gt;</code> (histo). Each is a comonad <code>W</code> applied to <code>Result</code> &amp;#x2014; the Identity comonad, the env comonad twice, Cofree. The unfold carriers: <code>Seed</code> bare (Identity monad), <code>either&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Seed&gt;</code> (apo &amp;#x2014; either's right-biased monad), <code>Free&lt;F, Seed&gt;</code> (futu). Monads, every one. The library registered exactly these <code>comonad_typeclass</code> and <code>monad_typeclass</code> instances back in their own parts, quietly.</p>
 <p>Uustalu, Vene, and Pardo made the pattern a theorem (Uustalu, Tarmo and Vene, Varmo and Pardo, Alberto, 2001): a fold with carrier <code>W&lt;Result&gt;</code> needs only one scheme-specific ingredient &amp;#x2014; a <em>distributive law</em> of the functor over the comonad, <code>dist : F&lt;W&lt;X&gt;&gt; -&gt; W&lt;F&lt;X&gt;&gt;</code> for every <code>X</code>. Kmett's library packages that as <code>gcata~/~gana</code> (Kmett, Edward, 2011); Hinze, Wu, and Gibbons later unified further (Hinze, Ralf and Wu, Nicolas and Gibbons, Jeremy, 2013). This library transcribes the whole apparatus.</p>
-<h1><a class="anchor" id="autotoc_md40"></a>
+<h1><a class="anchor" id="autotoc_md43"></a>
 The Laws Themselves</h1>
 <p>A distributive law is another polymorphic function object &amp;#x2014; Part 6's natural transformation, one level up. The simplest two, from <a href="../../src/smd/fixpoint/dist_laws.hpp"><code>src/smd/fixpoint/dist_laws.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -164,7 +164,7 @@ The Laws Themselves</h1>
 <div class="line"><span class="keyword">inline</span> <span class="keyword">constexpr</span> dist_histo_t&lt;F&gt; <a class="code hl_variable" href="namespacesmd_1_1fixpoint.html#a6247b0446aa184473a192adad6a41667">dist_histo</a>{};</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a6247b0446aa184473a192adad6a41667"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a6247b0446aa184473a192adad6a41667">smd::fixpoint::dist_histo</a></div><div class="ttdeci">constexpr dist_histo_t&lt; F &gt; dist_histo</div><div class="ttdef"><b>Definition:</b> dist_laws.hpp:158</div></div>
 </div><!-- fragment --><p><code>F&lt;Cofree&lt;F,A&gt;&gt; -&gt; Cofree&lt;F, F&lt;A&gt;&gt;</code>: heads out, tails redistributed, recursively. Note it is a variable <em>template</em>, called <code>dist_histo&lt;F&gt;(layer)</code> with <code>F</code> explicit &amp;#x2014; a genuine C++ deduction limit, recorded as a deviation: GCC cannot deduce a template-template parameter back out of an already-elaborated alias application. The full roster &amp;#x2014; <code>dist_zygo(helper)</code>, <code>dist_para&lt;F&gt;</code>, <code>dist_apo</code>, <code>dist_futu&lt;F&gt;</code>, <code>dist_gapo(coalg)</code> &amp;#x2014; lives in the same header, each side of Part 4's pair/either duality getting its mirror-image law.</p>
-<h1><a class="anchor" id="autotoc_md41"></a>
+<h1><a class="anchor" id="autotoc_md44"></a>
 gcata: One Fold to Rule Them</h1>
 <p>From <a href="../../src/smd/fixpoint/generalized.hpp"><code>src/smd/fixpoint/generalized.hpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
@@ -246,7 +246,7 @@ gcata: One Fold to Rule Them</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_ad436e3636237374a0d1ee86cfb97e823"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#ad436e3636237374a0d1ee86cfb97e823">smd::fixpoint::histo_via_gcata</a></div><div class="ttdeci">constexpr auto histo_via_gcata(const Algebra &amp;algebra, const Fix&lt; F &gt; &amp;tree) -&gt; Result</div><div class="ttdef"><b>Definition:</b> generalized.hpp:155</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_af031045c1c76f4171858c31585f8b0cc"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#af031045c1c76f4171858c31585f8b0cc">smd::fixpoint::para_via_gcata</a></div><div class="ttdeci">constexpr auto para_via_gcata(const Algebra &amp;algebra, const Fix&lt; F &gt; &amp;tree) -&gt; Result</div><div class="ttdef"><b>Definition:</b> generalized.hpp:184</div></div>
 </div><!-- fragment --><p><code>histo</code>, <code>zygo</code>, <code>para</code>: their algebras pass through <em>unchanged</em>, because their carriers were already exactly <code>W&lt;Result&gt;</code> for the right <code>W</code>. Only <code>cata</code> needs a shim &amp;#x2014; its plain algebra never knew about the Identity wrappers. The catalog's folds were <code>gcata</code> instances all along; the recovery functions just say so in the type system.</p>
-<h1><a class="anchor" id="autotoc_md42"></a>
+<h1><a class="anchor" id="autotoc_md45"></a>
 gana and ghylo: The Mirror and the Fusion</h1>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MSeed, <span class="keyword">class </span>Dist, <span class="keyword">class </span>GCoalgebra&gt;</div>
 <div class="line"><span class="keyword">struct </span>gana_worker_t {</div>
@@ -292,7 +292,7 @@ gana and ghylo: The Mirror and the Fusion</h1>
 <div class="line">        w_dist, algebra, gana&lt;F, MSeed&gt;(m_dist, coalgebra, seed));</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>The header is candid: this shipped <em>materializing</em> &amp;#x2014; <code>gcata</code> after <code>gana</code>, intermediate tree and all &amp;#x2014; because it passed every recovery law on the first attempt and performance is an explicit non-goal. An honest engineering judgment, written where users will read it.</p>
-<h1><a class="anchor" id="autotoc_md43"></a>
+<h1><a class="anchor" id="autotoc_md46"></a>
 The Proof Runs</h1>
 <p>The example <a href="../../src/examples/generalized_tour.cpp"><code>src/examples/generalized_tour.cpp</code></a> computes each answer twice &amp;#x2014; classical scheme and generalized recovery &amp;#x2014; and exits nonzero on any mismatch:</p>
 <div class="fragment"><div class="line"><span class="comment">// ---------------------------------------------------------------------</span></div>
@@ -336,7 +336,7 @@ The Proof Runs</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_12_capstone.html">Next: Part 12 - The Capstone: zygoHistoPrepro →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md44"></a>
+<h1><a class="anchor" id="autotoc_md47"></a>
 References</h1>
 <p>Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). <b>Recursion Schemes from Comonads</b>, Nordic Journal of Computing 8(3).</p>
 <p>Hinze, Ralf, Wu, Nicolas, and Gibbons, Jeremy (2013). <b>Unifying Structured Recursion Schemes</b>, ICFP '13.</p>

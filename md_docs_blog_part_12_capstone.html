@@ -104,7 +104,7 @@ same time?" Kmett's zygoHistoPrepro answers by composition: transform the genera
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_11_generalized.html">Part 11 - Distributive Laws and the Generalized Schemes ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md45"></a>
+<h1><a class="anchor" id="autotoc_md48"></a>
 gprepro: Part 6's Delta, One Level Up</h1>
 <p>Part 6 observed that <code>prepro</code> is <code>fold_fix</code> with one insertion &amp;#x2014; <code>hoist&lt;F&gt;(e, child)</code> before the recursive call. <code>gprepro</code> makes the same insertion in <code>gcata</code>'s worker. From <a href="../../src/smd/fixpoint/generalized.hpp"><code>src/smd/fixpoint/generalized.hpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
@@ -155,7 +155,7 @@ gprepro: Part 6's Delta, One Level Up</h1>
 <div class="line">    <span class="keywordflow">return</span> gprepro&lt;Result, WResult&gt;(dist_zygo_histo&lt;F&gt;(f), e, g, tree);</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>The composed comonad is <code>W&lt;X&gt; = std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &amp;#x2014; Haskell's <code>EnvT Helper (Cofree F)</code>: zygo's env layer wrapped around histo's Cofree. A zygomorphism, a histomorphism, and a prepromorphism, one pass. Everything interesting is in the two ingredients that make the two-liner legal.</p>
-<h1><a class="anchor" id="autotoc_md46"></a>
+<h1><a class="anchor" id="autotoc_md49"></a>
 The Distributive Law for a Composed Comonad</h1>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>HelperAlg&gt;</div>
 <div class="line"><span class="keyword">struct </span>dist_zygo_histo_t {</div>
@@ -187,7 +187,7 @@ The Distributive Law for a Composed Comonad</h1>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a588919c5f9e29aee1f29200a12996573"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a588919c5f9e29aee1f29200a12996573">smd::fixpoint::dist_zygo_histo</a></div><div class="ttdeci">constexpr auto dist_zygo_histo(HelperAlg helper) -&gt; dist_zygo_histo_t&lt; F, HelperAlg &gt;</div><div class="ttdef"><b>Definition:</b> generalized.hpp:720</div></div>
 </div><!-- fragment --><p><code>dist_zygo_histo</code> is a factory (it closes over the helper algebra, as <code>dist_zygo</code> did) transcribing Kmett's <code>distZygoT</code>: fold the helper components out of the layer with <code>f</code>, redistribute the Cofree components with <code>dist_histo&lt;F&gt;</code>, pair the results. A distributive law for a composed comonad is the two component laws, composed. It lives here rather than in <code><a class="el" href="dist__laws_8hpp.html">dist_laws.hpp</a></code> deliberately &amp;#x2014; it is capstone-specific, and the library keeps one-off machinery next to its one use.</p>
-<h1><a class="anchor" id="autotoc_md47"></a>
+<h1><a class="anchor" id="autotoc_md50"></a>
 The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
 <p>Here is the part worth the price of admission. The library already has a comonad instance for <code>std::pair&lt;B, A&gt;</code> &amp;#x2014; the env comonad, serving zygo and para since Part 11. <code>W&lt;X&gt; = pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> <em>is</em> a pair. Why not let the generic instance serve?</p>
 <p>Because it computes the wrong <code>duplicate</code>. The generic pair instance re-nests the <em>pair</em> layer: <code>duplicate(pair&lt;B, X&gt;)</code> is <code>pair&lt;B, pair&lt;B, X&gt;&gt;</code>. For the composed comonad, <code>W&lt;W&lt;X&gt;&gt;</code> must be <code>pair&lt;Helper, Cofree&lt;F, pair&lt;Helper, Cofree&lt;F, X&gt;&gt;&gt;&gt;</code> &amp;#x2014; the duplication has to happen <em>inside the Cofree</em>, re-annotating every node of the history with the environment re-attached. Same outer type, different nesting, and only one of them is the <code>EnvT</code> comonad. The dedicated instance does what Haskell's <code>EnvT</code> does: run Cofree's own <code>duplicate</code>, then <code>fmap</code> the environment back onto every position:</p>
@@ -246,7 +246,7 @@ The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
 <div class="line">        ZygoHistoComonadMap&lt;F, Helper, X&gt;{};</div>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1Cofree_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a></div><div class="ttdef"><b>Definition:</b> cofree.hpp:35</div></div>
 </div><!-- fragment --><p>The registration is a partial specialization keyed on <code>pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &amp;#x2014; strictly more specialized than the generic <code>pair&lt;B, A&gt;</code>, so it wins exactly when the value slot is a Cofree and never otherwise. Zygo's and para's pairs still use the generic instance, untouched. This is the typeclass-object machinery of Part 2 earning its keep under real load: two lawful comonad structures on the same C++ type, disambiguated by specialization order, no newtype wrapper required &amp;#x2014; where Haskell <em>must</em> wrap in <code>EnvT</code> to select the instance, the C++ registry selects by type structure. (Whether that is a feature or a hazard is a fair fight; the header calls it "thin ice" and documents which side it skated to.)</p>
-<h1><a class="anchor" id="autotoc_md48"></a>
+<h1><a class="anchor" id="autotoc_md51"></a>
 The Capstone Computes</h1>
 <p>From <a href="../../src/examples/generalized_tour.cpp"><code>src/examples/generalized_tour.cpp</code></a>, the fourth section:</p>
 <div class="fragment"><div class="line"><span class="comment">// ---------------------------------------------------------------------</span></div>
@@ -273,7 +273,7 @@ The Capstone Computes</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_13_conclusion.html">Next: Part 13 - Conclusion →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md49"></a>
+<h1><a class="anchor" id="autotoc_md52"></a>
 References</h1>
 <p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader &amp;#x2014; zygoHistoPrepro's origin, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a>.</p>
 <p>Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). <b>Recursion Schemes from Comonads</b>, Nordic Journal of Computing 8(3). </p>

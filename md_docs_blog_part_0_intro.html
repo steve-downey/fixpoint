@@ -103,18 +103,18 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_0_intro.html',''); i
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 The Motivation</h1>
 <p>Every recursive data structure in C++ ships with a private zoo of recursive functions. An expression tree has an evaluator, a pretty-printer, a simplifier, a depth-counter. Each one re-implements the same walk: visit the children, then combine. The walking code and the combining code are tangled together, and the walking code is the part that harbors the bugs &mdash; the missed case, the unmanaged lifetime, the stack that only overflows in production.</p>
 <p>Functional programmers factored this zoo thirty-five years ago. Meijer, Fokkinga, and Paterson's "Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire" (Meijer, Erik and Fokkinga, Maarten and Paterson, Ross, 1991) named the pattern: a <em>catamorphism</em> tears a structure down, an <em>anamorphism</em> builds one up, and a <em>hylomorphism</em> does both without materializing the middle. Fokkinga's thesis (Fokkinga, Maarten M., 1992) added schemes that carry extra context. Uustalu and Vene added course-of-values recursion &mdash; folds that remember history (Uustalu, Tarmo and Vene, Varmo, 1999). Edward Kmett's Haskell <code>recursion-schemes</code> package (Kmett, Edward, 2011) collected the whole menagerie behind one interface, and his "Field Guide" (Kmett, Edward, 2009) is still the best map of the territory.</p>
 <p>This series is that field guide, rewritten for C++26. Not a sketch &mdash; a shipping library, <code><a class="el" href="namespacesmd_1_1fixpoint.html">smd::fixpoint</a></code>, with every scheme implemented, tested against its defining laws, and exercised by a runnable example. The recursion is written once, in the scheme. What you write is one layer's worth of logic, and the scheme supplies the walk.</p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md26"></a>
 What Makes This Possible in C++</h1>
 <p>Three pieces of machinery carry the whole series.</p>
 <p>First, a <b>fixpoint type</b>. <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> takes a non-recursive template <code>F</code> &mdash; one layer of structure with a type parameter where the children go &mdash; and ties the recursive knot. The type equation <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt; ≅ F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;</code> looks like it should not compile. Part 1 shows the trick that makes it compile, and the constexpr-capable <code>Box</code> that breaks the infinite regress.</p>
 <p>Second, <b>typeclass objects</b>. Every scheme needs <code>fmap</code> &mdash; apply a function at each child position of one layer. Rather than virtual functions, traits, or ADL, the library uses variable templates holding instance objects, looked up by the concrete layer type. Part 2 shows the machinery and its three lookup modes.</p>
 <p>Third, the <b>schemes themselves</b>, each a short constexpr function template. The recursive equations transcribe almost line-for-line from the Haskell sources. Where C++ cannot follow &mdash; it cannot infer a fold's carrier type through a recursive call, and it cannot deduce a template-template parameter from an alias &mdash; the deviations are explicit, named, and small.</p>
-<h1><a class="anchor" id="autotoc_md24"></a>
+<h1><a class="anchor" id="autotoc_md27"></a>
 The Phase-by-Phase Roadmap</h1>
 <p><b>Part 1 &mdash; <a class="el" href="structFix.html">Fix</a> and Box: Tying the Knot.</b> The fixpoint type itself, and the "magic" that makes a self-referential type legal C++: boxing is the functor's responsibility, so <code>F&lt;X&gt;</code> is a complete type even when <code>X</code> is not.</p>
 <p><b>Part 2 &mdash; Typeclass Objects and layer_fmap.</b> How Functor is modeled without inheritance: <code>functor_typeclass&lt;T&gt;</code> variable templates, CRTP instance maps, and the single bridge function <code>layer_fmap</code> with its three lookup modes &mdash; implicit, NTTP-pinned, and explicit-object.</p>
@@ -130,7 +130,7 @@ The Phase-by-Phase Roadmap</h1>
 <p><b>Part 11 &mdash; Distributive Laws and the Generalized Schemes.</b> The big reveal: <code>fold_fix</code>, <code>histo</code>, <code>zygo</code>, and <code>para</code> are one scheme (<code>gcata</code>) instantiated at different comonads; <code>unfold_fix</code>, <code>apo</code>, and <code>futu</code> are one scheme (<code>gana</code>) at different monads. A distributive law is the only moving part.</p>
 <p><b>Part 12 &mdash; The Capstone: zygoHistoPrepro.</b> Kmett's famous compositional answer to "can I have a zygomorphism, a histomorphism, and a prepromorphism at the same time?" Yes &mdash; by composing comonads.</p>
 <p><b>Part 13 &mdash; Conclusion.</b> What we told you, what C++ pushed back on, and where the field guide points next.</p>
-<h1><a class="anchor" id="autotoc_md25"></a>
+<h1><a class="anchor" id="autotoc_md28"></a>
 How to Read the Series</h1>
 <p>Each part follows the same shape. What the scheme does, in one sentence. The recursive equation it implements, and where it comes from in the literature. The C++ implementation, transcluded directly from the library headers &mdash; the code in these posts <em>is</em> the shipping code, not a simplification. A worked example, transcluded from a runnable program in <code>src/examples/</code>. And the law that pins it down: every scheme in the library degenerates to a simpler one when you hand it trivial inputs, and the test suite holds every scheme to its degeneracy law.</p>
 <p>The library is C++26, built with GCC 16. Everything is <code>constexpr</code>-capable; the test suite folds trees at compile time. Nothing here needs inheritance, virtual dispatch, or RTTI.</p>
@@ -139,7 +139,7 @@ How to Read the Series</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_1_fixpoint.html">Next: Part 1 - Fix and Box: Tying the Knot →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md26"></a>
+<h1><a class="anchor" id="autotoc_md29"></a>
 References</h1>
 <p>Meijer, Erik, Fokkinga, Maarten, and Paterson, Ross (1991). <b>Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire</b>, FPCA '91, Springer LNCS 523.</p>
 <p>Fokkinga, Maarten M. (1992). <b>Law and Order in Algorithmics</b>, PhD thesis, University of Twente.</p>

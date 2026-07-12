@@ -133,7 +133,15 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1Comonad.html">Comonad</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1CoSignatureFunctorImpl.html">CoSignatureFunctorImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1CoSignatureFunctorMap.html">CoSignatureFunctorMap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1Count.html">Count</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1CoyonedaFunctorImpl.html">CoyonedaFunctorImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1CoyonedaFunctorMap.html">CoyonedaFunctorMap</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1DualMonoid.html">DualMonoid</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,6 +188,10 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1IdentityMonadImpl.html">IdentityMonadImpl</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1IdentityMonadMap.html">IdentityMonadMap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1LazyLayerFunctorImpl.html">LazyLayerFunctorImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1LazyLayerFunctorMap.html">LazyLayerFunctorMap</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1Left.html">Left</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -357,6 +369,10 @@ Variables</h2></td></tr>
 <tr class="memitem:a96a161f6fa548249693255f43fd7c2ed"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a96a161f6fa548249693255f43fd7c2ed"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a96a161f6fa548249693255f43fd7c2ed">comonad_typeclass</a> = std::false_type{}</td></tr>
 <tr class="separator:a96a161f6fa548249693255f43fd7c2ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae85a7ab1bfe9df3dd8a91130ee70c121"><td class="memTemplParams" colspan="2">template&lt;class Layer &gt; <br />
+requires <a class="el" href="conceptsmd_1_1fixpoint_1_1coyoneda__layer.html">smd::fixpoint::coyoneda_layer</a>&lt;Layer&gt;</td></tr>
+<tr class="memitem:ae85a7ab1bfe9df3dd8a91130ee70c121"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ae85a7ab1bfe9df3dd8a91130ee70c121">functor_typeclass&lt; Layer &gt;</a> = <a class="el" href="structsmd_1_1typeclass_1_1CoSignatureFunctorMap.html">CoSignatureFunctorMap</a>&lt;Layer&gt;{}</td></tr>
+<tr class="separator:ae85a7ab1bfe9df3dd8a91130ee70c121"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a9c71be131539d694ac7d57e8af5461f7">applicative_typeclass</a> = std::false_type{}</td></tr>
 <tr class="separator:a9c71be131539d694ac7d57e8af5461f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -375,6 +391,9 @@ Variables</h2></td></tr>
 <tr class="memitem:ad3c1201ade7c21421350d0eb2ba99a91"><td class="memTemplParams" colspan="2">template&lt;typename A &gt; </td></tr>
 <tr class="memitem:ad3c1201ade7c21421350d0eb2ba99a91"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ad3c1201ade7c21421350d0eb2ba99a91">functor_typeclass&lt; NatF&lt; A &gt; &gt;</a> = <a class="el" href="structsmd_1_1typeclass_1_1NatFFunctorMap.html">NatFFunctorMap</a>&lt;A&gt;{}</td></tr>
 <tr class="separator:ad3c1201ade7c21421350d0eb2ba99a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67cbc09fcba06134af4767dab55f6604"><td class="memTemplParams" colspan="2">template&lt;class X &gt; </td></tr>
+<tr class="memitem:a67cbc09fcba06134af4767dab55f6604"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a67cbc09fcba06134af4767dab55f6604">functor_typeclass&lt; LazyLayer&lt; X &gt; &gt;</a></td></tr>
+<tr class="separator:a67cbc09fcba06134af4767dab55f6604"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81240ddf24f53154b1fccfabdc653917"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
 <tr class="memitem:a81240ddf24f53154b1fccfabdc653917"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a81240ddf24f53154b1fccfabdc653917">traversable_typeclass&lt; Identity&lt; VALUE_TYPE &gt; &gt;</a></td></tr>
 <tr class="separator:a81240ddf24f53154b1fccfabdc653917"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1134,6 +1153,60 @@ template&lt;class A &gt; </div>
 </table>
 </div><div class="memdoc">
 <p><a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> instance for <code><a class="el" href="structsmd_1_1typeclass_1_1Identity.html">Identity</a>&lt;A&gt;</code>: maps the wrapped value. </p>
+
+</div>
+</div>
+<a id="ae85a7ab1bfe9df3dd8a91130ee70c121" name="ae85a7ab1bfe9df3dd8a91130ee70c121"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae85a7ab1bfe9df3dd8a91130ee70c121">&#9670;&#160;</a></span>functor_typeclass&lt; Layer &gt;</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Layer &gt; <br />
+requires <a class="el" href="conceptsmd_1_1fixpoint_1_1coyoneda__layer.html">smd::fixpoint::coyoneda_layer</a>&lt;Layer&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="namespacesmd_1_1typeclass.html#a5d754f2a4267eb067d68c6a439051f9a">smd::typeclass::functor_typeclass</a>&lt; Layer &gt; = <a class="el" href="structsmd_1_1typeclass_1_1CoSignatureFunctorMap.html">CoSignatureFunctorMap</a>&lt;Layer&gt;{}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p><a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> instance for every co-signature layer: user signatures never write this fmap, same as the Coyoneda side (FD6/FD8). <a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> only &ndash; the co-signature never rides Free/Freer's <a class="el" href="structsmd_1_1typeclass_1_1Monad.html">Monad</a> windfall (it isn't a Free-layer functor; it is Cofree's tail functor), so no monad_typeclass specialization is written here.</p>
+<p><a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> instance for every closed-world Coyoneda layer: user signatures never write fmap (FD6). Registered per FD11 (D-A, option (a)): a constrained variable-template partial specialization of <code>functor_typeclass</code>, so the existing implicit-mode <code>layer_fmap</code> (<a class="el" href="fmap_8hpp.html">fmap.hpp</a>) that <a class="el" href="free_8hpp.html">free.hpp</a>'s consuming Free fmap/bind already call finds it with no call-site change. <a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> only: the <a class="el" href="structsmd_1_1typeclass_1_1Monad.html">Monad</a> is Free over the layer (the FD3 windfall), so no layer-level <code>monad_typeclass</code> specialization is written here. </p>
+
+</div>
+</div>
+<a id="a67cbc09fcba06134af4767dab55f6604" name="a67cbc09fcba06134af4767dab55f6604"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67cbc09fcba06134af4767dab55f6604">&#9670;&#160;</a></span>functor_typeclass&lt; LazyLayer&lt; X &gt; &gt;</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class X &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="namespacesmd_1_1typeclass.html#a5d754f2a4267eb067d68c6a439051f9a">smd::typeclass::functor_typeclass</a>&lt; LazyLayer&lt; X &gt; &gt;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    LazyLayerFunctorMap&lt;X&gt;{}</div>
+</div><!-- fragment --><p><a class="el" href="structsmd_1_1typeclass_1_1Functor.html">Functor</a> instance for LazyLayer&lt;X&gt;: consuming-only (no const&amp; overload exists, or is needed &ndash; a lazy layer's continuation is inherently one-shot). </p>
 
 </div>
 </div>

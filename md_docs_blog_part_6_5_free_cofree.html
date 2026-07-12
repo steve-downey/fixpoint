@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_6_5_free_cofree.html
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_6_prepro_postpro.html">Part 6 - Natural Transformations: hoist, prepro, postpro ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md82"></a>
+<h1><a class="anchor" id="autotoc_md85"></a>
 Where "Free" and "Cofree" Come From</h1>
 <p>The words are not decoration &amp;#x2014; but I owe you a warning label before I try to explain them. This is the section where I am writing to learn, not writing from mastery. The standard etymology of "free" and "cofree" runs through a piece of category theory called an <em>adjunction</em>, and I do not understand adjunctions yet &amp;#x2014; not well enough to explain one to you, which is the only standard that counts. So here is the deal for the next few paragraphs: I quote the definitions, unpack the individual words as far as I honestly can, and then show what the definitions <em>predict</em> &amp;#x2014; because the predictions are type equations, and type equations can be checked by a compiler. The predictions check out. That is the level of confidence on offer.</p>
 <p>Start with the punch line every functional programmer has had recited at them, me included:</p>
@@ -113,7 +113,7 @@ Where "Free" and "Cofree" Come From</h1>
 <p>The words in that, I can unpack. A monoid is a set of things, an associative way to combine two of them, and a unit that combines as a no-op: integers with <code>+</code> and <code>0</code>, strings with <code>++</code> and <code>""</code>. An endofunctor is what this series has called <code>F</code> all along: a type constructor with an <code>fmap</code>. The slogan says a monad is the monoid pattern one level up, where the things being combined are functor layers themselves: the combining operation is <code>join</code>, which flattens <code>M&lt;M&lt;X&gt;&gt;</code> into <code>M&lt;X&gt;</code>, and the unit is <code>return</code>, which wraps a plain <code>X</code> into <code>M&lt;X&gt;</code> without adding anything. The monoid laws &amp;#x2014; associativity, unit on either side &amp;#x2014; become the monad laws. Turn every arrow around and you get the dual, which &amp;#x2014; as I would happily tell you at a party, and which is even true &amp;#x2014; makes a comonad a <em>comonoid</em> in the same category: <code>duplicate</code> un-flattens, <code>extract</code> unwraps.</p>
 <p>Now the part I hold at arm's length. The textbook story continues: there is a "forgetful" functor from monads to plain endofunctors &amp;#x2014; forgetful because it throws away <code>return</code> and <code>join</code> and keeps only the underlying <code>F</code> &amp;#x2014; and the free monad construction is its <em>left adjoint</em>, while dually the cofree comonad construction is the <em>right adjoint</em> of the matching forgetful functor for comonads (Kmett, Edward, 2009). "Free" means left-adjoint-to-forgetful; "cofree" means right-adjoint-to-forgetful. I can report that. I cannot yet explain what makes one functor the adjoint of another, and I will not fake it here.</p>
 <p>What I can do is say what the definition is supposed to <em>buy</em>, because that part has checkable consequences. "Free" promises that <code>Free F</code> is a genuine monad built from <code>F</code> with nothing added beyond what the monad laws force &amp;#x2014; no extra equations, no collapsing, every value just a finite pile of constructors you could have written by hand. "Cofree" promises the mirror image: <code>Cofree F</code> is a genuine comonad over <code>F</code> that throws nothing away &amp;#x2014; it records, up front, every observation you could ever make of an <code>F</code>-shaped unfolding. That is why the shapes come out the way they do: a free thing is <em>generated</em> &amp;#x2014; finite, built up from constructors &amp;#x2014; and a cofree thing is <em>observed</em> &amp;#x2014; potentially infinite, taken apart by projections. Those shapes I do understand, because they are the type equations of the next section, and the type equations compile.</p>
-<h1><a class="anchor" id="autotoc_md83"></a>
+<h1><a class="anchor" id="autotoc_md86"></a>
 Fix Is the Degenerate Case of Both</h1>
 <p>Here the ground firms up: everything from this point on is checked by a compiler, and I can vouch for all of it. Part 1 built <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt; ≅ F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;</code>: pure recursion, nothing extra at the nodes. Free and Cofree are each <code><a class="el" href="structFix.html">Fix</a></code> with <em>one extra thing</em> at every position, and the type equations say exactly which thing.</p>
 <p>The free monad is the least fixed point of <code>X ↦ a + F X</code>: </p><pre class="fragment">Free F a  ≅  Fix (λX. a + F X)
@@ -192,7 +192,7 @@ Fix Is the Degenerate Case of Both</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a49bcc722105256f83f930876d61e8897"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a49bcc722105256f83f930876d61e8897">smd::fixpoint::unwrap_fix</a></div><div class="ttdeci">constexpr auto unwrap_fix(const Fix&lt; F &gt; &amp;fixed) -&gt; const F&lt; Fix&lt; F &gt; &gt; &amp;</div><div class="ttdef"><b>Definition:</b> fix.hpp:34</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_aa4d11a627a08cb72e17923e11fd1346c"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#aa4d11a627a08cb72e17923e11fd1346c">smd::fixpoint::layer_fmap</a></div><div class="ttdeci">constexpr auto layer_fmap(Fn &amp;&amp;fn, const Layer &amp;layer)</div><div class="ttdef"><b>Definition:</b> fmap.hpp:66</div></div>
 </div><!-- fragment --><p>That both conversions compile is Part 1's magic trick paying its second and third dividends. <code>Free&lt;F, A&gt;</code> and <code>Cofree&lt;F, A&gt;</code> contain <code>F&lt;Free&lt;F, A&gt;&gt;</code> and <code>F&lt;Cofree&lt;F, A&gt;&gt;</code> <em>by value</em>, mid-definition, for the identical reason <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> could: boxing is the functor's responsibility, so <code>F&lt;X&gt;</code> is complete even when <code>X</code> is not. One convention about who owns the indirection, three self-referential types.</p>
-<h1><a class="anchor" id="autotoc_md84"></a>
+<h1><a class="anchor" id="autotoc_md87"></a>
 The Naive Implementation, in Both Languages</h1>
 <p>The direct Haskell models are four lines each, and they are precisely what the library's headers transcribe. Here is the naive free monad &amp;#x2014; a <code>Pure</code> value or one <code>F</code>-layer of more Free &amp;#x2014; and the naive cofree comonad &amp;#x2014; an annotation at the head and one <code>F</code>-layer of annotated children at the tail. From <a href="code/Naive.hs"><code>docs/blog/code/Naive.hs</code></a>:</p>
 <div class="fragment"><div class="line">-- Free f a: a Pure value of type a, or one F-layer of further Free</div>
@@ -299,7 +299,7 @@ The Naive Implementation, in Both Languages</h1>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a356b503bd1b48e5a3ef5a93caee729b1"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a></div><div class="ttdeci">constexpr auto extract(const Cofree&lt; F, A &gt; &amp;c) -&gt; const A &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:55</div></div>
 </div><!-- fragment --><p>Both are a near-mechanical transliteration &amp;#x2014; sum becomes <code>variant</code>, product becomes a struct, the recursive position gets boxed &amp;#x2014; and both instances (Monad for Free, Comonad for Cofree; see Part 2's <code>layer_fmap</code>) demand exactly one thing of <code>F</code>: a Functor instance. That requirement is the thread the rest of this interlude pulls on.</p>
-<h1><a class="anchor" id="autotoc_md85"></a>
+<h1><a class="anchor" id="autotoc_md88"></a>
 Representing a Free by Its Own Fold: the Church Encoding</h1>
 <p>The naive Free is data. There is a rival representation that is <em>function</em>: encode a value by the one thing you will ever do to it &amp;#x2014; fold it. This is the Church, or Böhm&amp;#x2013;Berarducci, encoding (B{\"o}hm, Corrado and Berarducci, Alessandro, 1985), and it is the exact dual of the library's design choice, so it is worth seeing.
 
@@ -350,7 +350,7 @@ The Church form is not just a curiosity; it is a performance fix. The naive &lt;
 So why does &lt;tt&gt;smd::fixpoint&lt;/tt&gt; use the naive &lt;tt&gt;Fix&lt;/tt&gt;-of-a-variant and not the Church encoding? Because this library's product is a &lt;em&gt;materialized, &lt;tt&gt;constexpr&lt;/tt&gt; tree&lt;/em&gt; &amp;#x2014; values that you pattern-match, compare with &lt;tt&gt;==&lt;/tt&gt;, and fold at compile time. A &lt;tt&gt;forall r&lt;/tt&gt; rank-2 newtype is precisely the thing you cannot pattern-match, cannot compare structurally, and cannot easily fold in a constant expression. The encoding that wins for asymptotic bind performance in a lazy language is the one that loses for a value-semantics compile-time library. The trade is real, and the library takes the other side of it deliberately.
 
 
-@section autotoc_md86 Freer: the Monad That Forgot It Needed a Functor
+@section autotoc_md89 Freer: the Monad That Forgot It Needed a Functor
 
 Both naive and Church Free still, at some point, want an &lt;tt&gt;F&lt;/tt&gt;-algebra or an &lt;tt&gt;fmap&lt;/tt&gt;. Kiselyov and Ishii's &lt;strong&gt;Freer&lt;/strong&gt; monad &amp;#x2014; from "Freer Monads, More Extensible Effects" (Kiselyov, Oleg and Ishii, Hiromi, 2015) &amp;#x2014; removes even that. The idea is to replace the nested-functor layer with an explicit &lt;em&gt;continuation&lt;/em&gt;. From &lt;a href="code/Freer.hs" &gt;&lt;tt&gt;docs/blog/code/Freer.hs&lt;/tt&gt;&lt;/a&gt;:
 
@@ -438,7 +438,7 @@ runConsole ins      (RImpure cmd k) = case cmd of
 There is a straight line from here back into the series. Part 9 (Mendler style) removes the Functor requirement from &lt;em&gt;folds&lt;/em&gt; by the same spirit of move: instead of &lt;tt&gt;fmap&lt;/tt&gt;-ing the recursive call over a layer, it &lt;em&gt;hands the algebra the recursive call itself&lt;/em&gt;. Freer is to Free as Mendler-cata is to cata &amp;#x2014; "recursion without a Functor instance," reached from the monadic and the fold sides respectively. The library commits to the Functor instance everywhere (Part 2), which buys the uniform &lt;tt&gt;layer_fmap&lt;/tt&gt; bridge; Freer and Mendler are the two escape hatches when you would rather not pay it.
 
 
-@section autotoc_md87 Side-Light: C++26 Already Shipped a Freer
+@section autotoc_md90 Side-Light: C++26 Already Shipped a Freer
 
 Look at &lt;tt&gt;RImpure&lt;/tt&gt; once more, because if you have been following WG21 you have seen this shape very recently.
 @iverbatim 
@@ -455,7 +455,7 @@ The correspondence runs deeper than one constructor. &lt;tt&gt;Console&lt;/tt&gt
 Two honest caveats. The signatures above are sketches, and the only uncompiled code in this interlude: real senders carry three completion channels rather than one, and compose at compile time through operation-state types, so the alignment is morphological rather than literal. And I do not claim P2300's authors derived the design from Kiselyov and Ishii; it descends from Facebook's futures and libunifex through a decade of engineering. But the convergence is not a coincidence either. Both start from the same constraint &amp;#x2014; represent work without running it, and never require the command vocabulary to be a functor &amp;#x2014; and continuation-passing is the shape that constraint forces. When you write &lt;tt&gt;then(read(sock), parse)&lt;/tt&gt;, you are building an &lt;tt&gt;RImpure&lt;/tt&gt; node, and the scheduler is your handler.
 
 
-@section autotoc_md88 Is There a CoFreer?
+@section autotoc_md91 Is There a CoFreer?
 
 Yes &amp;#x2014; and by now you can predict its shape. Dualize &lt;tt&gt;Freer f = Free (Coyoneda f)&lt;/tt&gt; arrow-for-arrow and you get &lt;tt&gt;Cofreer f = Cofree (Coyoneda f)&lt;/tt&gt;: a cofree comonad that needs no Functor instance for its signature, because &lt;tt&gt;Coyoneda f&lt;/tt&gt; supplies one for every &lt;tt&gt;f&lt;/tt&gt;. The proof is that the comonad operations, specialized to this carrier, have &lt;em&gt;no&lt;/em&gt; &lt;tt&gt;Functor f&lt;/tt&gt; constraint and still typecheck. From &lt;a href="code/Cofreer.hs" &gt;&lt;tt&gt;docs/blog/code/Cofreer.hs&lt;/tt&gt;&lt;/a&gt;:
 
@@ -510,7 +510,7 @@ type CofreerY f = Cofree (Yoneda f)
 So the construction is real, it is lawful, and it compiles. What it is &lt;em&gt;not&lt;/em&gt; is famous. Freer earned its name because dropping the Functor constraint unlocked composable, efficient extensible &lt;em&gt;effects&lt;/em&gt; &amp;#x2014; a problem thousands of people had. The comonadic dual would unlock composable &lt;em&gt;co-effects&lt;/em&gt;: context-dependent, streaming, incremental computations. That is a real and interesting corner, but it never acquired a celebrated library or a catchy name, so "CoFreer" remains mostly folklore and a good answer to an interview question. The honest summary: yes, there is a CoFreer; no, you have probably never needed one; and writing it down is a two-line &lt;tt&gt;type&lt;/tt&gt; synonym once you have Coyoneda.
 
 
-@section autotoc_md89 The Ledger
+@section autotoc_md92 The Ledger
 
 The family, one row per member, and the question that separates them &amp;#x2014; does the construction demand a Functor instance for &lt;tt&gt;F&lt;/tt&gt;?
 
@@ -541,7 +541,7 @@ The family, one row per member, and the question that separates them &amp;#x2014
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_7_histo_futu.html">Next: Part 7 - Histomorphisms and Futumorphisms →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md90"></a>
+<h1><a class="anchor" id="autotoc_md93"></a>
 References</h1>
 <p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a>.</p>
 <p>Böhm, Corrado and Berarducci, Alessandro (1985). <b>Automatic Synthesis of Typed Λ-Programs on Term Algebras</b>, Theoretical Computer Science 39.</p>

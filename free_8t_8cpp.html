@@ -97,9 +97,11 @@ $(document).ready(function(){initNavTree('free_8t_8cpp.html',''); initResizable(
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">free.t.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -107,17 +109,38 @@ $(document).ready(function(){initNavTree('free_8t_8cpp.html',''); initResizable(
 <code>#include &lt;<a class="el" href="functors_8hpp_source.html">smd/concrete/functors.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="box_8hpp_source.html">smd/fixpoint/box.hpp</a>&gt;</code><br />
 <code>#include &lt;catch2/catch_test_macros.hpp&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;variant&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structanonymous__namespace_02free_8t_8cpp_03_1_1MoveOnlyInt.html">anonymous_namespace{free.t.cpp}::MoveOnlyInt</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer.html">anonymous_namespace{free.t.cpp}::LazyLayer&lt; X &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1LazyLayerFunctorImpl.html">smd::typeclass::LazyLayerFunctorImpl&lt; X &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1LazyLayerFunctorMap.html">smd::typeclass::LazyLayerFunctorMap&lt; X &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceanonymous__namespace_02free_8t_8cpp_03"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html">anonymous_namespace{free.t.cpp}</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacesmd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd.html">smd</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacesmd_1_1typeclass"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html">smd::typeclass</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ac84dc0f6604f9f9817c6326603bc195d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#ac84dc0f6604f9f9817c6326603bc195d">anonymous_namespace{free.t.cpp}::IntFree</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Free.html">Free</a>&lt; IntListF, int &gt;</td></tr>
 <tr class="separator:ac84dc0f6604f9f9817c6326603bc195d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7194f048c230c90525e691231dfa13e7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#a7194f048c230c90525e691231dfa13e7">anonymous_namespace{free.t.cpp}::MOFree</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Free.html">Free</a>&lt; IntListF, MoveOnlyInt &gt;</td></tr>
+<tr class="separator:a7194f048c230c90525e691231dfa13e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21616d44ce0a22d499da0b0e104ee880"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#a21616d44ce0a22d499da0b0e104ee880">anonymous_namespace{free.t.cpp}::LazyFree</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Free.html">Free</a>&lt; LazyLayer, MoveOnlyInt &gt;</td></tr>
+<tr class="separator:a21616d44ce0a22d499da0b0e104ee880"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -139,10 +162,44 @@ Functions</h2></td></tr>
 <tr class="separator:a88c252fef76e61683d316c86f7ddb715"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a433ce16a6b1746f2c0dcc1137df83783"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#a433ce16a6b1746f2c0dcc1137df83783">anonymous_namespace{free.t.cpp}::free_constexpr_smoke</a> () -&gt; bool</td></tr>
 <tr class="separator:a433ce16a6b1746f2c0dcc1137df83783"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83f7cf340a6c645d33f2d560a8f38ced"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#a83f7cf340a6c645d33f2d560a8f38ced">anonymous_namespace{free.t.cpp}::make_run_mo</a> (int value, int count, int seed) -&gt; MOFree</td></tr>
+<tr class="separator:a83f7cf340a6c645d33f2d560a8f38ced"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af050ba7163176e85e678ea49626dd0e0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="free_8t_8cpp.html#af050ba7163176e85e678ea49626dd0e0">TEST_CASE</a> (&quot;free consuming fmap: maps a move-only Pure value and recurses &quot; &quot;through a Roll chunk&quot;)</td></tr>
+<tr class="separator:af050ba7163176e85e678ea49626dd0e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1344958bb1a7c749b7597fd7f7fd9147"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="free_8t_8cpp.html#a1344958bb1a7c749b7597fd7f7fd9147">TEST_CASE</a> (&quot;free consuming bind: sequences through a Roll chunk of a &quot; &quot;move-only payload&quot;)</td></tr>
+<tr class="separator:a1344958bb1a7c749b7597fd7f7fd9147"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a289cb25c2221e5a87b229b459abdd635"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02free_8t_8cpp_03.html#a289cb25c2221e5a87b229b459abdd635">anonymous_namespace{free.t.cpp}::make_lazy_program</a> () -&gt; LazyFree</td></tr>
+<tr class="separator:a289cb25c2221e5a87b229b459abdd635"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1b12d4789e5781edb632eff000a5ad0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="free_8t_8cpp.html#ad1b12d4789e5781edb632eff000a5ad0">TEST_CASE</a> (&quot;consuming bind: continuation owns its captures (FD4)&quot;)</td></tr>
+<tr class="separator:ad1b12d4789e5781edb632eff000a5ad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a67cbc09fcba06134af4767dab55f6604"><td class="memTemplParams" colspan="2">template&lt;class X &gt; </td></tr>
+<tr class="memitem:a67cbc09fcba06134af4767dab55f6604"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a67cbc09fcba06134af4767dab55f6604">smd::typeclass::functor_typeclass&lt; LazyLayer&lt; X &gt; &gt;</a></td></tr>
+<tr class="separator:a67cbc09fcba06134af4767dab55f6604"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ad1b12d4789e5781edb632eff000a5ad0" name="ad1b12d4789e5781edb632eff000a5ad0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1b12d4789e5781edb632eff000a5ad0">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[1/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;consuming bind: continuation owns its captures (FD4)&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a8803e2add8bb932e3ea373272b371030" name="a8803e2add8bb932e3ea373272b371030"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8803e2add8bb932e3ea373272b371030">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[1/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8803e2add8bb932e3ea373272b371030">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[2/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -159,8 +216,44 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a1344958bb1a7c749b7597fd7f7fd9147" name="a1344958bb1a7c749b7597fd7f7fd9147"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1344958bb1a7c749b7597fd7f7fd9147">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[3/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;free consuming bind: sequences through a Roll chunk of a &quot; &quot;move-only payload&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af050ba7163176e85e678ea49626dd0e0" name="af050ba7163176e85e678ea49626dd0e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af050ba7163176e85e678ea49626dd0e0">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[4/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;free consuming fmap: maps a move-only Pure value and recurses &quot; &quot;through a Roll chunk&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a8bbd0e6d3d96e1940ab365cf809ba0b5" name="a8bbd0e6d3d96e1940ab365cf809ba0b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8bbd0e6d3d96e1940ab365cf809ba0b5">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[2/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bbd0e6d3d96e1940ab365cf809ba0b5">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[5/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +281,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a8f271b37d2ff71e1c28d580c48298619" name="a8f271b37d2ff71e1c28d580c48298619"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8f271b37d2ff71e1c28d580c48298619">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[3/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f271b37d2ff71e1c28d580c48298619">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[6/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -206,7 +299,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="ade7b1e9cc794aa5922ca52b19fba2718" name="ade7b1e9cc794aa5922ca52b19fba2718"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ade7b1e9cc794aa5922ca52b19fba2718">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[4/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ade7b1e9cc794aa5922ca52b19fba2718">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[7/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,7 +316,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a88c252fef76e61683d316c86f7ddb715" name="a88c252fef76e61683d316c86f7ddb715"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a88c252fef76e61683d316c86f7ddb715">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[5/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a88c252fef76e61683d316c86f7ddb715">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[8/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -241,7 +334,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a2e3b2992de72e6aca56e8d1f3496af92" name="a2e3b2992de72e6aca56e8d1f3496af92"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e3b2992de72e6aca56e8d1f3496af92">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[6/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e3b2992de72e6aca56e8d1f3496af92">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[9/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -259,7 +352,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a1209d2470bd1d125edeffb5ef3f3ac67" name="a1209d2470bd1d125edeffb5ef3f3ac67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1209d2470bd1d125edeffb5ef3f3ac67">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[7/7]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1209d2470bd1d125edeffb5ef3f3ac67">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[10/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

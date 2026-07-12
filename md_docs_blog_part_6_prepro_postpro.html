@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_6_prepro_postpro.htm
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_5_zygo_mutu.html">Part 5 - Zygomorphisms and Mutumorphisms ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md76"></a>
+<h1><a class="anchor" id="autotoc_md79"></a>
 What "Natural" Buys You</h1>
 <p>A natural transformation between functors is a function <code>e : F&lt;X&gt; -&gt; G&lt;X&gt;</code> that works <em>for every X</em> &mdash; it may rearrange the layer's structure, but it cannot look at the <code>X</code> s, so it cannot care whether the children are subtrees, seeds, or finished results. In C++ that "for every X" is a polymorphic function object with a <b>templated</b> call operator. The header is emphatic about this, because the failure mode is nasty: a lambda with a concrete layer parameter type-checks at one call site and then <code>prepro</code> applies the transformation at a <em>different</em> instantiation &mdash; whole subtrees, not carriers &mdash; and it fails to compile, or worse, silently picks another overload. The example fixture shows the required shape:</p>
 <div class="fragment"><div class="line"><span class="comment">// The natural transformation: IntListF&lt;A&gt; -&gt; IntListF&lt;A&gt; for every A. Must</span></div>
@@ -138,7 +138,7 @@ What "Natural" Buys You</h1>
 <div class="ttc" id="anamespaceanonymous__namespace_02prepro__takewhile__sum_8cpp_03_html_a0f975e588782c9e9995f444a9902619d"><div class="ttname"><a href="namespaceanonymous__namespace_02prepro__takewhile__sum_8cpp_03.html#a0f975e588782c9e9995f444a9902619d">anonymous_namespace{prepro_takewhile_sum.cpp}::sum_algebra</a></div><div class="ttdeci">auto sum_algebra(const IntListF&lt; int &gt; &amp;layer) -&gt; int</div><div class="ttdef"><b>Definition:</b> prepro_takewhile_sum.cpp:50</div></div>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
 </div><!-- fragment --><p><code>take_while_positive</code> rewrites one list layer: a <code>Cons</code> with a negative head becomes <code>Nil</code>; everything else passes through. Templated over <code>A</code>, so it applies at any element type &mdash; which is exactly the license <code>prepro</code> needs.</p>
-<h1><a class="anchor" id="autotoc_md77"></a>
+<h1><a class="anchor" id="autotoc_md80"></a>
 hoist: Retag Every Layer</h1>
 <p>The simplest consumer of a natural transformation rewrites a whole tree. From <a href="../../src/smd/fixpoint/prepro.hpp"><code>src/smd/fixpoint/prepro.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -150,7 +150,7 @@ hoist: Retag Every Layer</h1>
 <div class="line">}</div>
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
 </div><!-- fragment --><p><code>hoist</code> is a <code>fold_fix</code> whose algebra is "transform the layer, wrap it again" &mdash; so it can even change the functor, <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> to <code><a class="el" href="structFix.html">Fix</a>&lt;G&gt;</code>. The endo case <code>hoist&lt;F&gt;(e, t)</code> &mdash; same functor, rewritten layers &mdash; is the workhorse; the target functor is named explicitly because nothing about <code>e</code> (a polymorphic object, remember) lets C++ deduce it.</p>
-<h1><a class="anchor" id="autotoc_md78"></a>
+<h1><a class="anchor" id="autotoc_md81"></a>
 prepro: The Rewrite Fused Into the Fold</h1>
 <p>Now fuse. <code>prepro</code> folds a tree, but on the way down it applies <code>e</code> to each child's <em>entire subtree</em> before recursing:</p>
 <div class="fragment"><div class="line"> </div>
@@ -169,7 +169,7 @@ prepro: The Rewrite Fused Into the Fold</h1>
 <div class="fragment"><div class="line">sum(take_while(&gt;=0, [3, 4, -1, 5])) = 7</div>
 </div><!-- fragment --><p>No separate filtering pass, no intermediate list. The full program is <a href="../../src/examples/prepro_takewhile_sum.cpp"><code>src/examples/prepro_takewhile_sum.cpp</code></a>.</p>
 <p>The header's cumulative-cost note deserves its moment: each step re-hoists the whole remaining subtree, so this literal transcription of Fokkinga's equation (Fokkinga, Maarten M., 1992) does O(depth) passes over deep nodes. The library documents the cost instead of optimizing it away &mdash; the transcription <em>is</em> the product; fusion belongs to a different layer of the story (and Part 11's <code>gprepro</code> shows where it would live).</p>
-<h1><a class="anchor" id="autotoc_md79"></a>
+<h1><a class="anchor" id="autotoc_md82"></a>
 postpro: The Mirror</h1>
 <p>The dual rewrites on the way <em>out</em> of an unfold:</p>
 <div class="fragment"><div class="line"> </div>
@@ -186,13 +186,13 @@ postpro: The Mirror</h1>
 <div class="line">}</div>
 </div><!-- fragment --><p><code>unfold_fix</code> with the same one-line insertion, mirrored: <code>hoist&lt;F&gt;(e, ...)</code> wraps the <em>result</em> of the recursive unfold, so each freshly built subtree is rewritten before being grafted into its parent. Where <code>prepro</code>'s transformation gates what the algebra ever sees, <code>postpro</code>'s gates what the final tree ever contains &mdash; an unfold that generates candidates and a transformation that prunes or normalizes them, running interleaved rather than as passes.</p>
 <p>Degeneracy, as always, pins the pair down: with the identity transformation, <code>prepro</code> is <code>fold_fix</code> and <code>postpro</code> is <code>unfold_fix</code>, and the test suite says so verbatim.</p>
-<h1><a class="anchor" id="autotoc_md80"></a>
+<h1><a class="anchor" id="autotoc_md83"></a>
 The Shape of the Delta</h1>
 <p>Worth pausing on how small these were. <code>para</code> was <code>fold_fix</code> with a pair in the lambda. <code>zygo</code> was <code>fold_fix</code> with a pair carrier and a projection. <code>prepro</code> is <code>fold_fix</code> with a <code>hoist</code> before the recursive call; <code>postpro</code> is <code>unfold_fix</code> with a <code>hoist</code> after it. Every extension so far is the classical scheme's three-line body plus one move. The next part breaks that streak: when the algebra needs <em>all</em> of history, the carrier stops being a pair and becomes a data structure of its own.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_6_5_free_cofree.html">Next: Interlude - Free, Cofree, and Their Free-er Relatives →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md81"></a>
+<h1><a class="anchor" id="autotoc_md84"></a>
 References</h1>
 <p>Fokkinga, Maarten M. (1992). <b>Law and Order in Algorithmics</b>, PhD thesis, University of Twente.</p>
 <p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a>. </p>

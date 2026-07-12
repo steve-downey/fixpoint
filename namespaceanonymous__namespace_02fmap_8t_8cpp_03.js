@@ -1,5 +1,6 @@
 var namespaceanonymous__namespace_02fmap_8t_8cpp_03 =
 [
+    [ "DualPathFunctorImpl", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1DualPathFunctorImpl.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1DualPathFunctorImpl" ],
     [ "Succ", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ" ],
     [ "TaggingNatFunctorImpl", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1TaggingNatFunctorImpl.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1TaggingNatFunctorImpl" ],
     [ "Zero", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Zero.html", null ],
@@ -10,6 +11,7 @@ var namespaceanonymous__namespace_02fmap_8t_8cpp_03 =
     [ "make_succ", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#ad39fc1821a42c563491f02ada19ee393", null ],
     [ "make_zero", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#aef9cd34a93af551d249dc26ee0c602d0", null ],
     [ "count_algebra", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#a7fe5184f70beef597c01cc35ffb5f6ec", null ],
+    [ "dual_path_functor", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#aaeb7f49870b4de6901d560d56b7f969a", null ],
     [ "fmap_nat_fn", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#ac27375ee3f63c45cfd38064e0c3e726d", null ],
     [ "nat_coalgebra", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#a15dfd5b893ecd200312fc2bb26fb6244", null ],
     [ "tagging_nat_functor", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#a8899ed6bb732fa86ddb5072c5d823f0a", null ]

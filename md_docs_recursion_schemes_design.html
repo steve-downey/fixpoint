@@ -101,7 +101,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <div class="contents">
 <div class="textblock"><p>This document is the paper-proof for implementing the full Kmett <code>recursion-schemes</code> catalog on top of this repository's <code><a class="el" href="namespacesmd_1_1fixpoint.html">smd::fixpoint</a></code> core (<code><a class="el" href="structFix.html">Fix</a></code>, <code>Box</code>, <code>fold_fix</code>/<code>unfold_fix</code>/<code>refold</code>) and the <code><a class="el" href="namespacesmd_1_1typeclass.html">smd::typeclass</a></code> machinery (Functor, Applicative, Monad, Monoid, Foldable, Traversable). The operational plan in <code>ops/PLAN.md</code> exists to <em>test</em> this design in real code; every place reality contradicts it is recorded in <code>ops/DEVIATIONS.md</code> and reconciled back here.</p>
 <p>Section references (§n) below are what the step files in <code>ops/steps/</code> cite.</p>
-<h1><a class="anchor" id="autotoc_md108"></a>
+<h1><a class="anchor" id="autotoc_md111"></a>
 §1 Purpose and scope</h1>
 <p>Implement, with tests and motivating examples, the folds, unfolds and refolds of Edward Kmett's <code>recursion-schemes</code> package:</p>
 <ul>
@@ -114,7 +114,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 </ul>
 <p>Each scheme ships with: a header in <code>src/smd/fixpoint/</code>, Catch2 tests (including the equivalence laws of §9), and a runnable motivating example in <code>src/examples/</code>.</p>
 <p><b>Toolchain</b>: C++26, GCC 16 primary (<code>make TOOLCHAIN=gcc-16 test</code>), GCC 17 secondary smoke build. See §3 D9.</p>
-<h1><a class="anchor" id="autotoc_md109"></a>
+<h1><a class="anchor" id="autotoc_md112"></a>
 §2 Ground: what already exists</h1>
 <ul>
 <li><code><a class="el" href="fix_8hpp.html">src/smd/fixpoint/fix.hpp</a></code> — <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code>, <code>wrap_fix</code>, <code>unwrap_fix</code>. <code>F</code> is a unary template (the base functor); <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> holds one layer <code>F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;</code> by value.</li>
@@ -124,7 +124,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <li><code>src/smd/typeclass/</code> — <code>functor_typeclass&lt;T&gt;</code>, <code>applicative_typeclass&lt;T&gt;</code>, <code>monad_typeclass&lt;T&gt;</code>, <code>Monoid&lt;T&gt;</code>/<code>monoid_v&lt;T&gt;</code>, <code>foldable_typeclass&lt;T&gt;</code>, <code>traversable_typeclass&lt;T&gt;</code>. All are inline constexpr variable templates specialized per concrete type, holding CRTP "Map" objects (deducing-this style). Vector and optional instances exist.</li>
 <li>Build: CMake + vcpkg/Catch2, <code>make [TOOLCHAIN=gcc-16] test</code> builds the Asan config and runs ctest. Baseline before this plan: 45 tests green.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md110"></a>
+<h1><a class="anchor" id="autotoc_md113"></a>
 §3 Decisions log</h1>
 <ul>
 <li><b>D1 — Naming.</b> The existing library deliberately renamed cata/ana/hylo to <code>fold_fix</code>/<code>unfold_fix</code>/<code>refold</code> (and <code>[[deprecated]]</code>-ed <code>cata</code>). Those three keep their descriptive names. Every <em>new</em> scheme uses its literature name (<code>para</code>, <code>apo</code>, <code>zygo</code>, <code>mutu</code>, <code>histo</code>, <code>futu</code>, <code>prepro</code>, <code>postpro</code>, <code>dyna</code>, <code>codyna</code>, <code>chrono</code>, <code>mcata</code>, <code>mhisto</code>, <code>elgot</code>, <code>coelgot</code>, <code>gcata</code>, <code>gana</code>, <code>ghylo</code>, <code>gprepro</code>, <code>gpostpro</code>, <code>zygo_histo_prepro</code>): they are terms of art with no adequate descriptive equivalents. Do not resurrect <code>cata</code>.</li>
@@ -145,24 +145,25 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <li><b>D9 — Toolchain.</b> C++26 (<code>-std=gnu++26</code>), primary compiler <code>g++-16</code> (Ubuntu package), secondary <code>g++-17</code> (<code>~/.local/bin/g++-17</code>, personal trunk build). The gate for every step is <code>make TOOLCHAIN=gcc-16 test</code> fully green. <code>etc/gcc-flags.cmake</code> is bumped to gnu++26 in S00 (shared by all gcc toolchain files — GCC 15 still accepts the flag; only the gcc-16+ <em>library</em> is guaranteed to have C++26 additions, so the gate toolchain is gcc-16).</li>
 <li><b>D10 — constexpr as a design pillar.</b> <code>Box</code> exists precisely to make fixpoint trees constexpr-capable. All new schemes and supporting types are declared <code>constexpr</code>, and each scheme's test file includes at least one <code>static_assert</code> exercising it at compile time (a small structure, built-in payloads). If a particular scheme cannot be made constexpr under GCC 16, keep the runtime tests, drop the static_assert, and record a deviation. <code>std::indirect</code> exists in GCC 16's C++26 library and could replace <code>Box</code>; we deliberately stay with <code>Box</code> for consistency and its nullable default (see <a class="el" href="box_8hpp.html">box.hpp</a>'s rationale). Migration to <code>std::indirect</code> is out of scope (§11).</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md111"></a>
+<h1><a class="anchor" id="autotoc_md114"></a>
 §4 Core conventions</h1>
 <ul>
 <li><b>Boxing is the functor's responsibility.</b> Recursive positions inside base functor alternatives hold <code>Box&lt;A&gt;</code> (e.g. <code>Succ&lt;A&gt;{Box&lt;A&gt; pred}</code>). Consequently <code>F&lt;X&gt;</code> is a <em>complete type for incomplete X</em>, which is what lets <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;{F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;}</code>, <code>Cofree</code>, and <code>Free</code> contain their own layers by value.</li>
 <li><b>Algebras/coalgebras are taken by <code>const&amp;</code></b> and invoked with <code>std::invoke</code>-compatible call syntax (plain call is fine; these are function objects/lambdas).</li>
 <li><b>fmap through the typeclass</b>: inside scheme bodies, define once: <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Fn, <span class="keyword">class</span> Layer&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> layer_fmap(Fn&amp;&amp; fn, <span class="keyword">const</span> Layer&amp; layer) {</div>
-<div class="line">    <span class="keywordflow">return</span> smd::typeclass::functor_typeclass&lt;Layer&gt;.fmap(</div>
+<div class="line">    <span class="keywordflow">return</span> <a class="code hl_variable" href="namespacesmd_1_1typeclass.html#ae85a7ab1bfe9df3dd8a91130ee70c121">smd::typeclass::functor_typeclass&lt;Layer&gt;</a>.fmap(</div>
 <div class="line">        std::forward&lt;Fn&gt;(fn), layer);</div>
 <div class="line">}</div>
+<div class="ttc" id="anamespacesmd_1_1typeclass_html_ae85a7ab1bfe9df3dd8a91130ee70c121"><div class="ttname"><a href="namespacesmd_1_1typeclass.html#ae85a7ab1bfe9df3dd8a91130ee70c121">smd::typeclass::functor_typeclass&lt; Layer &gt;</a></div><div class="ttdeci">constexpr auto functor_typeclass&lt; Layer &gt;</div><div class="ttdef"><b>Definition:</b> freer_cosignature.hpp:219</div></div>
 </div><!-- fragment --> (put this helper in <code><a class="el" href="fmap_8hpp.html">src/smd/fixpoint/fmap.hpp</a></code>, S01, and use it everywhere). A layer type without an instance produces the <code>functor_typeclass</code> static_assert diagnostic.</li>
 <li><b>Natural transformations</b> (prepro/postpro/hoist) are polymorphic function objects: callable on <code>F&lt;X&gt;</code> for every <code>X</code>, returning the same shape (<code>F&lt;X&gt;</code> for endo-transformations, <code>G&lt;X&gt;</code> for <code>hoist</code>). E.g. <code>struct cap_layer { template &lt;class A&gt; constexpr NatF&lt;A&gt; operator()(const NatF&lt;A&gt;&amp;) const; };</code></li>
 <li><b>Distributive laws</b> are likewise polymorphic function objects (§7.9): <code>dist(F&lt;W&lt;X&gt;&gt;) -&gt; W&lt;F&lt;X&gt;&gt;</code> for every <code>X</code>.</li>
 <li>Headers follow house style: <code>-*-C++-*-</code> first line, SPDX second, <code>INCLUDED_SMD_FIXPOINT_*</code> guards, one class/scheme family per header, tests in sibling <code>.t.cpp</code>, re-inclusion check at top of each test.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md112"></a>
+<h1><a class="anchor" id="autotoc_md115"></a>
 §5 Supporting types</h1>
-<h2><a class="anchor" id="autotoc_md113"></a>
+<h2><a class="anchor" id="autotoc_md116"></a>
 §5.1 Identity (smd/typeclass/identity.hpp, S03)</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> A&gt;</div>
 <div class="line"><span class="keyword">struct </span>Identity {</div>
@@ -171,7 +172,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <div class="line">    <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> Identity&amp;, <span class="keyword">const</span> Identity&amp;) = <span class="keywordflow">default</span>;</div>
 <div class="line">};</div>
 </div><!-- fragment --><p> Instances: <code>functor_typeclass</code>, <code>applicative_typeclass</code>, <code>monad_typeclass</code>, <code>comonad_typeclass</code> — all four, trivially. (There is a test-only <code>Identity</code> in <code><a class="el" href="test__support_8hpp.html">smd/typeclass/test_support.hpp</a></code>; the new public one replaces it — migrate test_support to use the public type.)</p>
-<h2><a class="anchor" id="autotoc_md114"></a>
+<h2><a class="anchor" id="autotoc_md117"></a>
 §5.2 either (smd/typeclass/either.hpp, S03)</h2>
 <p>Symmetric sum type per D4 (Left = stop, Right = continue):</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> L&gt;</div>
@@ -209,7 +210,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <li><b>shallow const</b>: <code>left(e)</code> on a <code>const either&lt;L&amp;, R&gt;</code> still yields <code>L&amp;</code>;</li>
 <li>observers <code>left</code>/<code>right</code> return <code>L&amp;</code>/<code>R&amp;</code> exactly as in the by-value case, so generic scheme code is oblivious to which instantiation it holds. Note: gcc-16/17 libstdc++ does not yet ship <code>optional&lt;T&amp;&gt;</code> (<code>__cpp_lib_optional_ref</code> undefined), so the paper — not the std implementation — is the reference for behavior. Payoff in-plan: a zero-copy apo graft coalgebra can return <code>F&lt;either&lt;const <a class="el" href="structFix.html">Fix</a>&lt;F&gt;&amp;, Seed&gt;&gt;</code> — the worker copies once at the graft point either way (§7.2).</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md115"></a>
+<h2><a class="anchor" id="autotoc_md118"></a>
 §5.3 Cofree comonad (src/smd/fixpoint/cofree.hpp, S07)</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>A&gt;</div>
 <div class="line"><span class="keyword">struct </span>Cofree {</div>
@@ -217,7 +218,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <div class="line">    F&lt;Cofree&lt;F, A&gt;&gt; tail;   <span class="comment">// one functor layer of annotated children</span></div>
 <div class="line">};</div>
 </div><!-- fragment --><p> Complete-type reasoning: <code>F&lt;Cofree&gt;</code>'s recursive positions are <code>Box&lt;Cofree&gt;</code> (§4), so the member is well-formed exactly like <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;::inner</code>. Helpers: <code>extract(c) -&gt; const A&amp;</code> (returns <code>head</code>), <code>unwrap_cofree(c) -&gt; const F&lt;Cofree&lt;F,A&gt;&gt;&amp;</code>. <code>comonad_typeclass&lt;Cofree&lt;F, A&gt;&gt;</code> instance (partial specialization over template-template <code>F</code> and <code>A</code>): <code>extract</code> = head; <code>duplicate(c)</code> = <code>Cofree&lt;F, Cofree&lt;F,A&gt;&gt;{c, fmap(duplicate, c.tail)}</code>; <code>fmap(f, c)</code> = <code>{f(c.head), layer_fmap(fmap-recursively, c.tail)}</code>.</p>
-<h2><a class="anchor" id="autotoc_md116"></a>
+<h2><a class="anchor" id="autotoc_md119"></a>
 §5.4 Free monad (src/smd/fixpoint/free.hpp, S08)</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>A&gt;</div>
 <div class="line"><span class="keyword">struct </span>Free {</div>
@@ -229,9 +230,9 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes_design.html'
 <div class="line"><span class="keyword">constexpr</span> Free&lt;F, A&gt; roll_free(F&lt;Free&lt;F, A&gt;&gt; layer);</div>
 </div><!-- fragment --><p> <code>monad_typeclass&lt;Free&lt;F, A&gt;&gt;</code> instance: <code>pure</code> = <code>pure_free</code>; <code>bind(m, k)</code>: Pure a → <code>k(a)</code>; Roll layer → <code>roll_free(layer_fmap(bind
 with k, layer))</code>.</p>
-<h1><a class="anchor" id="autotoc_md117"></a>
+<h1><a class="anchor" id="autotoc_md120"></a>
 §6 Typeclass extensions</h1>
-<h2><a class="anchor" id="autotoc_md118"></a>
+<h2><a class="anchor" id="autotoc_md121"></a>
 §6.1 functor_typeclass instances for base functors (S01/S02)</h2>
 <p>Instance shape, following the OptionalFunctorImpl pattern but keyed on layer instantiations (D2). For <code>NatF&lt;A&gt; = std::variant&lt;Zero, Succ&lt;A&gt;&gt;</code>:</p>
 <div class="fragment"><div class="line"><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacesmd_1_1typeclass.html">smd::typeclass</a> {</div>
@@ -260,10 +261,10 @@ with k, layer))</code>.</p>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1overloaded_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1overloaded.html">smd::fixpoint::overloaded</a></div><div class="ttdef"><b>Definition:</b> overloaded.hpp:26</div></div>
 <div class="ttc" id="astructsmd_1_1typeclass_1_1NatFFunctorImpl_html_a6cd4c250fb4b8e1e82beb5bad8b5620f"><div class="ttname"><a href="structsmd_1_1typeclass_1_1NatFFunctorImpl.html#a6cd4c250fb4b8e1e82beb5bad8b5620f">smd::typeclass::NatFFunctorImpl::fmap</a></div><div class="ttdeci">constexpr auto fmap(this auto &amp;&amp;, Fn &amp;&amp;fn, const smd::concrete::NatF&lt; A &gt; &amp;layer)</div><div class="ttdef"><b>Definition:</b> functors.hpp:76</div></div>
 </div><!-- fragment --><p> (Specializing <code>functor_typeclass</code> requires reopening <code>namespace <a class="el" href="namespacesmd_1_1typeclass.html">smd::typeclass</a></code>; the functor's own header does this after defining the layer types.) Note the specialization key is really the underlying <code>std::variant&lt;Zero, Succ&lt;A&gt;&gt;</code> — that is fine and deducible.</p>
-<h2><a class="anchor" id="autotoc_md119"></a>
+<h2><a class="anchor" id="autotoc_md122"></a>
 §6.2 Lookup-based scheme overloads (S01)</h2>
 <p><a class="el" href="structAdd.html">Add</a> to <code><a class="el" href="recursion__schemes_8hpp.html">recursion_schemes.hpp</a></code> overloads that drop the <code>fmap_fn</code> parameter and use <code>layer_fmap</code> (§4): <code>fold_fix&lt;Result&gt;(alg, tree)</code>, <code>unfold_fix&lt;F&gt;(coalg, seed)</code>, <code>refold&lt;Result, F&gt;(alg, coalg, seed)</code>. Existing explicit-fmap overloads stay untouched (tests depend on them; they also remain the escape hatch for one-off functors).</p>
-<h2><a class="anchor" id="autotoc_md120"></a>
+<h2><a class="anchor" id="autotoc_md123"></a>
 §6.3 Comonad typeclass (smd/typeclass/comonad.hpp, S03)</h2>
 <p>Mirror the Monad CRTP:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Impl&gt;</div>
@@ -283,7 +284,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_variable" href="namespacesmd_1_1typeclass.html#a96a161f6fa548249693255f43fd7c2ed">comonad_typeclass</a> = std::false_type{};</div>
 <div class="ttc" id="anamespacesmd_1_1typeclass_html_a96a161f6fa548249693255f43fd7c2ed"><div class="ttname"><a href="namespacesmd_1_1typeclass.html#a96a161f6fa548249693255f43fd7c2ed">smd::typeclass::comonad_typeclass</a></div><div class="ttdeci">constexpr auto comonad_typeclass</div><div class="ttdef"><b>Definition:</b> comonad.hpp:48</div></div>
 </div><!-- fragment --><p> Instances: <code>Identity&lt;A&gt;</code> (S03); env/product comonad <code>std::pair&lt;B, A&gt;</code> — <code>extract</code> = <code>.second</code>, <code>duplicate(p)</code> = <code>pair&lt;B, pair&lt;B,A&gt;&gt;{p.first, p}</code>, <code>fmap</code> maps <code>.second</code> — living in <code><a class="el" href="pair_8hpp.html">smd/typeclass/pair.hpp</a></code> together with pair's functor instance, <code>map_first(f, p)</code> and <code>fanout(f, g)</code> (the D11 dual vocabulary; S03); <code>Cofree&lt;F, A&gt;</code> (S07, §5.3).</p>
-<h2><a class="anchor" id="autotoc_md121"></a>
+<h2><a class="anchor" id="autotoc_md124"></a>
 §6.4 Instance/spec summary table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -301,17 +302,17 @@ with k, layer))</code>.</p>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">each base functor layer   </td><td class="markdownTableBodyNone">✓   </td><td class="markdownTableBodyNone">—   </td><td class="markdownTableBodyNone">—   </td><td class="markdownTableBodyNone">—   </td><td class="markdownTableBodyNone">S01/S02   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md122"></a>
+<h1><a class="anchor" id="autotoc_md125"></a>
 §7 Scheme catalog</h1>
 <p>Uniform notation: <code>F</code> base functor (unary template, D3 for families), <code>t : <a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code>, <code>unfix = unwrap_fix</code>, <code>fix = wrap_fix</code>, <code>fmapF</code> = functor_typeclass fmap of the layer at hand, <code>φ</code> algebra, <code>ψ</code> coalgebra. All functions are <code>constexpr</code> (D10). Haskell types are given for cross-checking against recursion-schemes; the C++ signature is normative.</p>
-<h2><a class="anchor" id="autotoc_md123"></a>
+<h2><a class="anchor" id="autotoc_md126"></a>
 §7.1 Classical recap (existing; S01 adds lookup overloads)</h2>
 <ul>
 <li><code>fold_fix : (F&lt;A&gt; -&gt; A) -&gt; <a class="el" href="structFix.html">Fix</a>&lt;F&gt; -&gt; A</code> — cata. <code>φ ∘ fmapF(fold) ∘ unfix</code>.</li>
 <li><code>unfold_fix: (S -&gt; F&lt;S&gt;) -&gt; S -&gt; <a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> — ana. <code>fix ∘ fmapF(unfold) ∘ ψ</code>.</li>
 <li><code>refold : (F&lt;A&gt; -&gt; A) -&gt; (S -&gt; F&lt;S&gt;) -&gt; S -&gt; A</code> — hylo. <code>φ ∘ fmapF(refold) ∘ ψ</code>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md124"></a>
+<h2><a class="anchor" id="autotoc_md127"></a>
 §7.2 para and apo (S04) — para.hpp, apo.hpp</h2>
 <p><b>para</b> <code>:: (f (t, a) -&gt; a) -&gt; t -&gt; a</code></p>
 <p>Equation: <code>para φ = φ ∘ fmapF (λc. (c, para φ c)) ∘ unfix</code>.</p>
@@ -327,7 +328,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">// coalgebra : Seed -&gt; F&lt;either&lt;Fix&lt;F&gt;, Seed&gt;&gt;</span></div>
 </div><!-- fragment --><p> The worker copies the grafted subtree at the graft point; written with <code>match</code>, it is oblivious to whether Left holds <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> or <code>const <a class="el" href="structFix.html">Fix</a>&lt;F&gt;&amp;</code> — so coalgebras may return <code>F&lt;either&lt;const <a class="el" href="structFix.html">Fix</a>&lt;F&gt;&amp;, Seed&gt;&gt;</code> to graft without an intermediate copy (§5.2 reference sides).</p>
 <p>Examples: <code><a class="el" href="para__pretty__print_8cpp.html">para_pretty_print.cpp</a></code> — precedence-aware ExprF printer that inspects original children to decide parenthesization; <code><a class="el" href="apo__sorted__insert_8cpp.html">apo_sorted_insert.cpp</a></code> — insert into a sorted IntList, embedding the untouched tail once the position is found.</p>
-<h2><a class="anchor" id="autotoc_md125"></a>
+<h2><a class="anchor" id="autotoc_md128"></a>
 §7.3 zygo and mutu (S05) — zygo.hpp, mutu.hpp</h2>
 <p><b>zygo</b> <code>:: (f b -&gt; b) -&gt; (f (b, a) -&gt; a) -&gt; t -&gt; a</code></p>
 <p>Semantics: fold with an auxiliary "helper" fold running alongside; the main algebra sees <code>(helper value, main value)</code> at child positions. Implementation via pairing: <code>zygo f g = second ∘ fold_fix(λx. pair(f(fmapF(first, x)), g(x)))</code> where the fold carrier is <code>std::pair&lt;Helper, Result&gt;</code>.</p>
@@ -346,7 +347,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">// alg_a : F&lt;std::pair&lt;A, B&gt;&gt; -&gt; A ;  alg_b : F&lt;std::pair&lt;A, B&gt;&gt; -&gt; B</span></div>
 </div><!-- fragment --><p> Implementation: single <code>fold_fix</code> with carrier <code>pair&lt;A,B&gt;</code> and algebra <code>λx. pair(alg_a(x), alg_b(x))</code> (the banana-split theorem).</p>
 <p>Examples: <code><a class="el" href="mutu__even__odd_8cpp.html">mutu_even_odd.cpp</a></code> — is-even/is-odd on Nat, each defined in terms of the other; <code><a class="el" href="zygo__balanced_8cpp.html">zygo_balanced.cpp</a></code> — height-balanced check on a TreeF where the helper algebra computes height.</p>
-<h2><a class="anchor" id="autotoc_md126"></a>
+<h2><a class="anchor" id="autotoc_md129"></a>
 §7.4 hoist, prepro, postpro (S06) — prepro.hpp</h2>
 <p><b>hoist</b> <code>:: (forall x. f x -&gt; g x) -&gt; <a class="el" href="structFix.html">Fix</a> f -&gt; <a class="el" href="structFix.html">Fix</a> g</code> — apply a natural transformation at every layer. <code>hoist e = fold_fix(fix_G ∘ e)</code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>G, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Nat&gt;</div>
@@ -362,7 +363,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> postpro(<span class="keyword">const</span> Nat&amp; e, <span class="keyword">const</span> Coalgebra&amp; coalgebra,</div>
 <div class="line">                       <span class="keyword">const</span> Seed&amp; seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a>;</div>
 </div><!-- fragment --><p>Example: <code><a class="el" href="prepro__takewhile__sum_8cpp.html">prepro_takewhile_sum.cpp</a></code> — sum an IntList through a natural transformation that rewrites <code>Cons(x, rest)</code> to <code>Nil</code> when <code>x &lt; 0</code>: take-while fused into the fold.</p>
-<h2><a class="anchor" id="autotoc_md127"></a>
+<h2><a class="anchor" id="autotoc_md130"></a>
 §7.5 histo and futu (S07, S08) — cofree.hpp+histo.hpp, free.hpp+futu.hpp</h2>
 <p><b>histo</b> <code>:: (f (Cofree f a) -&gt; a) -&gt; t -&gt; a</code> — course-of-values fold; each child position carries the <em>entire annotated history</em> of that subtree.</p>
 <p>Implementation: <code>histo φ = extract ∘ fold_fix(λx. Cofree{φ(x), x})</code> with fold carrier <code>Cofree&lt;F, Result&gt;</code> (the layer <code>x</code> is <code>F&lt;Cofree&lt;F,Result&gt;&gt;</code>; it is both the algebra argument and the stored tail).</p>
@@ -375,7 +376,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> futu(<span class="keyword">const</span> Coalgebra&amp; coalgebra, <span class="keyword">const</span> Seed&amp; seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a>;</div>
 <div class="line"><span class="comment">// coalgebra : Seed -&gt; F&lt;Free&lt;F, Seed&gt;&gt;</span></div>
 </div><!-- fragment --><p>Examples: <code><a class="el" href="histo__coin__change_8cpp.html">histo_coin_change.cpp</a></code> — minimal-coin-count DP where the algebra indexes into the Cofree history (the classic histomorphism example); <code><a class="el" href="futu__rle__decode_8cpp.html">futu_rle_decode.cpp</a></code> — run-length decoding onto IntList, emitting <code>n</code> Cons layers per input pair.</p>
-<h2><a class="anchor" id="autotoc_md128"></a>
+<h2><a class="anchor" id="autotoc_md131"></a>
 §7.6 dyna, codyna, chrono (S09) — chrono.hpp</h2>
 <p>All three are refold fusions — none materializes an intermediate <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code>:</p>
 <ul>
@@ -390,7 +391,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">// codyna: algebra : F&lt;Result&gt; -&gt; Result ; coalgebra : Seed -&gt; F&lt;Free&lt;F,Seed&gt;&gt;</span></div>
 <div class="line"><span class="comment">// chrono: algebra : F&lt;Cofree&lt;F,Result&gt;&gt; -&gt; Result ; coalgebra as codyna</span></div>
 </div><!-- fragment --><p>Example: <code><a class="el" href="dyna__fibonacci_8cpp.html">dyna_fibonacci.cpp</a></code> — fib(n) directly from <code>int</code> seed, the canonical dynamorphism.</p>
-<h2><a class="anchor" id="autotoc_md129"></a>
+<h2><a class="anchor" id="autotoc_md132"></a>
 §7.7 Mendler-style: mcata, mhisto (S10) — mendler.hpp</h2>
 <p>Mendler algebras receive the recursive call as an explicit argument instead of relying on fmap — <b>no Functor instance required</b>.</p>
 <ul>
@@ -406,7 +407,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">//   Unroll callable Fix&lt;F&gt; -&gt; const F&lt;Fix&lt;F&gt;&gt;&amp;</span></div>
 </div><!-- fragment --><p> Note in the header docs: C++ cannot enforce the rank-2 abstraction (the algebra could inspect <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> children directly); the discipline is by convention — that <em>is</em> the pedagogical point of the example.</p>
 <p>Examples: <code><a class="el" href="mendler__eval_8cpp.html">mendler_eval.cpp</a></code> — ExprF evaluation via mcata (no functor_typeclass instance used — demonstrate by evaluating a functor that deliberately has none); mhisto Fibonacci in the tests.</p>
-<h2><a class="anchor" id="autotoc_md130"></a>
+<h2><a class="anchor" id="autotoc_md133"></a>
 §7.8 Elgot (co)algebras (S11) — elgot.hpp</h2>
 <ul>
 <li><b>elgot</b> <code>:: (f a -&gt; a) -&gt; (b -&gt; Either a (f b)) -&gt; b -&gt; a</code> — hylo whose coalgebra can short-circuit with a finished answer. Equation: <code>elgot φ ψ s = case ψ(s) of Left(a) → a; Right(layer) → φ(fmapF(elgot φ ψ, layer))</code>.</li>
@@ -425,7 +426,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">// coalgebra : Seed -&gt; F&lt;Seed&gt;</span></div>
 <div class="line"><span class="comment">// algebra   : (const Seed&amp;, F&lt;Result&gt;) -&gt; Result       (pair flattened)</span></div>
 </div><!-- fragment --><p>Example: <code><a class="el" href="elgot__shortcircuit_8cpp.html">elgot_shortcircuit.cpp</a></code> — product of a list of ints that bails out with 0 the moment a 0 is seen, never expanding the rest.</p>
-<h2><a class="anchor" id="autotoc_md131"></a>
+<h2><a class="anchor" id="autotoc_md134"></a>
 §7.9 Distributive laws (S12) — dist_laws.hpp</h2>
 <p>Each is a polymorphic function object; the comment block gives its Haskell type. Transcribed equations (verify via §9 laws — D8):</p>
 <div class="fragment"><div class="line"><span class="comment">// distCata :: f (Identity a) -&gt; Identity (f a)</span></div>
@@ -457,7 +458,7 @@ with k, layer))</code>.</p>
 <div class="line"><span class="comment">//   symmetric construction pays off; with std::expected it would have</span></div>
 <div class="line"><span class="comment">//   been transform_error gymnastics).</span></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a067560e63808255b7da7693f360d2e39"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a067560e63808255b7da7693f360d2e39">smd::fixpoint::dist_cata</a></div><div class="ttdeci">constexpr dist_cata_t dist_cata</div><div class="ttdef"><b>Definition:</b> dist_laws.hpp:68</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md132"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md135"></a>
 §7.10 gcata, gana, ghylo (S13, S14) — generalized.hpp</h2>
 <p><b>gcata</b> <code>:: Comonad w =&gt; (forall x. f (w x) -&gt; w (f x)) -&gt; (f (w a) -&gt; a) -&gt; t -&gt; a</code></p>
 <p>Definition (recursion-schemes): <code>gcata k g = g (extract (c t))</code> where</p>
@@ -484,7 +485,7 @@ with k, layer))</code>.</p>
 </div><!-- fragment --><p><b>ghylo</b> — the fused generalization; implement as <code>gcata</code>-after-<code>gana</code> semantics <em>fused through refold</em>, or (acceptable first cut, gated by the same laws) literally <code>ghylo w m φ ψ = gcata&lt;Result,WResult&gt;(w, φ, gana&lt;F,MSeed&gt;(m, ψ, seed))</code> materializing the middle — then fuse if straightforward. Record which variant shipped.</p>
 <p>Equivalence gates (§9): gcata(dist_cata) ≡ fold_fix; gcata(dist_histo) ≡ histo; gcata(dist_zygo(f)) ≡ zygo(f); gana(dist_ana) ≡ unfold_fix; gana(dist_apo) ≡ apo; gana(dist_futu) ≡ futu; ghylo(dist_cata, dist_ana) ≡ refold; ghylo(dist_histo, dist_ana) ≡ dyna; ghylo(dist_cata,
 dist_futu) ≡ codyna; ghylo(dist_histo, dist_futu) ≡ chrono.</p>
-<h2><a class="anchor" id="autotoc_md133"></a>
+<h2><a class="anchor" id="autotoc_md136"></a>
 §7.11 gprepro, gpostpro, zygo_histo_prepro (S15)</h2>
 <p><b>gprepro</b> <code>:: Comonad w =&gt; dist -&gt; (forall x. f x -&gt; f x) -&gt; (f (w a) -&gt; a) -&gt; t -&gt; a</code></p>
 <p><code>gprepro k e φ = φ(extract(c t))</code> where <code>c = fmapW φ?</code> — no: <code>c = k ∘ fmapF (duplicate ∘ fmapW φ ∘ c ∘ hoist&lt;F&gt;(e)) ∘ unfix</code> and result <code>= φ(extract(c t))</code>. Cross-check by law: <code>gprepro(dist_cata, e, φ) ≡ prepro(e, φ)</code> and <code>gprepro(k, identity-nat, φ) ≡ gcata(k, φ)</code> — trust the laws (D8).</p>
@@ -498,7 +499,7 @@ dist_futu) ≡ codyna; ghylo(dist_histo, dist_futu) ≡ chrono.</p>
 <div class="line"><span class="comment">// f : F&lt;Helper&gt; -&gt; Helper ; e : natural transformation F&lt;X&gt; -&gt; F&lt;X&gt;</span></div>
 <div class="line"><span class="comment">// g : F&lt;std::pair&lt;Helper, Cofree&lt;F, Result&gt;&gt;&gt; -&gt; Result</span></div>
 </div><!-- fragment --><p> Gate: with <code>e = identity</code>, <code>f</code> ignored by <code>g</code>, and <code>g</code> using only <code>extract</code> of the Cofree — degenerates to <code>fold_fix</code>. Plus one real use in <code><a class="el" href="generalized__tour_8cpp.html">generalized_tour.cpp</a></code>.</p>
-<h1><a class="anchor" id="autotoc_md134"></a>
+<h1><a class="anchor" id="autotoc_md137"></a>
 §8 File and target layout</h1>
 <p>New headers, all under <code>src/smd/fixpoint/</code> unless noted, each added to the <code>smd_fixpoint_headers</code> FILE_SET (or <code>smd_typeclass_headers</code> for typeclass module files) in the step that creates them; each tested in a sibling <code>.t.cpp</code> added to <code>smd_fixpoint_test</code> (resp. <code>smd_typeclass_test</code>):</p>
 <table class="markdownTable">
@@ -540,7 +541,7 @@ dist_futu) ≡ codyna; ghylo(dist_histo, dist_futu) ≡ chrono.</p>
 <td class="markdownTableBodyNone"><code><a class="el" href="schemes_8hpp.html">schemes.hpp</a></code>   </td><td class="markdownTableBodyNone">umbrella include   </td><td class="markdownTableBodyNone">S16   </td></tr>
 </table>
 <p>Examples: one <code>.cpp</code> per §7 family in <code>src/examples/</code>, each an <code>add_executable</code> + <code>target_link_libraries(... fixpoint.fixpoint)</code> + <code>install(... EXCLUDE_FROM_ALL)</code> block following the existing <code>fixpoint_tree_example</code> pattern. Examples must <em>run</em> and print their result; the step gate executes them.</p>
-<h1><a class="anchor" id="autotoc_md135"></a>
+<h1><a class="anchor" id="autotoc_md138"></a>
 §9 Testing strategy — the equivalence-law suite</h1>
 <p>Two kinds of tests, both Catch2, both required per scheme:</p>
 <ol type="1">
@@ -565,7 +566,7 @@ dist_futu) ≡ codyna; ghylo(dist_histo, dist_futu) ≡ chrono.</p>
 <li><b>constexpr</b> (D10): per scheme, one <code>static_assert</code> evaluating it on a small structure at compile time.</li>
 </ol>
 <p>Property-style loops (e.g. <code>for n in 0..10</code>) over the Nat/List fixtures are encouraged — see the existing <code>Refold - EquivalentToFoldOfUnfold</code> test for the house pattern.</p>
-<h1><a class="anchor" id="autotoc_md136"></a>
+<h1><a class="anchor" id="autotoc_md139"></a>
 §10 Examples catalog (src/examples/)</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -594,7 +595,7 @@ dist_futu) ≡ codyna; ghylo(dist_histo, dist_futu) ≡ chrono.</p>
 <td class="markdownTableBodyNone"><code>generalized_tour</code>   </td><td class="markdownTableBodyNone">gcata/gana/ghylo/zygo_histo_prepro   </td><td class="markdownTableBodyNone">recover the zoo from dist laws   </td></tr>
 </table>
 <p>Each example: ≤ ~120 lines, heavily commented, prints inputs and outputs with <code>std::println</code>, exits 0. These are documentation first.</p>
-<h1><a class="anchor" id="autotoc_md137"></a>
+<h1><a class="anchor" id="autotoc_md140"></a>
 §11 Non-goals</h1>
 <ul>
 <li>Performance tuning, sharing, laziness emulation, memo tables beyond what a scheme's own carrier provides (D6).</li>

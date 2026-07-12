@@ -10,5 +10,6 @@ var searchData=
   ['dist_5fpara_5ft_7',['dist_para_t',['../structsmd_1_1fixpoint_1_1dist__para__t.html',1,'smd::fixpoint']]],
   ['dist_5fzygo_5fhisto_5ft_8',['dist_zygo_histo_t',['../structsmd_1_1fixpoint_1_1dist__zygo__histo__t.html',1,'smd::fixpoint']]],
   ['dist_5fzygo_5ft_9',['dist_zygo_t',['../structsmd_1_1fixpoint_1_1dist__zygo__t.html',1,'smd::fixpoint']]],
-  ['dualmonoid_10',['DualMonoid',['../structsmd_1_1typeclass_1_1DualMonoid.html',1,'smd::typeclass']]]
+  ['dualmonoid_10',['DualMonoid',['../structsmd_1_1typeclass_1_1DualMonoid.html',1,'smd::typeclass']]],
+  ['dualpathfunctorimpl_11',['DualPathFunctorImpl',['../structanonymous__namespace_02fmap_8t_8cpp_03_1_1DualPathFunctorImpl.html',1,'anonymous_namespace{fmap.t.cpp}']]]
 ];

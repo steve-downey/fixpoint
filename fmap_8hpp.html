@@ -120,16 +120,26 @@ Namespaces</h2></td></tr>
 Concepts</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptsmd_1_1fixpoint_1_1functor__instance__for.html">smd::fixpoint::functor_instance_for</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptsmd_1_1fixpoint_1_1functor__instance__for__rvalue.html">smd::fixpoint::functor_instance_for_rvalue</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aa4d11a627a08cb72e17923e11fd1346c"><td class="memTemplParams" colspan="2">template&lt;class Layer , const auto &amp; Typeclass = smd::typeclass::functor_typeclass&lt;std::remove_cvref_t&lt;Layer&gt;&gt;, class Fn &gt; </td></tr>
 <tr class="memitem:aa4d11a627a08cb72e17923e11fd1346c"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#aa4d11a627a08cb72e17923e11fd1346c">smd::fixpoint::layer_fmap</a> (Fn &amp;&amp;fn, const Layer &amp;layer)</td></tr>
 <tr class="separator:aa4d11a627a08cb72e17923e11fd1346c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a841e70a3ddb6bab36c9fb3a1961a4519"><td class="memTemplParams" colspan="2">template&lt;class Layer , const auto &amp; Typeclass = smd::typeclass::functor_typeclass&lt;std::remove_cvref_t&lt;Layer&gt;&gt;, class Fn &gt; <br />
+requires (!std::is_lvalue_reference_v&lt;Layer&gt;)</td></tr>
+<tr class="memitem:a841e70a3ddb6bab36c9fb3a1961a4519"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a841e70a3ddb6bab36c9fb3a1961a4519">smd::fixpoint::layer_fmap</a> (Fn &amp;&amp;fn, Layer &amp;&amp;layer)</td></tr>
+<tr class="separator:a841e70a3ddb6bab36c9fb3a1961a4519"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b35c3574461158d2052d63713884976"><td class="memTemplParams" colspan="2">template&lt;class Typeclass , class Fn , class Layer &gt; <br />
 requires functor_instance_for&lt;Typeclass, Fn, Layer&gt;</td></tr>
 <tr class="memitem:a4b35c3574461158d2052d63713884976"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a4b35c3574461158d2052d63713884976">smd::fixpoint::layer_fmap</a> (const Typeclass &amp;tc, Fn &amp;&amp;fn, const Layer &amp;layer)</td></tr>
 <tr class="separator:a4b35c3574461158d2052d63713884976"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a6021cba005fb895789ab1b978bc3fa"><td class="memTemplParams" colspan="2">template&lt;class Typeclass , class Fn , class Layer &gt; <br />
+requires functor_instance_for_rvalue&lt;Typeclass, Fn, Layer&gt;</td></tr>
+<tr class="memitem:a0a6021cba005fb895789ab1b978bc3fa"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a0a6021cba005fb895789ab1b978bc3fa">smd::fixpoint::layer_fmap</a> (const Typeclass &amp;tc, Fn &amp;&amp;fn, Layer &amp;&amp;layer)</td></tr>
+<tr class="separator:a0a6021cba005fb895789ab1b978bc3fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

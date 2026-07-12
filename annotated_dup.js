@@ -1,5 +1,8 @@
 var annotated_dup =
 [
+    [ "anonymous_namespace{box.t.cpp}", "namespaceanonymous__namespace_02box_8t_8cpp_03.html", [
+      [ "MoveOnly", "structanonymous__namespace_02box_8t_8cpp_03_1_1MoveOnly.html", "structanonymous__namespace_02box_8t_8cpp_03_1_1MoveOnly" ]
+    ] ],
     [ "anonymous_namespace{either.t.cpp}", "namespaceanonymous__namespace_02either_8t_8cpp_03.html", [
       [ "Succ", "structanonymous__namespace_02either_8t_8cpp_03_1_1Succ.html", "structanonymous__namespace_02either_8t_8cpp_03_1_1Succ" ],
       [ "Zero", "structanonymous__namespace_02either_8t_8cpp_03_1_1Zero.html", null ]
@@ -9,13 +12,54 @@ var annotated_dup =
       [ "Zero", "structanonymous__namespace_02fix_8t_8cpp_03_1_1Zero.html", null ]
     ] ],
     [ "anonymous_namespace{fmap.t.cpp}", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html", [
+      [ "DualPathFunctorImpl", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1DualPathFunctorImpl.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1DualPathFunctorImpl" ],
       [ "Succ", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ" ],
       [ "TaggingNatFunctorImpl", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1TaggingNatFunctorImpl.html", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1TaggingNatFunctorImpl" ],
       [ "Zero", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Zero.html", null ]
     ] ],
+    [ "anonymous_namespace{free.t.cpp}", "namespaceanonymous__namespace_02free_8t_8cpp_03.html", [
+      [ "LazyLayer", "structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer.html", "structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer" ],
+      [ "MoveOnlyInt", "structanonymous__namespace_02free_8t_8cpp_03_1_1MoveOnlyInt.html", "structanonymous__namespace_02free_8t_8cpp_03_1_1MoveOnlyInt" ]
+    ] ],
     [ "anonymous_namespace{free_cofree_interlude.cpp}", "namespaceanonymous__namespace_02free__cofree__interlude_8cpp_03.html", [
       [ "Empty", "structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Empty.html", "structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Empty" ],
       [ "Unit", "structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Unit.html", "structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Unit" ]
+    ] ],
+    [ "anonymous_namespace{freer.t.cpp}", "namespaceanonymous__namespace_02freer_8t_8cpp_03.html", [
+      [ "Get", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Get" ],
+      [ "NotAnOperation", "structanonymous__namespace_02freer_8t_8cpp_03_1_1NotAnOperation.html", "structanonymous__namespace_02freer_8t_8cpp_03_1_1NotAnOperation" ],
+      [ "Put", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Put" ]
+    ] ],
+    [ "anonymous_namespace{freer_baseline.t.cpp}", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03.html", [
+      [ "Get", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Get" ],
+      [ "impure_node", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1impure__node.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1impure__node" ],
+      [ "KVSig", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig" ],
+      [ "Put", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Put" ],
+      [ "unit", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit" ]
+    ] ],
+    [ "anonymous_namespace{freer_cosignature.t.cpp}", "namespaceanonymous__namespace_02freer__cosignature_8t_8cpp_03.html", [
+      [ "Ask", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Ask.html", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Ask" ],
+      [ "Get", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Get" ],
+      [ "Put", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Put" ]
+    ] ],
+    [ "anonymous_namespace{freer_row.t.cpp}", "namespaceanonymous__namespace_02freer__row_8t_8cpp_03.html", [
+      [ "net_error", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1net__error.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1net__error" ],
+      [ "NotInRow", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1NotInRow.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1NotInRow" ],
+      [ "Now", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Now.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Now" ],
+      [ "reply", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1reply.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1reply" ],
+      [ "request", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1request.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1request" ],
+      [ "Send", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Send.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Send" ],
+      [ "SleepFor", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1SleepFor.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1SleepFor" ],
+      [ "time_point", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1time__point.html", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1time__point" ]
+    ] ],
+    [ "anonymous_namespace{freer_run.t.cpp}", "namespaceanonymous__namespace_02freer__run_8t_8cpp_03.html", [
+      [ "Get", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Get" ],
+      [ "Put", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Put" ]
+    ] ],
+    [ "anonymous_namespace{freer_task.t.cpp}", "namespaceanonymous__namespace_02freer__task_8t_8cpp_03.html", [
+      [ "AsyncGet", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1AsyncGet.html", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1AsyncGet" ],
+      [ "Get", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Get" ],
+      [ "Put", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Put" ]
     ] ],
     [ "anonymous_namespace{generalized_tour.cpp}", "namespaceanonymous__namespace_02generalized__tour_8cpp_03.html", [
       [ "take_while_positive_nat", "structanonymous__namespace_02generalized__tour_8cpp_03_1_1take__while__positive__nat.html", "structanonymous__namespace_02generalized__tour_8cpp_03_1_1take__while__positive__nat" ]
@@ -46,6 +90,20 @@ var annotated_dup =
     [ "anonymous_namespace{schemes.t.cpp}", "namespaceanonymous__namespace_02schemes_8t_8cpp_03.html", [
       [ "identity_nat", "structanonymous__namespace_02schemes_8t_8cpp_03_1_1identity__nat.html", "structanonymous__namespace_02schemes_8t_8cpp_03_1_1identity__nat" ]
     ] ],
+    [ "probe_b", "namespaceprobe__b.html", [
+      [ "local_layer", "structprobe__b_1_1local__layer.html", "structprobe__b_1_1local__layer" ],
+      [ "marker_t", "structprobe__b_1_1marker__t.html", null ]
+    ] ],
+    [ "retry_example", "namespaceretry__example.html", [
+      [ "net_error", "structretry__example_1_1net__error.html", "structretry__example_1_1net__error" ],
+      [ "Now", "structretry__example_1_1Now.html", "structretry__example_1_1Now" ],
+      [ "reply", "structretry__example_1_1reply.html", "structretry__example_1_1reply" ],
+      [ "request", "structretry__example_1_1request.html", "structretry__example_1_1request" ],
+      [ "RetryScript", "structretry__example_1_1RetryScript.html", "structretry__example_1_1RetryScript" ],
+      [ "Send", "structretry__example_1_1Send.html", "structretry__example_1_1Send" ],
+      [ "SleepFor", "structretry__example_1_1SleepFor.html", "structretry__example_1_1SleepFor" ],
+      [ "time_point", "structretry__example_1_1time__point.html", "structretry__example_1_1time__point" ]
+    ] ],
     [ "smd", "namespacesmd.html", [
       [ "concrete", "namespacesmd_1_1concrete.html", [
         [ "Add", "structsmd_1_1concrete_1_1Add.html", "structsmd_1_1concrete_1_1Add" ],
@@ -61,6 +119,9 @@ var annotated_dup =
       [ "fixpoint", "namespacesmd_1_1fixpoint.html", [
         [ "Box", "structsmd_1_1fixpoint_1_1Box.html", "structsmd_1_1fixpoint_1_1Box" ],
         [ "Cofree", "structsmd_1_1fixpoint_1_1Cofree.html", "structsmd_1_1fixpoint_1_1Cofree" ],
+        [ "cosignature", "structsmd_1_1fixpoint_1_1cosignature.html", null ],
+        [ "cosignature< row< Sigs... > >", "structsmd_1_1fixpoint_1_1cosignature_3_01row_3_01Sigs_8_8_8_01_4_01_4.html", null ],
+        [ "cosignature< signature< Ops... > >", "structsmd_1_1fixpoint_1_1cosignature_3_01signature_3_01Ops_8_8_8_01_4_01_4.html", null ],
         [ "dist_ana_t", "structsmd_1_1fixpoint_1_1dist__ana__t.html", "structsmd_1_1fixpoint_1_1dist__ana__t" ],
         [ "dist_apo_t", "structsmd_1_1fixpoint_1_1dist__apo__t.html", "structsmd_1_1fixpoint_1_1dist__apo__t" ],
         [ "dist_cata_t", "structsmd_1_1fixpoint_1_1dist__cata__t.html", "structsmd_1_1fixpoint_1_1dist__cata__t" ],
@@ -76,7 +137,15 @@ var annotated_dup =
         [ "gcata_worker_t", "structsmd_1_1fixpoint_1_1gcata__worker__t.html", "structsmd_1_1fixpoint_1_1gcata__worker__t" ],
         [ "gpostpro_worker_t", "structsmd_1_1fixpoint_1_1gpostpro__worker__t.html", "structsmd_1_1fixpoint_1_1gpostpro__worker__t" ],
         [ "gprepro_worker_t", "structsmd_1_1fixpoint_1_1gprepro__worker__t.html", "structsmd_1_1fixpoint_1_1gprepro__worker__t" ],
-        [ "overloaded", "structsmd_1_1fixpoint_1_1overloaded.html", "structsmd_1_1fixpoint_1_1overloaded" ]
+        [ "impure_node", "structsmd_1_1fixpoint_1_1impure__node.html", "structsmd_1_1fixpoint_1_1impure__node" ],
+        [ "one_shot", "classsmd_1_1fixpoint_1_1one__shot.html", null ],
+        [ "one_shot< R(Args...)>", "classsmd_1_1fixpoint_1_1one__shot_3_01R_07Args_8_8_8_08_4.html", "classsmd_1_1fixpoint_1_1one__shot_3_01R_07Args_8_8_8_08_4" ],
+        [ "overloaded", "structsmd_1_1fixpoint_1_1overloaded.html", "structsmd_1_1fixpoint_1_1overloaded" ],
+        [ "responder", "structsmd_1_1fixpoint_1_1responder.html", "structsmd_1_1fixpoint_1_1responder" ],
+        [ "row", "structsmd_1_1fixpoint_1_1row.html", "structsmd_1_1fixpoint_1_1row" ],
+        [ "signature", "structsmd_1_1fixpoint_1_1signature.html", "structsmd_1_1fixpoint_1_1signature" ],
+        [ "tracing_handler", "structsmd_1_1fixpoint_1_1tracing__handler.html", "structsmd_1_1fixpoint_1_1tracing__handler" ],
+        [ "unit", "structsmd_1_1fixpoint_1_1unit.html", "structsmd_1_1fixpoint_1_1unit" ]
       ] ],
       [ "typeclass", "namespacesmd_1_1typeclass.html", [
         [ "test", "namespacesmd_1_1typeclass_1_1test.html", [
@@ -92,7 +161,11 @@ var annotated_dup =
         [ "CofreeFunctorImpl", "structsmd_1_1typeclass_1_1CofreeFunctorImpl.html", "structsmd_1_1typeclass_1_1CofreeFunctorImpl" ],
         [ "CofreeFunctorMap", "structsmd_1_1typeclass_1_1CofreeFunctorMap.html", null ],
         [ "Comonad", "structsmd_1_1typeclass_1_1Comonad.html", "structsmd_1_1typeclass_1_1Comonad" ],
+        [ "CoSignatureFunctorImpl", "structsmd_1_1typeclass_1_1CoSignatureFunctorImpl.html", "structsmd_1_1typeclass_1_1CoSignatureFunctorImpl" ],
+        [ "CoSignatureFunctorMap", "structsmd_1_1typeclass_1_1CoSignatureFunctorMap.html", null ],
         [ "Count", "structsmd_1_1typeclass_1_1Count.html", "structsmd_1_1typeclass_1_1Count" ],
+        [ "CoyonedaFunctorImpl", "structsmd_1_1typeclass_1_1CoyonedaFunctorImpl.html", "structsmd_1_1typeclass_1_1CoyonedaFunctorImpl" ],
+        [ "CoyonedaFunctorMap", "structsmd_1_1typeclass_1_1CoyonedaFunctorMap.html", null ],
         [ "DualMonoid", "structsmd_1_1typeclass_1_1DualMonoid.html", "structsmd_1_1typeclass_1_1DualMonoid" ],
         [ "either", "structsmd_1_1typeclass_1_1either.html", "structsmd_1_1typeclass_1_1either" ],
         [ "EitherFunctorImpl", "structsmd_1_1typeclass_1_1EitherFunctorImpl.html", "structsmd_1_1typeclass_1_1EitherFunctorImpl" ],
@@ -116,6 +189,8 @@ var annotated_dup =
         [ "IdentityFunctorMap", "structsmd_1_1typeclass_1_1IdentityFunctorMap.html", null ],
         [ "IdentityMonadImpl", "structsmd_1_1typeclass_1_1IdentityMonadImpl.html", "structsmd_1_1typeclass_1_1IdentityMonadImpl" ],
         [ "IdentityMonadMap", "structsmd_1_1typeclass_1_1IdentityMonadMap.html", null ],
+        [ "LazyLayerFunctorImpl", "structsmd_1_1typeclass_1_1LazyLayerFunctorImpl.html", "structsmd_1_1typeclass_1_1LazyLayerFunctorImpl" ],
+        [ "LazyLayerFunctorMap", "structsmd_1_1typeclass_1_1LazyLayerFunctorMap.html", null ],
         [ "Left", "structsmd_1_1typeclass_1_1Left.html", "structsmd_1_1typeclass_1_1Left" ],
         [ "Left< L & >", "structsmd_1_1typeclass_1_1Left_3_01L_01_6_01_4.html", "structsmd_1_1typeclass_1_1Left_3_01L_01_6_01_4" ],
         [ "ListFFunctorImpl", "structsmd_1_1typeclass_1_1ListFFunctorImpl.html", "structsmd_1_1typeclass_1_1ListFFunctorImpl" ],

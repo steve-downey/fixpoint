@@ -104,7 +104,7 @@ generating"; an Elgot algebra gives the coalgebra exactly that veto, and its dua
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_9_mendler.html">Part 9 - Mendler Style ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md38"></a>
 elgot: The Coalgebra's Veto</h1>
 <p><code>refold</code>'s coalgebra must always answer with a layer; the recursion stops only when a layer has no children. An Elgot coalgebra (Elgot, Calvin C., 1975) (Ad{\'a}mek, Ji{\v r}{\'\i} and Milius, Stefan and Velebil, Ji{\v r}{\'\i}, 2006) answers with an <code>either</code>: <b>Left, a finished result &amp;#x2014; stop here, fold nothing below</b>; <b>Right, one more layer &amp;#x2014; continue</b>. Part 4's convention, doing hylomorphism duty. From <a href="../../src/smd/fixpoint/elgot.hpp"><code>src/smd/fixpoint/elgot.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -158,7 +158,7 @@ elgot: The Coalgebra's Veto</h1>
 <div class="line">product (bails out at the first 0): 0</div>
 <div class="line">elements examined: 3 / 6</div>
 </div><!-- fragment --><p>The examined-count is not decoration &amp;#x2014; it is the <em>only</em> observable evidence of the short-circuit. The product alone proves nothing: multiplying by zero swallows whether the tail was visited. The header makes the same point about testing, and it generalizes: a plausible off-by-one &amp;#x2014; expand one extra layer, then discard it &amp;#x2014; still gets every numeric answer right, so the test suite counts coalgebra invocations instead of trusting outputs. When a scheme's contract is about <em>work avoided</em>, test the work, not the answer.</p>
-<h1><a class="anchor" id="autotoc_md36"></a>
+<h1><a class="anchor" id="autotoc_md39"></a>
 coelgot: The Algebra Gets the Seed</h1>
 <p>Dualize once more. Where <code>elgot</code> strengthens the coalgebra, <code>coelgot</code> strengthens the algebra: alongside the already-folded children, it receives <em>the seed that produced the current layer</em>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -176,7 +176,7 @@ coelgot: The Algebra Gets the Seed</h1>
 <div class="line">}</div>
 </div><!-- fragment --><p>No short-circuit here &amp;#x2014; the extra power is context, not control. It is <code>para</code>'s move transplanted to hylomorphisms: <code>para</code>'s algebra saw the original subtree next to each result; <code>coelgot</code>'s sees the original <em>seed</em> next to the folded layer, in a refold where no subtree ever exists to show.</p>
 <p>One implementation note earns its comment: <code>coalgebra(seed)</code> is bound to a local before the <code>fmap</code>. A careless transcription that calls <code>psi</code> twice &amp;#x2014; once to build the layer, once inside the fold &amp;#x2014; would be invisible to every test with a pure coalgebra and would silently double the cost, and the side effects, of an impure one. The elgot/coelgot pair is small; the discipline in the comments is most of its value.</p>
-<h1><a class="anchor" id="autotoc_md37"></a>
+<h1><a class="anchor" id="autotoc_md40"></a>
 The Pattern Completing</h1>
 <p>Count the extra-power moves the catalog has made:</p>
 <ul>
@@ -187,7 +187,7 @@ The Pattern Completing</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_11_generalized.html">Next: Part 11 - Distributive Laws and the Generalized Schemes →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md38"></a>
+<h1><a class="anchor" id="autotoc_md41"></a>
 References</h1>
 <p>Elgot, Calvin C. (1975). <b>Monadic Computation and Iterative Algebraic Theories</b>, Logic Colloquium '73.</p>
 <p>Adámek, Jiří, Milius, Stefan, and Velebil, Jiří (2006). <b>Elgot Algebras</b>, Logical Methods in Computer Science 2(5:4).</p>

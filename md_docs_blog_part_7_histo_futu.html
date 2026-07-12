@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_7_histo_futu.html','
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_6_5_free_cofree.html">Interlude - Free, Cofree, and Their Free-er Relatives ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md91"></a>
+<h1><a class="anchor" id="autotoc_md94"></a>
 Cofree: A Tree Annotated With Its Own Past</h1>
 <p>The pair carrier of Part 5 gave a fold one extra value per child. Course-of-values recursion (Uustalu, Tarmo and Vene, Varmo, 1999) needs <em>every</em> value ever computed below a child. The carrier for that is the Cofree comonad: the same shape as the tree being folded, but every node also holds an annotation. From <a href="../../src/smd/fixpoint/cofree.hpp"><code>src/smd/fixpoint/cofree.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -138,7 +138,7 @@ Cofree: A Tree Annotated With Its Own Past</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a356b503bd1b48e5a3ef5a93caee729b1"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a></div><div class="ttdeci">constexpr auto extract(const Cofree&lt; F, A &gt; &amp;c) -&gt; const A &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:55</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a445b94ee55fcff3ece4f56045b2674fd"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a445b94ee55fcff3ece4f56045b2674fd">smd::fixpoint::unwrap_cofree</a></div><div class="ttdeci">constexpr auto unwrap_cofree(const Cofree&lt; F, A &gt; &amp;c) -&gt; const F&lt; Cofree&lt; F, A &gt; &gt; &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:63</div></div>
 </div><!-- fragment --><p>Notice that this compiles for exactly the reason <code><a class="el" href="structFix.html">Fix</a></code> did. <code>F</code>'s recursive positions are boxed, so <code>F&lt;Cofree&lt;F, A&gt;&gt;</code> is a complete type while <code>Cofree&lt;F, A&gt;</code> is still being defined &mdash; the Part 1 trick, paying its second dividend. (And the hand-written <code>operator==</code> is the Part 1 war story again, at the type where Clang's eager completeness check actually fired.)</p>
-<h1><a class="anchor" id="autotoc_md92"></a>
+<h1><a class="anchor" id="autotoc_md95"></a>
 histo: Fold With Total Recall</h1>
 <p>From <a href="../../src/smd/fixpoint/histo.hpp"><code>src/smd/fixpoint/histo.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -204,7 +204,7 @@ histo: Fold With Total Recall</h1>
 <div class="ttc" id="anamespaceanonymous__namespace_02histo__coin__change_8cpp_03_html_ac1f2723e753924ac5177f9e1bd423eae"><div class="ttname"><a href="namespaceanonymous__namespace_02histo__coin__change_8cpp_03.html#ac1f2723e753924ac5177f9e1bd423eae">anonymous_namespace{histo_coin_change.cpp}::History</a></div><div class="ttdeci">Cofree&lt; NatF, int &gt; History</div><div class="ttdef"><b>Definition:</b> histo_coin_change.cpp:42</div></div>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
 </div><!-- fragment --><p><code>minCoins(n)</code> needs <code>minCoins(n-1)</code>, <code>minCoins(n-4)</code>, <code>minCoins(n-5)</code>. The predecessor's head is the first; <code>look_back</code> walks the history 3 and 4 more steps for the others. Nothing is ever recomputed &mdash; the history <em>is</em> the memo table, built by the fold itself, no map, no mutable array. The program prints <code>minCoins(8) = 2</code> (4+4) and <code>minCoins(12) = 3</code> (4+4+4), the cases where a greedy or naive-recursive formulation goes wrong or goes exponential.</p>
-<h1><a class="anchor" id="autotoc_md93"></a>
+<h1><a class="anchor" id="autotoc_md96"></a>
 Free: Computation Chunks With Seeds at the Leaves</h1>
 <p>Dualize the annotation idea. Cofree is <em>always</em> a node, <em>plus</em> an annotation at every level. Its mirror is <em>either</em> a value <em>or</em> a layer of more structure &mdash; the Free monad. From <a href="../../src/smd/fixpoint/free.hpp"><code>src/smd/fixpoint/free.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -239,7 +239,7 @@ Free: Computation Chunks With Seeds at the Leaves</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a152b11b2885b712a175fef273e994f49"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a152b11b2885b712a175fef273e994f49">smd::fixpoint::pure_free</a></div><div class="ttdeci">constexpr auto pure_free(A a) -&gt; Free&lt; F, A &gt;</div><div class="ttdef"><b>Definition:</b> free.hpp:52</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a204c616ab5963b71617cb853992c4fa0"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a204c616ab5963b71617cb853992c4fa0">smd::fixpoint::roll_free</a></div><div class="ttdeci">constexpr auto roll_free(F&lt; Free&lt; F, A &gt; &gt; layer) -&gt; Free&lt; F, A &gt;</div><div class="ttdef"><b>Definition:</b> free.hpp:60</div></div>
 </div><!-- fragment --><p>Read <code>Free&lt;F, Seed&gt;</code> as "a chunk of tree, with fresh seeds where I stopped building." <code>pure_free</code> is a seed; <code>roll_free</code> is one more layer of chunk. Cofree is the cofree <em>comonad</em> over F and Free the free <em>monad</em> &mdash; the library registers exactly those instances, and Part 11 spends them.</p>
-<h1><a class="anchor" id="autotoc_md94"></a>
+<h1><a class="anchor" id="autotoc_md97"></a>
 futu: Unfold Several Layers per Step</h1>
 <p>An <code>unfold_fix</code> coalgebra returns <code>F&lt;Seed&gt;</code>: one layer, seeds under it. A <code>futu</code> coalgebra returns <code>F&lt;Free&lt;F, Seed&gt;&gt;</code>: one layer whose children are whole <em>chunks</em> (Uustalu, Tarmo and Vene, Varmo, 1999). From <a href="../../src/smd/fixpoint/futu.hpp"><code>src/smd/fixpoint/futu.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -303,7 +303,7 @@ futu: Unfold Several Layers per Step</h1>
 <div class="ttc" id="anamespaceanonymous__namespace_02futu__rle__decode_8cpp_03_html_a0ac95eb0cf558963e4753a13b2c43a57"><div class="ttname"><a href="namespaceanonymous__namespace_02futu__rle__decode_8cpp_03.html#a0ac95eb0cf558963e4753a13b2c43a57">anonymous_namespace{futu_rle_decode.cpp}::make_rle_coalgebra</a></div><div class="ttdeci">auto make_rle_coalgebra(const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;pairs)</div><div class="ttdef"><b>Definition:</b> futu_rle_decode.cpp:55</div></div>
 <div class="ttc" id="anamespaceanonymous__namespace_02futu__rle__decode_8cpp_03_html_ab94b3a3a51b6c32d3508f9e0188cce6d"><div class="ttname"><a href="namespaceanonymous__namespace_02futu__rle__decode_8cpp_03.html#ab94b3a3a51b6c32d3508f9e0188cce6d">anonymous_namespace{futu_rle_decode.cpp}::build_run_tail</a></div><div class="ttdeci">auto build_run_tail(int value, int count, std::size_t seed) -&gt; IndexFree</div><div class="ttdef"><b>Definition:</b> futu_rle_decode.cpp:43</div></div>
 </div><!-- fragment --><p>One coalgebra call sees <code>(count, value)</code> and emits <code>count</code> <code>Cons</code> layers as a single nested-<code>roll_free</code> chunk, with the <code>Pure</code> leaf carrying the index of the next pair. <code>[(2,7), (3,1)]</code> decodes to <code>[7, 7, 1, 1, 1]</code> with three coalgebra calls, not five. A plain unfold would need seed bookkeeping &mdash; "which pair, how many emitted so far" &mdash; to fake what the chunk states directly.</p>
-<h1><a class="anchor" id="autotoc_md95"></a>
+<h1><a class="anchor" id="autotoc_md98"></a>
 The Symmetry Ledger</h1>
 <p>The catalog is now symmetric three levels deep, and it is worth writing the ledger down:</p>
 <table class="markdownTable">
@@ -320,7 +320,7 @@ The Symmetry Ledger</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_8_dyna_chrono.html">Next: Part 8 - Dynamorphisms and Chronomorphisms →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md96"></a>
+<h1><a class="anchor" id="autotoc_md99"></a>
 References</h1>
 <p>Uustalu, Tarmo and Vene, Varmo (1999). <b>Primitive (Co)Recursion and Course-of-Value (Co)Iteration, Categorically</b>, Informatica 10(1).</p>
 <p>Vene, Varmo (2000). <b>Categorical Programming with Inductive and Coinductive Types</b>, PhD thesis, University of Tartu.</p>

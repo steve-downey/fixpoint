@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_4_para_apo.html','')
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_3_classical.html">Part 3 - Fold, Unfold, Refold ←</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md67"></a>
+<h1><a class="anchor" id="autotoc_md70"></a>
 para: A Fold That Remembers the Original</h1>
 <p><code>fold_fix</code> has amnesia by design. By the time the algebra sees an <code><a class="el" href="structAdd.html">Add</a></code>, the children are already strings or ints; what they <em>were</em> is gone. Usually that is the point. Sometimes it is the problem: a pretty-printer that wants minimal parentheses needs each child's rendered string <b>and</b> its original shape &amp;#x2014; parenthesize the rendering only if the original was an <code><a class="el" href="structAdd.html">Add</a></code> under a <code><a class="el" href="structMul.html">Mul</a></code>.</p>
 <p>The paramorphism (Meertens, Lambert, 1992) hands the algebra both. From <a href="../../src/smd/fixpoint/para.hpp"><code>src/smd/fixpoint/para.hpp</code></a>:</p>
@@ -165,7 +165,7 @@ para: A Fold That Remembers the Original</h1>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
 </div><!-- fragment --><p>The <code><a class="el" href="structMul.html">Mul</a></code> case is the payoff line: <code>is_add(child.first)</code> interrogates the original subtree; <code>child.second</code> is the already-rendered string it wraps or passes through. The program prints <code>2 * 3 + 4</code> for one association and <code>2 * (3 + 4)</code> for the other &amp;#x2014; parentheses exactly where meaning requires them, nowhere else.</p>
 <p>Degeneracy law: ignore <code>.first</code> everywhere and <code>para</code> <em>is</em> <code>fold_fix</code>. The test suite states that literally, and every scheme from here on has a law of the same shape &amp;#x2014; forget the extra power, recover the simpler scheme.</p>
-<h1><a class="anchor" id="autotoc_md68"></a>
+<h1><a class="anchor" id="autotoc_md71"></a>
 apo: An Unfold That Can Stop Early</h1>
 <p>Now dualize. <code>para</code>'s algebra receives, alongside each result, the original subtree &amp;#x2014; a product. <code>apo</code>'s coalgebra returns, at each child position, <em>either</em> a finished subtree to graft <em>or</em> a seed to keep unfolding &amp;#x2014; a coproduct (Uustalu, Tarmo and Vene, Varmo, 1999) (Vene, Varmo, 2000). From <a href="../../src/smd/fixpoint/apo.hpp"><code>src/smd/fixpoint/apo.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -219,7 +219,7 @@ apo: An Unfold That Can Stop Early</h1>
 <div class="line">    };</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>A plain <code>unfold_fix</code> cannot express "and the rest is what it already was" &amp;#x2014; it must walk to the end, rebuilding. <code>apo</code> says it in one <code>make_left</code>.</p>
-<h1><a class="anchor" id="autotoc_md69"></a>
+<h1><a class="anchor" id="autotoc_md72"></a>
 either: The Sum the Library Actually Wanted</h1>
 <p>That Left/Right vocabulary is a project type, and it exists because the obvious candidate failed. From <a href="../../src/smd/typeclass/either.hpp"><code>src/smd/typeclass/either.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -249,7 +249,7 @@ either: The Sum the Library Actually Wanted</h1>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_5_zygo_mutu.html">Next: Part 5 - Zygomorphisms and Mutumorphisms →</a></p>
 <p>&lt;/nav&gt;</p>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md73"></a>
 References</h1>
 <p>Meertens, Lambert (1992). <b>Paramorphisms</b>, Formal Aspects of Computing 4(5).</p>
 <p>Uustalu, Tarmo and Vene, Varmo (1999). <b>Primitive (Co)Recursion and Course-of-Value (Co)Iteration, Categorically</b>, Informatica 10(1).</p>

@@ -121,76 +121,76 @@ $(document).ready(function(){initNavTree('md_docs_blog_index.html',''); initResi
 </ul>
 <p><a class="el" href="md_docs_blog_index.html#org7325ce9">Table of Contents</a></p>
 <p><a class="anchor" id="org8f5481a"></a></p>
-<h1><a class="anchor" id="autotoc_md3"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 Overview</h1>
 <p>A field guide to the recursion-schemes menagerie, implemented in C++26 as the <code><a class="el" href="namespacesmd_1_1fixpoint.html">smd::fixpoint</a></code> library: the full Kmett catalog &mdash; folds, unfolds, refolds, course-of-values recursion, Mendler style, Elgot algebras, and the comonadic/monadic generalizations &mdash; built on one fixpoint type, a constexpr <code>Box</code>, and typeclass objects. Every post transcludes the shipping code and a runnable example; every scheme is pinned by the degeneracy laws in its test file.</p>
 <p><a class="anchor" id="orge203e0c"></a></p>
-<h1><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md7"></a>
 Blog Posts</h1>
 <p><a class="anchor" id="org4cdd374"></a></p>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-0-intro.md "Part 0 — Why a Field Guide?"</h2>
 <p>What recursion schemes separate, where they come from, and the roadmap for the series.</p>
 <p><a class="anchor" id="org1bcaf5f"></a></p>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md9"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-1-fixpoint.md "Part 1 — Fix and Box: Tying the Knot"</h2>
 <p>The fixpoint type, and the trick that makes <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt; ≅ F&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;&gt;</code> legal C++: boxing is the functor's responsibility.</p>
 <p><a class="anchor" id="orgcb219f0"></a></p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-2-typeclasses.md "Part 2 — Typeclass Objects and layer\_fmap"</h2>
 <p>Functor as a variable-template registry of instance objects, and the three lookup modes: implicit, NTTP-pinned, explicit-object.</p>
 <p><a class="anchor" id="org5ec5981"></a></p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-3-classical.md "Part 3 — Fold, Unfold, Refold"</h2>
 <p>Catamorphism, anamorphism, hylomorphism under descriptive names, and why <code>cata</code> is deprecated.</p>
 <p><a class="anchor" id="org9e171eb"></a></p>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-4-para-apo.md "Part 4 — Paramorphisms and Apomorphisms"</h2>
 <p>Folds that see the original subtree; unfolds that graft finished subtrees; the <code>either</code> type and Left-stops/Right-continues.</p>
 <p><a class="anchor" id="org4eb53a1"></a></p>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-5-zygo-mutu.md "Part 5 — Zygomorphisms and Mutumorphisms"</h2>
 <p>A fold consulting a helper fold, two folds as peers, and the banana-split pair carrier underneath both.</p>
 <p><a class="anchor" id="org672fc37"></a></p>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-6-prepro-postpro.md "Part 6 — Natural Transformations: hoist, prepro, postpro"</h2>
 <p>Rewriting every layer, and fusing the rewrite into folds and unfolds.</p>
 <p><a class="anchor" id="org02fa99e"></a></p>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-6.5-free-cofree.md "Interlude — Free, Cofree, and Their Free-er Relatives"</h2>
 <p>Where Free and Cofree come from (the adjunctions), how they are <code><a class="el" href="structFix.html">Fix</a></code> with variables or annotations, the naive vs Church encodings, and Kiselyov's Freer — plus the dual the title asks about, all with compiled code.</p>
 <p><a class="anchor" id="orgc487774"></a></p>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<h2><a class="anchor" id="autotoc_md16"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-7-histo-futu.md "Part 7 — Histomorphisms and Futumorphisms"</h2>
 <p>Course-of-values recursion: Cofree histories for folds, Free chunks for unfolds, coin change and run-length decoding.</p>
 <p><a class="anchor" id="orgc572354"></a></p>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-8-dyna-chrono.md "Part 8 — Dynamorphisms and Chronomorphisms"</h2>
 <p>The fused forms: dynamic programming from a seed, Fibonacci with the memo table as a comonad.</p>
 <p><a class="anchor" id="org860eff1"></a></p>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-9-mendler.md "Part 9 — Mendler Style"</h2>
 <p>Folds with no Functor instance: the algebra receives the recursive call, and a rank-2 guarantee becomes a discipline.</p>
 <p><a class="anchor" id="org6454e59"></a></p>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-10-elgot.md "Part 10 — Elgot Algebras"</h2>
 <p>Refolds where the coalgebra can stop with an answer, the dual where the algebra sees the seed, and testing the work instead of the answer.</p>
 <p><a class="anchor" id="orgf1500bd"></a></p>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-11-generalized.md "Part 11 — Distributive Laws and the Generalized Schemes"</h2>
 <p>The reveal: gcata and gana subsume the catalog, one distributive law per scheme, with the executable proof.</p>
 <p><a class="anchor" id="org38d82d9"></a></p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-12-capstone.md "Part 12 — The Capstone: zygoHistoPrepro"</h2>
 <p>Composing comonads: zygo + histo + prepro in one pass, and the dedicated EnvT-style instance the generic pair could not provide.</p>
 <p><a class="anchor" id="orgbb54949"></a></p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 @ref /home/runner/work/fixpoint/fixpoint/docs/blog/part-13-conclusion.md "Part 13 — Conclusion"</h2>
 <p>The catalog in review, the ledger of what C++ pushed back on, and where the trail continues.</p>
 <p><a class="anchor" id="org7325ce9"></a></p>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md23"></a>
 Table of Contents</h1>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md24"></a>
 Table of Contents</h1>
 <ol type="1">
 <li><a class="el" href="md_docs_blog_index.html#org8f5481a">Overview</a></li>

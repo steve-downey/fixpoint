@@ -9,6 +9,7 @@ var namespaces_dup =
       [ "make_insert_coalgebra", "namespaceanonymous__namespace_02apo__sorted__insert_8cpp_03.html#a3bea7bb55e508b1a83fb35693ed6115e", null ],
       [ "print_vector", "namespaceanonymous__namespace_02apo__sorted__insert_8cpp_03.html#a7023803336aa35039dec79caae1b68ee", null ]
     ] ],
+    [ "anonymous_namespace{box.t.cpp}", "namespaceanonymous__namespace_02box_8t_8cpp_03.html", "namespaceanonymous__namespace_02box_8t_8cpp_03" ],
     [ "anonymous_namespace{chrono.t.cpp}", "namespaceanonymous__namespace_02chrono_8t_8cpp_03.html", [
       [ "coin_change_algebra", "namespaceanonymous__namespace_02chrono_8t_8cpp_03.html#a602179f6aedac883d6c7e9456b37bdc3", null ],
       [ "countdown", "namespaceanonymous__namespace_02chrono_8t_8cpp_03.html#a30b57cd5e7a19ea52c600d1b884eb2fb", null ],
@@ -53,12 +54,23 @@ var namespaces_dup =
     ] ],
     [ "anonymous_namespace{fix.t.cpp}", "namespaceanonymous__namespace_02fix_8t_8cpp_03.html", "namespaceanonymous__namespace_02fix_8t_8cpp_03" ],
     [ "anonymous_namespace{fmap.t.cpp}", "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html", "namespaceanonymous__namespace_02fmap_8t_8cpp_03" ],
-    [ "anonymous_namespace{free.t.cpp}", "namespaceanonymous__namespace_02free_8t_8cpp_03.html", [
-      [ "IntFree", "namespaceanonymous__namespace_02free_8t_8cpp_03.html#ac84dc0f6604f9f9817c6326603bc195d", null ],
-      [ "free_constexpr_smoke", "namespaceanonymous__namespace_02free_8t_8cpp_03.html#a433ce16a6b1746f2c0dcc1137df83783", null ],
-      [ "make_run", "namespaceanonymous__namespace_02free_8t_8cpp_03.html#a349ab364945e84fc2c4958f8a95aaff8", null ]
-    ] ],
+    [ "anonymous_namespace{free.t.cpp}", "namespaceanonymous__namespace_02free_8t_8cpp_03.html", "namespaceanonymous__namespace_02free_8t_8cpp_03" ],
     [ "anonymous_namespace{free_cofree_interlude.cpp}", "namespaceanonymous__namespace_02free__cofree__interlude_8cpp_03.html", "namespaceanonymous__namespace_02free__cofree__interlude_8cpp_03" ],
+    [ "anonymous_namespace{freer.t.cpp}", "namespaceanonymous__namespace_02freer_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer_8t_8cpp_03" ],
+    [ "anonymous_namespace{freer_baseline.t.cpp}", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03" ],
+    [ "anonymous_namespace{freer_beman_probe.t.cpp}", "namespaceanonymous__namespace_02freer__beman__probe_8t_8cpp_03.html", [
+      [ "make_answer_task", "namespaceanonymous__namespace_02freer__beman__probe_8t_8cpp_03.html#a9ec1b148862631c472a39aceca93a181", null ]
+    ] ],
+    [ "anonymous_namespace{freer_cosignature.t.cpp}", "namespaceanonymous__namespace_02freer__cosignature_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__cosignature_8t_8cpp_03" ],
+    [ "anonymous_namespace{freer_retry.cpp}", "namespaceanonymous__namespace_02freer__retry_8cpp_03.html", [
+      [ "render_trace", "namespaceanonymous__namespace_02freer__retry_8cpp_03.html#ac927a70b2c427d366e6664f851709238", null ]
+    ] ],
+    [ "anonymous_namespace{freer_retry.t.cpp}", "namespaceanonymous__namespace_02freer__retry_8t_8cpp_03.html", [
+      [ "expect_retry", "namespaceanonymous__namespace_02freer__retry_8t_8cpp_03.html#a7bb4085eeea169b4684c35b614f2ff18", null ]
+    ] ],
+    [ "anonymous_namespace{freer_row.t.cpp}", "namespaceanonymous__namespace_02freer__row_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__row_8t_8cpp_03" ],
+    [ "anonymous_namespace{freer_run.t.cpp}", "namespaceanonymous__namespace_02freer__run_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__run_8t_8cpp_03" ],
+    [ "anonymous_namespace{freer_task.t.cpp}", "namespaceanonymous__namespace_02freer__task_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__task_8t_8cpp_03" ],
     [ "anonymous_namespace{functors.t.cpp}", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html", [
       [ "sum_leaves", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html#aacd6baf89032f0cce50f44503e51c060", null ]
     ] ],
@@ -125,6 +137,10 @@ var namespaces_dup =
     [ "anonymous_namespace{identity.t.cpp}", "namespaceanonymous__namespace_02identity_8t_8cpp_03.html", [
       [ "identity_comonad_laws_hold", "namespaceanonymous__namespace_02identity_8t_8cpp_03.html#afa65edbca2add4d3a65690659c2f4acb", null ]
     ] ],
+    [ "anonymous_namespace{mcata_free.t.cpp}", "namespaceanonymous__namespace_02mcata__free_8t_8cpp_03.html", [
+      [ "Chunk", "namespaceanonymous__namespace_02mcata__free_8t_8cpp_03.html#ac3e82b920765c971679ea5c8c1187234", null ],
+      [ "make_chunk", "namespaceanonymous__namespace_02mcata__free_8t_8cpp_03.html#adccb4c72a9242fa27a41478bdc0ed012", null ]
+    ] ],
     [ "anonymous_namespace{mendler.t.cpp}", "namespaceanonymous__namespace_02mendler_8t_8cpp_03.html", "namespaceanonymous__namespace_02mendler_8t_8cpp_03" ],
     [ "anonymous_namespace{mendler_eval.cpp}", "namespaceanonymous__namespace_02mendler__eval_8cpp_03.html", [
       [ "eval_via_mcata", "namespaceanonymous__namespace_02mendler__eval_8cpp_03.html#af27b1243cecf30717bb48e4c133968f1", null ]
@@ -166,5 +182,7 @@ var namespaces_dup =
     [ "example", "namespaceexample.html", [
       [ "fixpoint", "namespaceexample.html#aafc8ebd245999d31fa88e26ef84fb438", null ]
     ] ],
+    [ "probe_b", "namespaceprobe__b.html", "namespaceprobe__b" ],
+    [ "retry_example", "namespaceretry__example.html", "namespaceretry__example" ],
     [ "smd", "namespacesmd.html", "namespacesmd" ]
 ];
