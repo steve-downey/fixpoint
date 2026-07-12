@@ -122,7 +122,7 @@ compiler evidence) before dispatching S03.
 ### Phase E — Interpreters (E1 ∥ E2)
 - [ ] **S06** Cofree pairing mock: unfold_cofree + lazy co-signature + pairing — `ops/freer/steps/06-cofree-pairing.md` (dep: S05)
 - [x] **S07d** Provision beman.execution/beman.task (dual-mode) — `ops/freer/steps/07d-beman-deps.md` (dep: S00; parallel to anything)
-- [ ] **S07** S/R interpreter: mcata_free + task carrier — `ops/freer/steps/07-sr-interpreter.md` (dep: S05, S07d)
+- [x] **S07** S/R interpreter: mcata_free + task carrier — `ops/freer/steps/07-sr-interpreter.md` (dep: S05, S07d)
 
 ### Phase F — Integration
 - [ ] **S08** FD10 end-to-end: retry example, both interpreters, interface comparison — `ops/freer/steps/08-integration.md` (dep: S06, S07)
@@ -138,3 +138,4 @@ compiler evidence) before dispatching S03.
 | S04 | Sonnet 2026-07-11 | 5921690 | gcc-16: 250/250 passed; clang-23: 250/250 passed | `ops/freer/handoffs/04-send-trace.handoff.md` |
 | S05 | Sonnet 2026-07-11 | d2ef54e | gcc-16: 254/254 passed; clang-23: 254/254 passed | `ops/freer/handoffs/05-rows.handoff.md` |
 | S07d | Sonnet 2026-07-11 | a5f406c | gcc-16: 222/222 passed; clang-23: 222/222 passed | `ops/freer/handoffs/07d-beman-deps.handoff.md` |
+| S07 | Sonnet 2026-07-12 | 5298658 | gcc-16: 264/264 passed; clang-23: 264/264 passed (256 pre-S07 baseline + 8 new) | `ops/freer/handoffs/07-sr-interpreter.handoff.md` |
