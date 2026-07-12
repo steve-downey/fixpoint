@@ -30,6 +30,7 @@ target_sources(
                 one_shot.hpp
                 freer.hpp
                 freer_run.hpp
+                freer_row.hpp
 )
 
 ## Tests
@@ -81,6 +82,7 @@ if(FIXPOINT_ENABLE_TESTING)
             one_shot.t.cpp
             freer.t.cpp
             freer_run.t.cpp
+            freer_row.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
