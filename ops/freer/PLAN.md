@@ -107,7 +107,7 @@ compiler evidence) before dispatching S03.
 ### Phase A — Ground truth
 - [x] **S00** Toolchain pins + baseline capture + feature probe — `ops/freer/steps/00-ground.md`
 - [x] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
-- [ ] **D-A / D-B** resolved by orchestrator (dep: S01)
+- [x] **D-A / D-B** resolved by orchestrator (dep: S01) — D-A→FD11 option (a), D-B→FD12 bespoke `one_shot` (2026-07-11); see Decisions table + design doc FD11/FD12.
 
 ### Phase B — Substrate (parallel with Phase A after S00)
 - [x] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
@@ -117,7 +117,7 @@ compiler evidence) before dispatching S03.
 - [x] **S04** send + trace handler + observational test vocabulary — `ops/freer/steps/04-send-trace.md` (dep: S03)
 
 ### Phase D — Composition
-- [ ] **S05** Rows: variant-of-signatures, Member injection, handler adaptors — `ops/freer/steps/05-rows.md` (dep: S04)
+- [x] **S05** Rows: variant-of-signatures, Member injection, handler adaptors — `ops/freer/steps/05-rows.md` (dep: S04)
 
 ### Phase E — Interpreters (E1 ∥ E2)
 - [ ] **S06** Cofree pairing mock: unfold_cofree + lazy co-signature + pairing — `ops/freer/steps/06-cofree-pairing.md` (dep: S05)
@@ -136,3 +136,4 @@ compiler evidence) before dispatching S03.
 | S02 | Sonnet 2026-07-11 | e8751c3 | gcc-16: 229/229 passed; clang-23: 229/229 passed | `ops/freer/handoffs/02-consuming-traversal.handoff.md` |
 | S03 | Sonnet 2026-07-11 | 9dc11fe | gcc-16: 245/245 passed; clang-23: 245/245 passed | `ops/freer/handoffs/03-signature-layer.handoff.md` |
 | S04 | Sonnet 2026-07-11 | 5921690 | gcc-16: 250/250 passed; clang-23: 250/250 passed | `ops/freer/handoffs/04-send-trace.handoff.md` |
+| S05 | Sonnet 2026-07-11 | d2ef54e | gcc-16: 254/254 passed; clang-23: 254/254 passed | `ops/freer/handoffs/05-rows.handoff.md` |

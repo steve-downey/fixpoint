@@ -267,6 +267,34 @@ needs only =pure=/=bind=, so this is a documented boundary, not a
 blocker. The S02 gate includes a deferred-invocation test run under
 the default Asan config to police exactly this class of bug.
 
+*Sharper boundary (S05 evidence, 2026-07-11 — DEV-S05-1).* The rule
+above is stronger than "derived ops only": =bind=/=mbind= /themselves/
+cannot carry a continuation that /owns/ a move-only value. Concretely,
+=FreeMonadImpl::bind='s consuming overload, when the right-hand side is
+a Roll, re-threads its =Fn= through a *non-=mutable=* inner closure
+(=[self, fn = …](auto&& child){ return self.bind(child, fn); }=), so
+=fn= is =const Fn&= one level down; because =.bind= is a single
+generic template body covering both the Pure-leaf and Roll branches,
+the recursive call /structurally/ instantiates =.bind='s own impure
+branch, which needs to *copy*-construct =Fn= again — and a continuation
+that owns a =one_shot= (move-only) has no copy constructor, so this
+hard-errors (=use of deleted one_shot(const one_shot&)=) *regardless of
+whether that branch is ever taken at runtime*. A =mutable= data member
+does not save it: the failure recurs one level deeper. Consequence:
+=mbind=/=bind= remain the right tool for composing /programs/ (the
+ordinary case — every continuation captures only copyable state), but
+any /infrastructure/ adaptor that reinterprets one operation and
+re-emits the rest — whose re-emitted continuation must own the original
+node's stored =one_shot= — must build the =impure_node=/=roll_free=
+*directly* (the literal aggregate-init shape =send= uses), never
+routing the move-only continuation through =mbind=/=bind=. This costs
+nothing FD6 didn't already imply: a single suspended Coyoneda node has
+no "second child" to recurse into (=layer_fmap= is O(1)
+post-composition, not a traversal), so =bind='s multi-child-fanout
+generality was never needed on this path. =discharge= (S05) is the
+worked example; the co-signature pairing (S06) and the S/R interpreter
+(S07) should expect the same wall and build nodes directly.
+
 Rationale beyond mechanics: one-shot continuations are exactly what
 the CPS translation of effect handlers requires (Hillerström, Lindley,
 Atkey, Sivaramakrishnan), and P2300 /structurally enforces/ them —
