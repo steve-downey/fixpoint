@@ -107,7 +107,7 @@ compiler evidence) before dispatching S03.
 ### Phase A — Ground truth
 - [x] **S00** Toolchain pins + baseline capture + feature probe — `ops/freer/steps/00-ground.md`
 - [x] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
-- [ ] **D-A / D-B** resolved by orchestrator (dep: S01)
+- [x] **D-A / D-B** resolved by orchestrator (dep: S01) — D-A→FD11 option (a), D-B→FD12 bespoke `one_shot` (2026-07-11); see Decisions table + design doc FD11/FD12.
 
 ### Phase B — Substrate (parallel with Phase A after S00)
 - [x] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
