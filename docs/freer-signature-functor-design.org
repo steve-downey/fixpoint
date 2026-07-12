@@ -794,6 +794,48 @@ and proceed in parallel worktrees.
   as the C++ image of the quantified answer type; handler =
   =op → sender=. beman.execution/beman.task are not yet provisioned
   in this repo (S07d).
+
+  *Landed (S07, 2026-07-12 — =mcata_free.hpp=, =freer_task.hpp=).* The
+  fold and interpreter shipped exactly as the forward reference
+  specified; no DEVIATIONS row. Recorded signatures:
+
+  #+begin_src c++
+  // mcata_free.hpp — no beman dependency; no functor_typeclass<F> lookup.
+  template <class Result, template <class> class F, class A,
+            class PureAlg, class MAlgebra>
+  constexpr auto mcata_free(PureAlg pure_alg, MAlgebra phi, Free<F, A> &&prog)
+      -> Result;
+  //   pure_alg : A&& -> Result                       (the Pure leaf)
+  //   phi      : (recurse, F<Free<F,A>>&&) -> Result (the Roll layer)
+  //   recurse  = mcata_free<Result,F,A>, partially applied, BY-VALUE owned
+
+  // freer_task.hpp — the one header depending on beman.
+  template <class Sig, class A, class Handler>
+  auto run_task(Handler handler, Freer<Sig, A> prog)
+      -> beman::execution::task<A>;
+  //   run_task == mcata_free at Result = beman::task<A> (the §5 claim as
+  //   running code, not a hand-written loop).
+  #+end_src
+
+  Consuming and BY VALUE throughout (pure_alg/phi taken by value;
+  =recurse= closes over its own owned copies) — required because
+  =Result= may be a coroutine type, which must own everything it
+  touches past a suspension point (FD4's capture-ownership rule in
+  coroutine clothing; a =Free&&= recursor and by-value algebras are the
+  two rules that keep the move-only one-shot alive across =co_await=).
+  The handler concept =task_handler_for<Handler, Op>= keys on "maps
+  =Op= to a =beman::execution::sender="; the completion-carries-
+  =Op::response= half is enforced structurally at the =co_await=
+  resumption site. Shape that landed: *frame-per-effect* (=run_task= is
+  =mcata_free= at =task<A>=, whose impure-layer algebra is itself a
+  coroutine, so an N-effect program stacks N suspended frames) — FD6's
+  disclosed demo-scale cost, acceptable for the retry example; a
+  single-coroutine resume-into-a-loop rewrite mirroring =run= is the
+  available FD6 optimization if a later step needs O(1) live frames.
+  The one-shot ⟷ P2300-receiver correspondence fit cleanly (rvalue
+  invoke, exactly once, on the resumption path); DEV-S05-1's
+  =mbind= wall did not arise (=run_task= is fold/coroutine-based,
+  never =mbind=-based).
 - §6: rows — variant-of-signatures, concept-checked injection
   (=Member=), handlers as adaptors discharging one row; modeled on
   =completion_signatures= set manipulation rather than parallel to it.
