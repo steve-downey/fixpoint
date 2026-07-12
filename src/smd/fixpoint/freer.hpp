@@ -129,6 +129,37 @@ concept coyoneda_layer = requires {
     typename T::node_variant;
 };
 
+/** send<Sig>(op): lift one operation into Freer<Sig, Op::response> -- the
+ * unit of the adjunction (FD7). The continuation is the identity-into-Pure
+ * -- Coyoneda's `id` -- so the program suspends with the request and
+ * resumes with the handler's response as its value.
+ *
+ * The continuation is a `one_shot<Box<X>(R)>` (FD12/D-B), not a bare
+ * lambda or `std::move_only_function`: `impure_node`'s `k` member is
+ * declared at that type, and a plain lambda converts to it implicitly via
+ * `one_shot`'s templated constructor.
+ *
+ * Variant construction: unlike S01's/S03's defensive precedent (which
+ * never actually attempted this), FD7's literal aggregate-init spelling
+ * over `Sig::template type<X>` -- relying on `node_variant`'s converting
+ * constructor to pick the alternative matching the exact `impure_node<Op,
+ * X>` prvalue -- compiles cleanly here on both gcc-16 and clang-23,
+ * verified by a standalone probe before landing this; no `in_place_type`
+ * needed for this particular construction (see the S04 handoff for the
+ * probe and a hypothesis on why this call site differs from S03's
+ * `CoyonedaFunctorImpl::fmap`, which does still need it).
+ */
+template <class Sig, operation Op>
+auto send(Op op) -> Freer<Sig, typename Op::response> {
+    using R = typename Op::response;
+    using X = Freer<Sig, R>;
+    return roll_free<Sig::template type>(
+        typename Sig::template type<X>{impure_node<Op, X>{
+            std::move(op), one_shot<Box<X>(R)>([](R r) -> Box<X> {
+                return make_box<X>(pure_free<Sig::template type>(std::move(r)));
+            })}});
+}
+
 } // namespace smd::fixpoint
 
 namespace smd::typeclass {
