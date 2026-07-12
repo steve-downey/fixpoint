@@ -31,6 +31,8 @@ target_sources(
                 freer.hpp
                 freer_run.hpp
                 freer_row.hpp
+                unfold_cofree.hpp
+                freer_cosignature.hpp
 )
 
 ## Tests
@@ -83,6 +85,7 @@ if(FIXPOINT_ENABLE_TESTING)
             freer.t.cpp
             freer_run.t.cpp
             freer_row.t.cpp
+            freer_cosignature.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
