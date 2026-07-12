@@ -142,4 +142,23 @@ if(FIXPOINT_ENABLE_TESTING)
     )
 
     catch_discover_tests(freer_task_test)
+
+    # S08: the cross-interpreter FD10 demonstration -- the canonical retry
+    # program (examples/freer_retry_program.hpp) run through BOTH the Cofree
+    # pairing interpreter and the live S/R interpreter, asserted with the
+    # same helper. Needs run_task, so it links the same two beman targets as
+    # freer_task_test; its own executable for the same confinement reason.
+    add_executable(freer_retry_test)
+
+    target_sources(freer_retry_test PRIVATE freer_retry.t.cpp)
+
+    target_link_libraries(
+        freer_retry_test
+        fixpoint.fixpoint
+        Catch2::Catch2WithMain
+        beman::execution_headers
+        beman::task
+    )
+
+    catch_discover_tests(freer_retry_test)
 endif()

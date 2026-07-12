@@ -19,6 +19,8 @@
 #include <smd/fixpoint/freer_run.hpp>
 #include <smd/fixpoint/unfold_cofree.hpp>
 
+#include <examples/freer_retry_program.hpp>
+
 #include <smd/concrete/functors.hpp>
 
 #include <smd/typeclass/detail/typeclass_base.hpp>
@@ -294,139 +296,19 @@ TEST_CASE("pair_run_trace [FD8]: a scripted KV mock (built with "
 // FD10's motivating example: retry-with-backoff over row<Clock, Network>,
 // a scripted Network (via the co-signature/unfold_cofree, failing twice
 // then succeeding) paired with a virtual-time Clock in the SAME mock --
-// the paper's central demonstration (FD8). S05's own retry_program grown
-// from N=2 to N=3 attempts, per this step's own instruction.
+// the paper's central demonstration (FD8). The program, its Clock/Network
+// vocabulary, and the scripted mock now live in ONE canonical place,
+// examples/freer_retry_program.hpp (S08 consolidation); this test drives
+// that canonical program through the pairing interpreter. The live S/R
+// interpreter drives the SAME program in freer_task.t.cpp, and both meet
+// on one program in freer_retry.t.cpp.
 // =======================================================================
 
-namespace {
-
-struct time_point {
-    int t = 0;
-};
-
-using duration = int;
-
-struct request {
-    std::string body;
-};
-
-struct reply {
-    std::string body;
-};
-
-struct net_error {
-    std::string message;
-};
-
-struct Now {
-    using response = time_point;
-};
-
-auto operator<<(std::ostream &out, const Now &) -> std::ostream & {
-    return out << "Now()";
-}
-
-struct SleepFor {
-    duration d;
-    using response = unit;
-};
-
-auto operator<<(std::ostream &out, const SleepFor &op) -> std::ostream & {
-    return out << "SleepFor(" << op.d << ")";
-}
-
-using Clock = signature<Now, SleepFor>;
-
-struct Send {
-    request req;
-    using response = std::expected<reply, net_error>;
-};
-
-auto operator<<(std::ostream &out, const Send &op) -> std::ostream & {
-    return out << "Send(" << op.req.body << ")";
-}
-
-using Network = signature<Send>;
-using Row = row<Clock, Network>;
-using RowFree = Freer<Row, int>;
-
-/** FD10: send a request; on failure, back off (SleepFor with growing
- * duration) and retry, up to 3 attempts total.
- */
-auto retry_program() -> RowFree {
-    return mbind(
-        send<Row>(Send{request{"hello"}}),
-        [](std::expected<reply, net_error> first) -> RowFree {
-            if (first) {
-                return pure_free<Row::template type>(
-                    static_cast<int>(first->body.size()));
-            }
-            return mbind(send<Row>(SleepFor{1}), [](unit) -> RowFree {
-                return mbind(
-                    send<Row>(Send{request{"hello"}}),
-                    [](std::expected<reply, net_error> second) -> RowFree {
-                        if (second) {
-                            return pure_free<Row::template type>(
-                                static_cast<int>(second->body.size()));
-                        }
-                        return mbind(
-                            send<Row>(SleepFor{2}), [](unit) -> RowFree {
-                                return mbind(
-                                    send<Row>(Send{request{"hello"}}),
-                                    [](std::expected<reply, net_error> third)
-                                        -> RowFree {
-                                        if (third) {
-                                            return pure_free<
-                                                Row::template type>(
-                                                static_cast<int>(
-                                                    third->body.size()));
-                                        }
-                                        return pure_free<Row::template type>(
-                                            -1);
-                                    });
-                            });
-                    });
-            });
-        });
-}
-
-/** The scripted mock's script state: how many Sends have been answered so
- * far (fails the first two, succeeds on the third -- FD10's "failing
- * twice then succeeding"), and the virtual clock's current time (advanced
- * only by SleepFor -- FD10's "virtual time, no sleep_for, no threads").
- */
-struct RetryScript {
-    int send_count = 0;
-    int virtual_time = 0;
-};
-
-auto retry_coalgebra(const RetryScript &state)
-    -> cosignature<Row>::type<RetryScript> {
-    return cosignature<Row>::type<RetryScript>{
-        responder<Now, RetryScript>{
-            [state](Now) -> std::pair<Now::response, RetryScript> {
-                return {time_point{state.virtual_time}, state};
-            }},
-        responder<SleepFor, RetryScript>{
-            [state](SleepFor op) -> std::pair<SleepFor::response, RetryScript> {
-                RetryScript next = state;
-                next.virtual_time += op.d;
-                return {unit{}, next};
-            }},
-        responder<Send, RetryScript>{
-            [state](Send) -> std::pair<Send::response, RetryScript> {
-                RetryScript next = state;
-                ++next.send_count;
-                if (next.send_count <= 2) {
-                    return {std::unexpected(net_error{"boom"}), next};
-                }
-                return {reply{"hello-reply"}, next}; // length 11
-            }}};
-}
-
-auto retry_head_fn(const RetryScript &state) -> RetryScript { return state; }
-
-} // namespace
+using retry_example::retry_coalgebra;
+using retry_example::retry_head_fn;
+using retry_example::retry_program;
+using retry_example::RetryScript;
+using retry_example::Row;
 
 TEST_CASE("pair_run_trace [FD10]: a scripted Network (failing twice, then "
           "succeeding) paired with a virtual-time Clock drives the retry "
@@ -439,11 +321,11 @@ TEST_CASE("pair_run_trace [FD10]: a scripted Network (failing twice, then "
         pair_run_trace<Row, int, RetryScript>(std::move(mock), retry_program());
 
     CHECK(value == 11); // "hello-reply".size()
-    CHECK(log == trace{"Send(hello)", "SleepFor(1)", "Send(hello)",
-                       "SleepFor(2)", "Send(hello)"}); // exactly three
-                                                       // Sends, backoff
-                                                       // 1s/2s, no fourth
-                                                       // attempt
+    CHECK(log == trace{"Now()", "Send(hello)", "SleepFor(1)", "Send(hello)",
+                       "SleepFor(2)", "Send(hello)"}); // fetch time, then
+                                                       // exactly three Sends,
+                                                       // backoff 1s/2s, no
+                                                       // fourth attempt
     CHECK(final_state.send_count == 3);
     CHECK(final_state.virtual_time == 3); // 1 + 2
 }

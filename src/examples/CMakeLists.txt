@@ -209,3 +209,29 @@ install(
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     EXCLUDE_FROM_ALL
 )
+
+# S08: FD10's retry-with-backoff example, end to end (three interpretations
+# of one program). Its Run 2 / Run 3 use the live sender/receiver
+# interpreter (run_task), which needs beman::execution / beman::task. Those
+# targets are made available by src/smd/fixpoint/CMakeLists.txt (processed
+# before this directory) under FIXPOINT_ENABLE_TESTING, so this example is
+# built only when they exist -- exactly as the beman-linked tests are.
+if(TARGET beman::task AND TARGET beman::execution_headers)
+    add_executable(freer_retry)
+
+    # Add example source file.
+    target_sources(freer_retry PRIVATE freer_retry.cpp)
+
+    # Link example with the library and the sender/receiver runtime.
+    target_link_libraries(
+        freer_retry
+        PRIVATE fixpoint.fixpoint beman::execution_headers beman::task
+    )
+
+    install(
+        TARGETS freer_retry
+        COMPONENT fixpoint.fixpoint.examples
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        EXCLUDE_FROM_ALL
+    )
+endif()
