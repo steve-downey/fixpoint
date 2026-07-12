@@ -27,6 +27,10 @@ target_sources(
                 dist_laws.hpp
                 generalized.hpp
                 schemes.hpp
+                one_shot.hpp
+                freer.hpp
+                freer_run.hpp
+                freer_row.hpp
 )
 
 ## Tests
@@ -64,6 +68,7 @@ if(FIXPOINT_ENABLE_TESTING)
             cofree.t.cpp
             histo.t.cpp
             free.t.cpp
+            freer_baseline.t.cpp
             futu.t.cpp
             chrono.t.cpp
             mendler.t.cpp
@@ -74,6 +79,10 @@ if(FIXPOINT_ENABLE_TESTING)
             ghylo.t.cpp
             gprepro.t.cpp
             schemes.t.cpp
+            one_shot.t.cpp
+            freer.t.cpp
+            freer_run.t.cpp
+            freer_row.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)

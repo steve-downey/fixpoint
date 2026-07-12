@@ -95,8 +95,8 @@ branches/worktrees; the orchestrator sequences their merges.
 
 | ID | After | Decides | Input | Resolution |
 |----|-------|---------|-------|------------|
-| D-A | S01 | FD11 — layer-level typeclass registration: constrained variable-template partial specialization vs registry bypass (NTTP/explicit-object) vs top-level layer template | S01 probes (a),(b) verbatim results | *(pending)* |
-| D-B | S01 | FD12 — continuation representation: `std::move_only_function<...&&>` gated on the feature-test macro vs bespoke one-shot callable | S00 macro probe + S01 probe (c) | *(pending)* |
+| D-A | S01 | FD11 — layer-level typeclass registration: constrained variable-template partial specialization vs registry bypass (NTTP/explicit-object) vs top-level layer template | S01 probes (a),(b) verbatim results | **RESOLVED 2026-07-11 → option (a)** — constrained variable-template partial specialization of `functor_typeclass`, keyed on a Coyoneda-specific marker typedef the signature layer exposes. Probe (a) confirmed the FD3 windfall (no `Free<F,A>`-level registration); probe (b) confirmed the mechanism selects correctly, identical on gcc-16 & clang-23. Only (a) composes with the implicit-mode `layer_fmap` the const & S02-consuming `Free` fmap/bind already use (zero threading). Modes 2/3 retained as escape hatch; (c) rejected. Marker MUST be Coyoneda-specific (not a generic name). See design doc FD11 (decided). |
+| D-B | S01 | FD12 — continuation representation: `std::move_only_function<...&&>` gated on the feature-test macro vs bespoke one-shot callable | S00 macro probe + S01 probe (c) | **RESOLVED 2026-07-11 → bespoke `one_shot<Sig>`** (uniform, not macro-gated). FD12's own decision rule takes the bespoke type unless probe (c) is green on every compiler the Freer layer claims; DEV-S00-1 shows libc++ (a CI row) lacks `std::move_only_function` entirely at LLVM 23, so the rule mandates bespoke. Keeps every CI row (libstdc++/libc++/appleclang), carries one-shot semantics directly (call consumes; second call is a hard error). `std::move_only_function` fast-path deferred to an FD6 optimization. S03 delivers the type. See design doc FD12 (decided). |
 
 The orchestrator records each resolution here AND updates the FD11/
 FD12 sections of the design doc (status: open → decided, with the
@@ -106,18 +106,18 @@ compiler evidence) before dispatching S03.
 
 ### Phase A — Ground truth
 - [x] **S00** Toolchain pins + baseline capture + feature probe — `ops/freer/steps/00-ground.md`
-- [ ] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
-- [ ] **D-A / D-B** resolved by orchestrator (dep: S01)
+- [x] **S01** FD9 baseline gate TU + mechanics probes — `ops/freer/steps/01-baseline-gate.md` (dep: S00)
+- [x] **D-A / D-B** resolved by orchestrator (dep: S01) — D-A→FD11 option (a), D-B→FD12 bespoke `one_shot` (2026-07-11); see Decisions table + design doc FD11/FD12.
 
 ### Phase B — Substrate (parallel with Phase A after S00)
-- [ ] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
+- [x] **S02** Consuming traversal: fmap.hpp + free.hpp + box.hpp — `ops/freer/steps/02-consuming-traversal.md` (dep: S00)
 
 ### Phase C — The layer
-- [ ] **S03** unit/operation/impure_node/signature/Freer + generic Coyoneda instance — `ops/freer/steps/03-signature-layer.md` (dep: S01+D-A+D-B, S02)
-- [ ] **S04** send + trace handler + observational test vocabulary — `ops/freer/steps/04-send-trace.md` (dep: S03)
+- [x] **S03** unit/operation/impure_node/signature/Freer + generic Coyoneda instance — `ops/freer/steps/03-signature-layer.md` (dep: S01+D-A+D-B, S02)
+- [x] **S04** send + trace handler + observational test vocabulary — `ops/freer/steps/04-send-trace.md` (dep: S03)
 
 ### Phase D — Composition
-- [ ] **S05** Rows: variant-of-signatures, Member injection, handler adaptors — `ops/freer/steps/05-rows.md` (dep: S04)
+- [x] **S05** Rows: variant-of-signatures, Member injection, handler adaptors — `ops/freer/steps/05-rows.md` (dep: S04)
 
 ### Phase E — Interpreters (E1 ∥ E2)
 - [ ] **S06** Cofree pairing mock: unfold_cofree + lazy co-signature + pairing — `ops/freer/steps/06-cofree-pairing.md` (dep: S05)
@@ -132,4 +132,9 @@ compiler evidence) before dispatching S03.
 | Step | Agent date | Commit | Gate result (per toolchain test counts) | Handoff |
 |------|-----------|--------|------------------------------------------|---------|
 | S00 | Sonnet 2026-07-11 | 88072d8 | gcc-16: 220/220 passed; clang-23: 220/220 passed | `ops/freer/handoffs/00-ground.handoff.md` |
+| S01 | Sonnet 2026-07-11 | f3f906c (+ lint fixup 1ccd967) | gcc-16: 223/223 passed; clang-23: 223/223 passed | `ops/freer/handoffs/01-baseline-gate.handoff.md` |
+| S02 | Sonnet 2026-07-11 | e8751c3 | gcc-16: 229/229 passed; clang-23: 229/229 passed | `ops/freer/handoffs/02-consuming-traversal.handoff.md` |
+| S03 | Sonnet 2026-07-11 | 9dc11fe | gcc-16: 245/245 passed; clang-23: 245/245 passed | `ops/freer/handoffs/03-signature-layer.handoff.md` |
+| S04 | Sonnet 2026-07-11 | 5921690 | gcc-16: 250/250 passed; clang-23: 250/250 passed | `ops/freer/handoffs/04-send-trace.handoff.md` |
+| S05 | Sonnet 2026-07-11 | d2ef54e | gcc-16: 254/254 passed; clang-23: 254/254 passed | `ops/freer/handoffs/05-rows.handoff.md` |
 | S07d | Sonnet 2026-07-11 | a5f406c | gcc-16: 222/222 passed; clang-23: 222/222 passed | `ops/freer/handoffs/07d-beman-deps.handoff.md` |

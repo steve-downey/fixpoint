@@ -267,6 +267,34 @@ needs only =pure=/=bind=, so this is a documented boundary, not a
 blocker. The S02 gate includes a deferred-invocation test run under
 the default Asan config to police exactly this class of bug.
 
+*Sharper boundary (S05 evidence, 2026-07-11 — DEV-S05-1).* The rule
+above is stronger than "derived ops only": =bind=/=mbind= /themselves/
+cannot carry a continuation that /owns/ a move-only value. Concretely,
+=FreeMonadImpl::bind='s consuming overload, when the right-hand side is
+a Roll, re-threads its =Fn= through a *non-=mutable=* inner closure
+(=[self, fn = …](auto&& child){ return self.bind(child, fn); }=), so
+=fn= is =const Fn&= one level down; because =.bind= is a single
+generic template body covering both the Pure-leaf and Roll branches,
+the recursive call /structurally/ instantiates =.bind='s own impure
+branch, which needs to *copy*-construct =Fn= again — and a continuation
+that owns a =one_shot= (move-only) has no copy constructor, so this
+hard-errors (=use of deleted one_shot(const one_shot&)=) *regardless of
+whether that branch is ever taken at runtime*. A =mutable= data member
+does not save it: the failure recurs one level deeper. Consequence:
+=mbind=/=bind= remain the right tool for composing /programs/ (the
+ordinary case — every continuation captures only copyable state), but
+any /infrastructure/ adaptor that reinterprets one operation and
+re-emits the rest — whose re-emitted continuation must own the original
+node's stored =one_shot= — must build the =impure_node=/=roll_free=
+*directly* (the literal aggregate-init shape =send= uses), never
+routing the move-only continuation through =mbind=/=bind=. This costs
+nothing FD6 didn't already imply: a single suspended Coyoneda node has
+no "second child" to recurse into (=layer_fmap= is O(1)
+post-composition, not a traversal), so =bind='s multi-child-fanout
+generality was never needed on this path. =discharge= (S05) is the
+worked example; the co-signature pairing (S06) and the S/R interpreter
+(S07) should expect the same wall and build nodes directly.
+
 Rationale beyond mechanics: one-shot continuations are exactly what
 the CPS translation of effect handlers requires (Hillerström, Lindley,
 Atkey, Sivaramakrishnan), and P2300 /structurally enforces/ them —
@@ -294,6 +322,25 @@ semantics does (interpretation, not inspection).
 Test gating consequence: the fixpoint test suite's equality-based
 assertions do not extend to Freer values; the Freer tests assert on
 =run(trace_handler, prog)= pairs.
+
+/Predicate caveat (S01, DEV-S01-1)./ "Not comparable" is an
+*instantiation* property, not a =std::equality_comparable= one. S01
+found — identically on gcc-16 and clang-23 — that
+=std::equality_comparable<Free<Sig::type, A>>= reports *true*: =Free='s
+hand-written non-template friend =operator=='s /declaration/ is visible
+the moment the class template is instantiated, and the concept only
+requires the /expression/ =a == b= to resolve to something
+=bool=-convertible; it never instantiates the friend's /body/.
+Actually naming =a == b= on such a value hard-errors inside that body
+(the impure layer's variant has no =operator===), exactly as FD3
+predicts — so the property that matters ("comparison is never
+instantiated unless called; no eager deleted-ness check fires") holds.
+The lesson for FD5-flavored test infrastructure (S04+): if a
+test-support header ever wants to *statically forbid* =`==`= on a
+=Freer= value, =std::equality_comparable= is the wrong predicate (it
+answers "is the call well-formed to write", not "would the body
+compile"); key such a guard on the layer's own (correctly-false)
+comparability instead.
 
 * FD6 — layer_fmap for the impure layer is closure post-composition
 
@@ -533,8 +580,9 @@ are disclosed in implementation notes, not hidden by the example.
 
 * FD11 — Layer-level typeclass registration
 
-*Status: open — decided by S01 evidence, decision owned by the
-orchestrator, not a worker agent.*
+*Status: decided (2026-07-11, D-A) — option (a), the constrained
+variable-template partial specialization. Resolved by the orchestrator
+from S01's probe evidence; see "Decision" below.*
 
 The problem (surfaced by the 2026-07-09 code audit): =layer_fmap='s
 implicit mode dispatches on
@@ -569,13 +617,53 @@ Candidate resolutions, in preference order:
   resort, only if (a) fails a baseline compiler and (b) proves
   unworkable.
 
-Whichever lands, the choice is recorded here with the compiler
-evidence attached.
+*Decision (D-A, 2026-07-11): option (a).* S01's probe (b) — a
+self-contained mock registry of exactly this shape (a constrained
+=inline constexpr auto probe_tc<T>= partial specialization keyed on a
+=concept probe_concept<T> = requires { typename T::…; }=) — was
+*accepted, identical on gcc-16 and clang-23*: the constrained
+specialization is selected for a type exposing the keyed nested
+typedef and the =std::false_type= primary wins for =int=. Probe (a)
+independently confirmed FD3's windfall: the existing
+=functor_typeclass<Free<F,A>>= / =monad_typeclass<Free<F,A>>=
+specializations already select for =Free<KVSig::type, int>= (member
+class template deducing as a template-template argument) with *zero*
+new registration — so nothing is (or, per the non-deduced-context
+problem, structurally *can be*) registered at the =Free<F,A>= level;
+only the /layer/-level instance is FD11's concern, and (a) supplies
+it.
+
+Why (a) over (b)/(c): the existing =layer_fmap= implicit mode, which
+both the const path and FD4's consuming =Free= =fmap=/=bind= (S02) call
+*without threading any instance*, dispatches on
+=functor_typeclass<remove_cvref_t<Layer>>=. Option (a) makes that
+implicit dispatch resolve to the generic Coyoneda instance with no
+call-site change anywhere — the whole existing =Free= monad stack maps
+a signature layer the moment its type is registered. Option (b)
+(registry bypass via modes 2/3) would require the consuming
+=fmap=/=bind= to additionally accept and forward an explicit instance,
+which they do not; it is retained only as the documented escape hatch
+for the interpreters (S06/S07), where an explicit instance is natural.
+Option (c) is rejected: it abandons FD3's member-template =signature::type=
+shape (chosen for P0522 portability) and duplicates it.
+
+*Binding constraint on S03:* the marker the concept keys on must be
+*Coyoneda-specific* — a dedicated tag typedef that only
+=signature<Ops...>::type<X>= exposes (e.g. a =coyoneda_signature=
+member naming the owning signature), *not* a generic name such as the
+probe's illustrative =recursive_position=. This keeps the constrained
+specialization from overlapping the =Free<F,A>= specialization or any
+house functor instance. The layer needs only a *Functor* instance (its
+=fmap= post-composes the continuation, FD6); the *Monad* is =Free= over
+it (windfall), so no layer-level =monad_typeclass= specialization is
+written.
 
 * FD12 — One-shot callable representation
 
-*Status: open — decided by S01 evidence, decision owned by the
-orchestrator.*
+*Status: decided (2026-07-11, D-B) — the bespoke =one_shot<Sig>=,
+adopted uniformly (not macro-gated). Resolved by the orchestrator from
+S00+S01 evidence via this section's own decision rule; see "Decision"
+below.*
 
 FD3 spells the continuation =std::move_only_function<Box<X>(R) &&>=.
 Two facts complicate that (code audit + CI matrix):
@@ -604,6 +692,45 @@ header on =__cpp_lib_move_only_function=; otherwise, or if
 divergences look expensive to babysit, take the bespoke type and
 record the probe results as the paper's implementation-experience
 evidence either way.
+
+*Decision (D-B, 2026-07-11): the bespoke =one_shot<Sig>=, uniformly.*
+Applying the rule above to the evidence: probe (c)
+(=std::movable && !std::copyable=, runtime move + resume through the
+=&&=-qualified =move_only_function=) was green and *identical* on both
+primary pins — but both are libstdc++-backed. S00's =DEV-S00-1=
+establishes that under =clang++-23 -stdlib=libc++= (libc++-23-dev),
+=std::move_only_function= is *not merely untagged by the feature-test
+macro — it is not declared at all* (=<version>='s
+=#define __cpp_lib_move_only_function= line is present but commented
+out, and the name is absent from =namespace std=). libc++ (and, by
+the same lineage, appleclang) is a row the CI matrix claims. So probe
+(c) is *not* green on every compiler the Freer layer will claim, and
+the rule takes the bespoke type.
+
+Note this is the doc's own pre-registered rule firing on the
+evidence, not a preference override: the macro-gated
+=std::move_only_function= path was rejected because it does not
+compile on a claimed row, and a *hybrid* (macro-gated fast path +
+bespoke fallback) was rejected as strictly more surface than the
+uniform bespoke type — the fallback must be written for libc++/
+appleclang regardless, so a second, macro-selected path only doubles
+the test matrix for a small-buffer-optimization win. Adopting
+=one_shot<Sig>= uniformly keeps *every* CI row (no compiler/stdlib row
+dropped — the orchestrator-escalation trip-wire is deliberately not
+crossed), carries the one-shot invariant *directly* (invoking consumes
+the target; a second call is a hard error, not a UB-adjacent
+moved-from call), and keeps the encoding inspectable for the paper.
+
+*Deliverable placement:* S03 delivers =one_shot<Sig>= (a small
+type-erased owning callable, call-consumes, mirroring =Box='s
+completeness-firewall role) as part of the signature layer, and the
+real =impure_node= stores =one_shot<Box<X>(typename Op::response)>= in
+place of the =std::move_only_function= the S01/S02 probes used
+locally. Reviving a =std::move_only_function= fast path where the
+macro is defined is recorded as a *future FD6-class optimization*,
+explicitly out of scope for the initial implementation. The S00/S01
+probe results stand as the paper's implementation-experience evidence
+for the portability gap either way.
 
 * Proposed S-step sequence
 
