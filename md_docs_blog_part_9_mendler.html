@@ -99,13 +99,13 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_9_mendler.html','');
   <div class="headertitle"><div class="title">part-9-mendler </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="org5aa7562"> </div><div class="abstract" id="org5aa7562"> Every scheme so far leaned on one hook: the Functor instance that maps the recursive call over a layer. Mendler-style recursion removes it. The algebra receives the recursive call itself as an argument and applies it where it chooses &amp;#x2014; no fmap, no typeclass lookup, no instance required. What it costs is a guarantee C++ cannot express. </div><div class="abstract" id="org5aa7562"></div><div class="abstract" id="org5aa7562"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="orge1c2dab"> </div><div class="abstract" id="orge1c2dab"> Every scheme so far leaned on one hook: the Functor instance that maps the recursive call over a layer. Mendler-style recursion removes it. The algebra receives the recursive call itself as an argument and applies it where it chooses &mdash; no fmap, no typeclass lookup, no instance required. What it costs is a guarantee C++ cannot express. </div><div class="abstract" id="orge1c2dab"></div><div class="abstract" id="orge1c2dab"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_8_dyna_chrono.html">Part 8 - Dynamorphisms and Chronomorphisms ←</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md105"></a>
 Inverting the Contract</h1>
-<p>A <code>fold_fix</code> algebra is passive: by the time it runs, <code>layer_fmap</code> has already folded every child, and the algebra sees only results. A Mendler algebra (Mendler, Nax Paul, 1991) is active: it receives the <em>unevaluated</em> layer &amp;#x2014; children still trees &amp;#x2014; plus the recursive call <code>recurse</code> as an explicit callable argument, and it decides which children to fold, in what order, or whether to fold them at all.</p>
+<p>A <code>fold_fix</code> algebra is passive: by the time it runs, <code>layer_fmap</code> has already folded every child, and the algebra sees only results. A Mendler algebra (Mendler, Nax Paul, 1991) is active: it receives the <em>unevaluated</em> layer &mdash; children still trees &mdash; plus the recursive call <code>recurse</code> as an explicit callable argument, and it decides which children to fold, in what order, or whether to fold them at all.</p>
 <p>The scheme shrinks accordingly. From <a href="../../src/smd/fixpoint/mendler.hpp"><code>src/smd/fixpoint/mendler.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MAlgebra&gt;</div>
@@ -116,24 +116,23 @@ Inverting the Contract</h1>
 <div class="line">    <span class="keywordflow">return</span> phi(recurse, unwrap_fix(tree));</div>
 <div class="line">}</div>
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
-</div><!-- fragment --><p>That is the whole of <code>mcata</code>: build the partially-applied recursive call, unwrap one layer, hand both to the algebra. No <code>layer_fmap</code> anywhere &amp;#x2014; which means <b>no <code>functor_typeclass</code> instance is ever looked up</b>. <code>mcata</code> compiles and runs over any base functor, instanced or not. For a one-off functor in a test, or a functor whose <code>fmap</code> would be awkward to state, that is the entire sales pitch.</p>
+</div><!-- fragment --><p>That is the whole of <code>mcata</code>: build the partially-applied recursive call, unwrap one layer, hand both to the algebra. No <code>layer_fmap</code> anywhere &mdash; which means <b>no <code>functor_typeclass</code> instance is ever looked up</b>. <code>mcata</code> compiles and runs over any base functor, instanced or not. For a one-off functor in a test, or a functor whose <code>fmap</code> would be awkward to state, that is the entire sales pitch.</p>
 <p>Evaluation, Mendler style, from <a href="../../src/examples/mendler_eval.cpp"><code>src/examples/mendler_eval.cpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="comment">// The Mendler algebra: (Recurse, const ExprF&lt;Expr&gt;&amp;) -&gt; int. `recurse` is</span></div>
 <div class="line"><span class="comment">// `mcata Φ` partially applied (const Expr&amp; -&gt; int) — closed over by mcata</span></div>
 <div class="line"><span class="comment">// itself, never named as a type (design §7.7&#39;s pitfall: keep it a plain</span></div>
 <div class="line"><span class="comment">// generic callable).</span></div>
 <div class="line"><span class="keyword">auto</span> eval_via_mcata = [](<span class="keyword">auto</span> recurse, <span class="keyword">const</span> <a class="code hl_typedef" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a3c4be46769dca02e2ac3024bf5ed2a60">ExprF&lt;Expr&gt;</a> &amp;layer) -&gt; <span class="keywordtype">int</span> {</div>
-<div class="line">    <span class="keywordflow">return</span> std::visit(</div>
-<div class="line">        <a class="code hl_struct" href="structoverloaded.html">overloaded</a>{</div>
-<div class="line">            [](<span class="keyword">const</span> <a class="code hl_struct" href="structConst.html">Const&lt;Expr&gt;</a> &amp;c) { <span class="keywordflow">return</span> c.val; },</div>
-<div class="line">            [&amp;](<span class="keyword">const</span> <a class="code hl_struct" href="structAdd.html">Add&lt;Expr&gt;</a> &amp;a) -&gt; <span class="keywordtype">int</span> {</div>
-<div class="line">                <span class="keywordflow">return</span> recurse(*a.left) + recurse(*a.right);</div>
-<div class="line">            },</div>
-<div class="line">            [&amp;](<span class="keyword">const</span> <a class="code hl_struct" href="structMul.html">Mul&lt;Expr&gt;</a> &amp;m) -&gt; <span class="keywordtype">int</span> {</div>
-<div class="line">                <span class="keywordflow">return</span> recurse(*m.left) * recurse(*m.right);</div>
-<div class="line">            },</div>
-<div class="line">        },</div>
-<div class="line">        layer);</div>
+<div class="line">    <span class="keywordflow">return</span> std::visit(<a class="code hl_struct" href="structoverloaded.html">overloaded</a>{</div>
+<div class="line">                          [](<span class="keyword">const</span> <a class="code hl_struct" href="structConst.html">Const&lt;Expr&gt;</a> &amp;c) { <span class="keywordflow">return</span> c.val; },</div>
+<div class="line">                          [&amp;](<span class="keyword">const</span> <a class="code hl_struct" href="structAdd.html">Add&lt;Expr&gt;</a> &amp;a) -&gt; <span class="keywordtype">int</span> {</div>
+<div class="line">                              <span class="keywordflow">return</span> recurse(*a.left) + recurse(*a.right);</div>
+<div class="line">                          },</div>
+<div class="line">                          [&amp;](<span class="keyword">const</span> <a class="code hl_struct" href="structMul.html">Mul&lt;Expr&gt;</a> &amp;m) -&gt; <span class="keywordtype">int</span> {</div>
+<div class="line">                              <span class="keywordflow">return</span> recurse(*m.left) * recurse(*m.right);</div>
+<div class="line">                          },</div>
+<div class="line">                      },</div>
+<div class="line">                      layer);</div>
 <div class="line">};</div>
 <div class="ttc" id="asmd_2fixpoint_2fixpoint__tree__example_8cpp_html_a3c4be46769dca02e2ac3024bf5ed2a60"><div class="ttname"><a href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a3c4be46769dca02e2ac3024bf5ed2a60">ExprF</a></div><div class="ttdeci">std::variant&lt; Const&lt; A &gt;, Add&lt; A &gt;, Mul&lt; A &gt; &gt; ExprF</div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:34</div></div>
 <div class="ttc" id="astructAdd_html"><div class="ttname"><a href="structAdd.html">Add</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:25</div></div>
@@ -146,7 +145,7 @@ What the Types No Longer Prove</h1>
 <p>The literature type of a Mendler algebra is rank-2 polymorphic:</p>
 <div class="fragment"><div class="line">mcata :: (forall y. (y -&gt; c) -&gt; f y -&gt; c) -&gt; Fix f -&gt; c</div>
 </div><!-- fragment --><p>That <code>forall y</code> is doing real work. The algebra receives an <code>f y</code> for an <em>abstract</em> <code>y</code> it knows nothing about; the only operation available on a child is the <code>y -&gt; c</code> it was handed. Termination and abstraction come out as theorems: the algebra <em>cannot</em> express anything with a child except folding it (Uustalu, Tarmo and Vene, Varmo, 1999).</p>
-<p>C++ has no rank-2 polymorphism, and the header is candid about the consequence: here the layer is concretely <code>ExprF&lt;Expr&gt;</code>, children are plain <code>Expr</code> values, and a mischievous algebra could ignore <code>recurse</code> and walk a child by hand with <code>unwrap_fix</code>. Nothing stops it. The guarantee decays into a discipline &amp;#x2014; "`recurse` is the only thing you may do with a child" &amp;#x2014; and the example's every branch observes it. This is the honest shape of the whole series' translation project: Haskell's types make illegal states unrepresentable; the C++ transcription sometimes only makes them unidiomatic, and the difference belongs in the documentation, not under the rug.</p>
+<p>C++ has no rank-2 polymorphism, and the header is candid about the consequence: here the layer is concretely <code>ExprF&lt;Expr&gt;</code>, children are plain <code>Expr</code> values, and a mischievous algebra could ignore <code>recurse</code> and walk a child by hand with <code>unwrap_fix</code>. Nothing stops it. The guarantee decays into a discipline &mdash; "`recurse` is the only thing you may do with a child" &mdash; and the example's every branch observes it. This is the honest shape of the whole series' translation project: Haskell's types make illegal states unrepresentable; the C++ transcription sometimes only makes them unidiomatic, and the difference belongs in the documentation, not under the rug.</p>
 <h1><a class="anchor" id="autotoc_md107"></a>
 mhisto: History Without the Annotation</h1>
 <p>The course-of-values variant adds one more callable:</p>
@@ -162,10 +161,10 @@ mhisto: History Without the Annotation</h1>
 <div class="line">    <span class="keywordflow">return</span> phi(recurse, unroll, <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a49bcc722105256f83f930876d61e8897">unwrap_fix</a>(tree));</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a49bcc722105256f83f930876d61e8897"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a49bcc722105256f83f930876d61e8897">smd::fixpoint::unwrap_fix</a></div><div class="ttdeci">constexpr auto unwrap_fix(const Fix&lt; F &gt; &amp;fixed) -&gt; const F&lt; Fix&lt; F &gt; &gt; &amp;</div><div class="ttdef"><b>Definition:</b> fix.hpp:34</div></div>
-</div><!-- fragment --><p><code>unroll</code> is just <code>unwrap_fix</code>, passed in as an argument: the algebra may peel layers off any child <em>without</em> committing to fold it. Look back at what Part 7's <code>histo</code> had to build &amp;#x2014; a full <code>Cofree</code> annotation of every node, deep copies and all &amp;#x2014; to give its algebra history. <code>mhisto</code> gets the same expressive power by lending the algebra a flashlight instead of photocopying the archive: the "history" is the tree itself, read on demand. The trade is memoization: histo's <code>Cofree</code> head at each node is computed once; an <code>mhisto</code> algebra that re-recurses into the same child pays each time. Coin change wants histo; a scheme that peeks one layer ahead wants <code>mhisto</code>.</p>
+</div><!-- fragment --><p><code>unroll</code> is just <code>unwrap_fix</code>, passed in as an argument: the algebra may peel layers off any child <em>without</em> committing to fold it. Look back at what Part 7's <code>histo</code> had to build &mdash; a full <code>Cofree</code> annotation of every node, deep copies and all &mdash; to give its algebra history. <code>mhisto</code> gets the same expressive power by lending the algebra a flashlight instead of photocopying the archive: the "history" is the tree itself, read on demand. The trade is memoization: histo's <code>Cofree</code> head at each node is computed once; an <code>mhisto</code> algebra that re-recurses into the same child pays each time. Coin change wants histo; a scheme that peeks one layer ahead wants <code>mhisto</code>.</p>
 <h1><a class="anchor" id="autotoc_md108"></a>
 Where This Sits in the Catalog</h1>
-<p>Mendler style is the catalog's control group. Every other fold in this series is <code>gcata</code> at some comonad &amp;#x2014; that is Part 11's theorem &amp;#x2014; but <code>mcata</code> stands outside the theorem, because it never engages the functor machinery the theorem quantifies over. It is what recursion looks like when you strip the framework to bare metal: one knot-tying type, one partially-applied recursive call, and an algebra trusted to use it. Kmett's library ships the same pair under the same names (Kmett, Edward, 2011), and for the same reason: sometimes the instance is the expensive part.</p>
+<p>Mendler style is the catalog's control group. Every other fold in this series is <code>gcata</code> at some comonad &mdash; that is Part 11's theorem &mdash; but <code>mcata</code> stands outside the theorem, because it never engages the functor machinery the theorem quantifies over. It is what recursion looks like when you strip the framework to bare metal: one knot-tying type, one partially-applied recursive call, and an algebra trusted to use it. Kmett's library ships the same pair under the same names (Kmett, Edward, 2011), and for the same reason: sometimes the instance is the expensive part.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_10_elgot.html">Next: Part 10 - Elgot Algebras →</a></p>
 <p>&lt;/nav&gt;</p>
@@ -173,7 +172,7 @@ Where This Sits in the Catalog</h1>
 References</h1>
 <p>Mendler, Nax Paul (1991). <b>Inductive Types and Type Constraints in the Second-Order Lambda Calculus</b>, Annals of Pure and Applied Logic 51.</p>
 <p>Uustalu, Tarmo and Vene, Varmo (1999). <b>Mendler-style Inductive Types, Categorically</b>, Nordic Journal of Computing 6(3).</p>
-<p>Kmett, Edward (2011&amp;#x2013;). <b>recursion-schemes</b>, Hackage, <a href="https://hackage.haskell.org/package/recursion-schemes">https://hackage.haskell.org/package/recursion-schemes</a>. </p>
+<p>Kmett, Edward (2011&ndash;). <b>recursion-schemes</b>, Hackage, <a href="https://hackage.haskell.org/package/recursion-schemes">https://hackage.haskell.org/package/recursion-schemes</a>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

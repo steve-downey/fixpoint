@@ -168,63 +168,69 @@ var NAVTREE =
       [ "Where This Sits in the Catalog", "md_docs_blog_part_9_mendler.html#autotoc_md108", null ],
       [ "References", "md_docs_blog_part_9_mendler.html#autotoc_md109", null ]
     ] ],
+    [ "Follow-up: ill-formed overload pair in <tt>Box::operator*()</tt>", "md_docs_notes_box_ref_qualifier_bug.html", [
+      [ "Problem", "md_docs_notes_box_ref_qualifier_bug.html#autotoc_md111", null ],
+      [ "Where this was found", "md_docs_notes_box_ref_qualifier_bug.html#autotoc_md112", null ],
+      [ "Suggested fix", "md_docs_notes_box_ref_qualifier_bug.html#autotoc_md113", null ],
+      [ "Scope check", "md_docs_notes_box_ref_qualifier_bug.html#autotoc_md114", null ]
+    ] ],
     [ "Recursion Schemes for smd::fixpoint — Design", "md_docs_recursion_schemes_design.html", [
-      [ "§1 Purpose and scope", "md_docs_recursion_schemes_design.html#autotoc_md111", null ],
-      [ "§2 Ground: what already exists", "md_docs_recursion_schemes_design.html#autotoc_md112", null ],
-      [ "§3 Decisions log", "md_docs_recursion_schemes_design.html#autotoc_md113", null ],
-      [ "§4 Core conventions", "md_docs_recursion_schemes_design.html#autotoc_md114", null ],
-      [ "§5 Supporting types", "md_docs_recursion_schemes_design.html#autotoc_md115", [
-        [ "§5.1 Identity (smd/typeclass/identity.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md116", null ],
-        [ "§5.2 either (smd/typeclass/either.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md117", null ],
-        [ "§5.3 Cofree comonad (src/smd/fixpoint/cofree.hpp, S07)", "md_docs_recursion_schemes_design.html#autotoc_md118", null ],
-        [ "§5.4 Free monad (src/smd/fixpoint/free.hpp, S08)", "md_docs_recursion_schemes_design.html#autotoc_md119", null ]
+      [ "§1 Purpose and scope", "md_docs_recursion_schemes_design.html#autotoc_md116", null ],
+      [ "§2 Ground: what already exists", "md_docs_recursion_schemes_design.html#autotoc_md117", null ],
+      [ "§3 Decisions log", "md_docs_recursion_schemes_design.html#autotoc_md118", null ],
+      [ "§4 Core conventions", "md_docs_recursion_schemes_design.html#autotoc_md119", null ],
+      [ "§5 Supporting types", "md_docs_recursion_schemes_design.html#autotoc_md120", [
+        [ "§5.1 Identity (smd/typeclass/identity.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md121", null ],
+        [ "§5.2 either (smd/typeclass/either.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md122", null ],
+        [ "§5.3 Cofree comonad (src/smd/fixpoint/cofree.hpp, S07)", "md_docs_recursion_schemes_design.html#autotoc_md123", null ],
+        [ "§5.4 Free monad (src/smd/fixpoint/free.hpp, S08)", "md_docs_recursion_schemes_design.html#autotoc_md124", null ]
       ] ],
-      [ "§6 Typeclass extensions", "md_docs_recursion_schemes_design.html#autotoc_md120", [
-        [ "§6.1 functor_typeclass instances for base functors (S01/S02)", "md_docs_recursion_schemes_design.html#autotoc_md121", null ],
-        [ "§6.2 Lookup-based scheme overloads (S01)", "md_docs_recursion_schemes_design.html#autotoc_md122", null ],
-        [ "§6.3 Comonad typeclass (smd/typeclass/comonad.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md123", null ],
-        [ "§6.4 Instance/spec summary table", "md_docs_recursion_schemes_design.html#autotoc_md124", null ]
+      [ "§6 Typeclass extensions", "md_docs_recursion_schemes_design.html#autotoc_md125", [
+        [ "§6.1 functor_typeclass instances for base functors (S01/S02)", "md_docs_recursion_schemes_design.html#autotoc_md126", null ],
+        [ "§6.2 Lookup-based scheme overloads (S01)", "md_docs_recursion_schemes_design.html#autotoc_md127", null ],
+        [ "§6.3 Comonad typeclass (smd/typeclass/comonad.hpp, S03)", "md_docs_recursion_schemes_design.html#autotoc_md128", null ],
+        [ "§6.4 Instance/spec summary table", "md_docs_recursion_schemes_design.html#autotoc_md129", null ]
       ] ],
-      [ "§7 Scheme catalog", "md_docs_recursion_schemes_design.html#autotoc_md125", [
-        [ "§7.1 Classical recap (existing; S01 adds lookup overloads)", "md_docs_recursion_schemes_design.html#autotoc_md126", null ],
-        [ "§7.2 para and apo (S04) — para.hpp, apo.hpp", "md_docs_recursion_schemes_design.html#autotoc_md127", null ],
-        [ "§7.3 zygo and mutu (S05) — zygo.hpp, mutu.hpp", "md_docs_recursion_schemes_design.html#autotoc_md128", null ],
-        [ "§7.4 hoist, prepro, postpro (S06) — prepro.hpp", "md_docs_recursion_schemes_design.html#autotoc_md129", null ],
-        [ "§7.5 histo and futu (S07, S08) — cofree.hpp+histo.hpp, free.hpp+futu.hpp", "md_docs_recursion_schemes_design.html#autotoc_md130", null ],
-        [ "§7.6 dyna, codyna, chrono (S09) — chrono.hpp", "md_docs_recursion_schemes_design.html#autotoc_md131", null ],
-        [ "§7.7 Mendler-style: mcata, mhisto (S10) — mendler.hpp", "md_docs_recursion_schemes_design.html#autotoc_md132", null ],
-        [ "§7.8 Elgot (co)algebras (S11) — elgot.hpp", "md_docs_recursion_schemes_design.html#autotoc_md133", null ],
-        [ "§7.9 Distributive laws (S12) — dist_laws.hpp", "md_docs_recursion_schemes_design.html#autotoc_md134", null ],
-        [ "§7.10 gcata, gana, ghylo (S13, S14) — generalized.hpp", "md_docs_recursion_schemes_design.html#autotoc_md135", null ],
-        [ "§7.11 gprepro, gpostpro, zygo_histo_prepro (S15)", "md_docs_recursion_schemes_design.html#autotoc_md136", null ]
+      [ "§7 Scheme catalog", "md_docs_recursion_schemes_design.html#autotoc_md130", [
+        [ "§7.1 Classical recap (existing; S01 adds lookup overloads)", "md_docs_recursion_schemes_design.html#autotoc_md131", null ],
+        [ "§7.2 para and apo (S04) — para.hpp, apo.hpp", "md_docs_recursion_schemes_design.html#autotoc_md132", null ],
+        [ "§7.3 zygo and mutu (S05) — zygo.hpp, mutu.hpp", "md_docs_recursion_schemes_design.html#autotoc_md133", null ],
+        [ "§7.4 hoist, prepro, postpro (S06) — prepro.hpp", "md_docs_recursion_schemes_design.html#autotoc_md134", null ],
+        [ "§7.5 histo and futu (S07, S08) — cofree.hpp+histo.hpp, free.hpp+futu.hpp", "md_docs_recursion_schemes_design.html#autotoc_md135", null ],
+        [ "§7.6 dyna, codyna, chrono (S09) — chrono.hpp", "md_docs_recursion_schemes_design.html#autotoc_md136", null ],
+        [ "§7.7 Mendler-style: mcata, mhisto (S10) — mendler.hpp", "md_docs_recursion_schemes_design.html#autotoc_md137", null ],
+        [ "§7.8 Elgot (co)algebras (S11) — elgot.hpp", "md_docs_recursion_schemes_design.html#autotoc_md138", null ],
+        [ "§7.9 Distributive laws (S12) — dist_laws.hpp", "md_docs_recursion_schemes_design.html#autotoc_md139", null ],
+        [ "§7.10 gcata, gana, ghylo (S13, S14) — generalized.hpp", "md_docs_recursion_schemes_design.html#autotoc_md140", null ],
+        [ "§7.11 gprepro, gpostpro, zygo_histo_prepro (S15)", "md_docs_recursion_schemes_design.html#autotoc_md141", null ]
       ] ],
-      [ "§8 File and target layout", "md_docs_recursion_schemes_design.html#autotoc_md137", null ],
-      [ "§9 Testing strategy — the equivalence-law suite", "md_docs_recursion_schemes_design.html#autotoc_md138", null ],
-      [ "§10 Examples catalog (src/examples/)", "md_docs_recursion_schemes_design.html#autotoc_md139", null ],
-      [ "§11 Non-goals", "md_docs_recursion_schemes_design.html#autotoc_md140", null ]
+      [ "§8 File and target layout", "md_docs_recursion_schemes_design.html#autotoc_md142", null ],
+      [ "§9 Testing strategy — the equivalence-law suite", "md_docs_recursion_schemes_design.html#autotoc_md143", null ],
+      [ "§10 Examples catalog (src/examples/)", "md_docs_recursion_schemes_design.html#autotoc_md144", null ],
+      [ "§11 Non-goals", "md_docs_recursion_schemes_design.html#autotoc_md145", null ]
     ] ],
     [ "Recursion schemes — usage catalog", "md_docs_recursion_schemes.html", [
-      [ "§7.1 The classical recap — <tt>fold_fix</tt>, <tt>unfold_fix</tt>, <tt>refold</tt>", "md_docs_recursion_schemes.html#autotoc_md143", null ],
-      [ "§7.2 <tt>para</tt> and <tt>apo</tt> — Fokkinga's classical extensions", "md_docs_recursion_schemes.html#autotoc_md145", [
-        [ "para", "md_docs_recursion_schemes.html#autotoc_md146", null ],
-        [ "apo", "md_docs_recursion_schemes.html#autotoc_md147", null ]
+      [ "§7.1 The classical recap — <tt>fold_fix</tt>, <tt>unfold_fix</tt>, <tt>refold</tt>", "md_docs_recursion_schemes.html#autotoc_md148", null ],
+      [ "§7.2 <tt>para</tt> and <tt>apo</tt> — Fokkinga's classical extensions", "md_docs_recursion_schemes.html#autotoc_md150", [
+        [ "para", "md_docs_recursion_schemes.html#autotoc_md151", null ],
+        [ "apo", "md_docs_recursion_schemes.html#autotoc_md152", null ]
       ] ],
-      [ "§7.3 <tt>zygo</tt> and <tt>mutu</tt> — auxiliary and mutual folds", "md_docs_recursion_schemes.html#autotoc_md149", [
-        [ "zygo", "md_docs_recursion_schemes.html#autotoc_md150", null ],
-        [ "mutu", "md_docs_recursion_schemes.html#autotoc_md151", null ]
+      [ "§7.3 <tt>zygo</tt> and <tt>mutu</tt> — auxiliary and mutual folds", "md_docs_recursion_schemes.html#autotoc_md154", [
+        [ "zygo", "md_docs_recursion_schemes.html#autotoc_md155", null ],
+        [ "mutu", "md_docs_recursion_schemes.html#autotoc_md156", null ]
       ] ],
-      [ "§7.4 <tt>hoist</tt>, <tt>prepro</tt>, <tt>postpro</tt> — natural-transformation plumbing", "md_docs_recursion_schemes.html#autotoc_md153", null ],
-      [ "§7.5 <tt>histo</tt> and <tt>futu</tt> — course-of-values (co)recursion", "md_docs_recursion_schemes.html#autotoc_md155", [
-        [ "histo", "md_docs_recursion_schemes.html#autotoc_md156", null ],
-        [ "futu", "md_docs_recursion_schemes.html#autotoc_md157", null ]
+      [ "§7.4 <tt>hoist</tt>, <tt>prepro</tt>, <tt>postpro</tt> — natural-transformation plumbing", "md_docs_recursion_schemes.html#autotoc_md158", null ],
+      [ "§7.5 <tt>histo</tt> and <tt>futu</tt> — course-of-values (co)recursion", "md_docs_recursion_schemes.html#autotoc_md160", [
+        [ "histo", "md_docs_recursion_schemes.html#autotoc_md161", null ],
+        [ "futu", "md_docs_recursion_schemes.html#autotoc_md162", null ]
       ] ],
-      [ "§7.6 <tt>dyna</tt>, <tt>codyna</tt>, <tt>chrono</tt> — fused course-of-values refolds", "md_docs_recursion_schemes.html#autotoc_md159", null ],
-      [ "§7.7 Mendler-style <tt>mcata</tt> and <tt>mhisto</tt>", "md_docs_recursion_schemes.html#autotoc_md161", null ],
-      [ "§7.8 Elgot (co)algebras — <tt>elgot</tt> and <tt>coelgot</tt>", "md_docs_recursion_schemes.html#autotoc_md163", null ],
-      [ "§7.9 Distributive laws", "md_docs_recursion_schemes.html#autotoc_md165", null ],
-      [ "§7.10 <tt>gcata</tt>, <tt>gana</tt>, <tt>ghylo</tt> — comonadic/monadic generalizations", "md_docs_recursion_schemes.html#autotoc_md167", null ],
-      [ "§7.11 <tt>gprepro</tt>, <tt>gpostpro</tt>, <tt>zygo_histo_prepro</tt> — the capstone", "md_docs_recursion_schemes.html#autotoc_md169", null ],
-      [ "Supporting types", "md_docs_recursion_schemes.html#autotoc_md171", null ]
+      [ "§7.6 <tt>dyna</tt>, <tt>codyna</tt>, <tt>chrono</tt> — fused course-of-values refolds", "md_docs_recursion_schemes.html#autotoc_md164", null ],
+      [ "§7.7 Mendler-style <tt>mcata</tt> and <tt>mhisto</tt>", "md_docs_recursion_schemes.html#autotoc_md166", null ],
+      [ "§7.8 Elgot (co)algebras — <tt>elgot</tt> and <tt>coelgot</tt>", "md_docs_recursion_schemes.html#autotoc_md168", null ],
+      [ "§7.9 Distributive laws", "md_docs_recursion_schemes.html#autotoc_md170", null ],
+      [ "§7.10 <tt>gcata</tt>, <tt>gana</tt>, <tt>ghylo</tt> — comonadic/monadic generalizations", "md_docs_recursion_schemes.html#autotoc_md172", null ],
+      [ "§7.11 <tt>gprepro</tt>, <tt>gpostpro</tt>, <tt>zygo_histo_prepro</tt> — the capstone", "md_docs_recursion_schemes.html#autotoc_md174", null ],
+      [ "Supporting types", "md_docs_recursion_schemes.html#autotoc_md176", null ]
     ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -262,16 +268,16 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"fmap_8t_8cpp.html#a054748e5e03121eb22400ea90da319a7",
-"functors_8hpp.html#af87544fd5fbad43b7d6937e445c79dd3",
-"md_docs_blog_part_13_conclusion.html#autotoc_md54",
-"namespaceanonymous__namespace_02free_8t_8cpp_03.html#a349ab364945e84fc2c4958f8a95aaff8",
-"namespacemembers_p.html",
-"recursion__schemes_8t_8cpp.html",
-"structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Put.html#a8b1d2afc3dd2ae4763f271d9e170ed0b",
-"structsmd_1_1fixpoint_1_1dist__gapo__t.html#af087ec23a77d5170175ac7c71b4f99db",
-"structsmd_1_1typeclass_1_1Foldable.html#acc0f067180a8d4d9d3a347558c7716e0",
-"structsmd_1_1typeclass_1_1Right.html#a8d61d95e3e6fac20a624aa2036bbe200"
+"fmap_8t_8cpp.html",
+"functors_8hpp.html#ad72bfad0c754b5f5fb774754ea10e4a5",
+"md_docs_blog_part_13_conclusion.html#autotoc_md53",
+"namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#ac7828e2560632ea02f8ebc8e789d669d",
+"namespacemembers_j.html",
+"recursion__schemes_8hpp.html#ad76f03819f614acf5e7d4a026d205f52",
+"structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Get.html#a6edcc42c289f10a4ec979b240ec0826b",
+"structsmd_1_1fixpoint_1_1dist__futu__t.html#a6a0fcb7580b2864eea1435f854788aed",
+"structsmd_1_1typeclass_1_1Foldable.html#a9fd8e9522ed441d572d09d80661fd651",
+"structsmd_1_1typeclass_1_1PairFunctorMap.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

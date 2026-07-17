@@ -99,14 +99,14 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_10_elgot.html',''); 
   <div class="headertitle"><div class="title">part-10-elgot </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="org502e202"> </div><div class="abstract" id="org502e202"> Multiply a list of integers. The instant you see a zero, the answer is zero &amp;#x2014; so why examine the rest? A hylomorphism has no way to say "stop
-generating"; an Elgot algebra gives the coalgebra exactly that veto, and its dual gives the algebra the seed that produced each layer. </div><div class="abstract" id="org502e202"></div><div class="abstract" id="org502e202"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="orga6ca192"> </div><div class="abstract" id="orga6ca192"> Multiply a list of integers. The instant you see a zero, the answer is zero &mdash; so why examine the rest? A hylomorphism has no way to say "stop
+generating"; an Elgot algebra gives the coalgebra exactly that veto, and its dual gives the algebra the seed that produced each layer. </div><div class="abstract" id="orga6ca192"></div><div class="abstract" id="orga6ca192"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_9_mendler.html">Part 9 - Mendler Style ←</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md38"></a>
 elgot: The Coalgebra's Veto</h1>
-<p><code>refold</code>'s coalgebra must always answer with a layer; the recursion stops only when a layer has no children. An Elgot coalgebra (Elgot, Calvin C., 1975) (Ad{\'a}mek, Ji{\v r}{\'\i} and Milius, Stefan and Velebil, Ji{\v r}{\'\i}, 2006) answers with an <code>either</code>: <b>Left, a finished result &amp;#x2014; stop here, fold nothing below</b>; <b>Right, one more layer &amp;#x2014; continue</b>. Part 4's convention, doing hylomorphism duty. From <a href="../../src/smd/fixpoint/elgot.hpp"><code>src/smd/fixpoint/elgot.hpp</code></a>:</p>
+<p><code>refold</code>'s coalgebra must always answer with a layer; the recursion stops only when a layer has no children. An Elgot coalgebra (Elgot, Calvin C., 1975) (Ad{\'a}mek, Ji{\v r}{\'\i} and Milius, Stefan and Velebil, Ji{\v r}{\'\i}, 2006) answers with an <code>either</code>: <b>Left, a finished result &mdash; stop here, fold nothing below</b>; <b>Right, one more layer &mdash; continue</b>. Part 4's convention, doing hylomorphism duty. From <a href="../../src/smd/fixpoint/elgot.hpp"><code>src/smd/fixpoint/elgot.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra,</div>
 <div class="line">          <span class="keyword">class </span>Coalgebra, <span class="keyword">class </span>Seed&gt;</div>
@@ -114,8 +114,7 @@ elgot: The Coalgebra's Veto</h1>
 <div class="line">                     <span class="keyword">const</span> Seed &amp;seed) -&gt; Result {</div>
 <div class="line">    <span class="keyword">auto</span> step = coalgebra(seed);</div>
 <div class="line">    <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1typeclass.html#ac720edac69885cbecb44e3921643abd0">smd::typeclass::match</a>(</div>
-<div class="line">        step,</div>
-<div class="line">        [](<span class="keyword">const</span> Result &amp;answer) -&gt; Result { <span class="keywordflow">return</span> answer; },</div>
+<div class="line">        step, [](<span class="keyword">const</span> Result &amp;answer) -&gt; Result { <span class="keywordflow">return</span> answer; },</div>
 <div class="line">        [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;layer) -&gt; Result {</div>
 <div class="line">            <span class="keyword">auto</span> evaluated = layer_fmap(</div>
 <div class="line">                [&amp;](<span class="keyword">const</span> Seed &amp;child) -&gt; Result {</div>
@@ -126,14 +125,13 @@ elgot: The Coalgebra's Veto</h1>
 <div class="line">        });</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1typeclass_html_ac720edac69885cbecb44e3921643abd0"><div class="ttname"><a href="namespacesmd_1_1typeclass.html#ac720edac69885cbecb44e3921643abd0">smd::typeclass::match</a></div><div class="ttdeci">constexpr auto match(const either&lt; L, R &gt; &amp;e, OnLeft &amp;&amp;on_left, OnRight &amp;&amp;on_right)</div><div class="ttdef"><b>Definition:</b> either.hpp:216</div></div>
-</div><!-- fragment --><p><code>refold</code> with a <code>match</code> wrapped around the step: Left returns the answer directly &amp;#x2014; note that the algebra is never called, not even once, if the <em>first</em> seed short-circuits; Right proceeds exactly as <code>refold</code> would.</p>
+</div><!-- fragment --><p><code>refold</code> with a <code>match</code> wrapped around the step: Left returns the answer directly &mdash; note that the algebra is never called, not even once, if the <em>first</em> seed short-circuits; Right proceeds exactly as <code>refold</code> would.</p>
 <p>The example is the zero-in-a-product bailout, from <a href="../../src/examples/elgot_shortcircuit.cpp"><code>src/examples/elgot_shortcircuit.cpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> <a class="code hl_function" href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
 <div class="line">    std::vector&lt;int&gt; values{4, 3, 0, 5, 9, 2};</div>
 <div class="line"> </div>
 <div class="line">    std::size_t examined = 0;</div>
-<div class="line">    <span class="keyword">auto</span> coalgebra = [&amp;](std::size_t i)</div>
-<div class="line">                         -&gt; either&lt;<span class="keywordtype">int</span>, IntListF&lt;std::size_t&gt;&gt; {</div>
+<div class="line">    <span class="keyword">auto</span> coalgebra = [&amp;](std::size_t i) -&gt; either&lt;<span class="keywordtype">int</span>, IntListF&lt;std::size_t&gt;&gt; {</div>
 <div class="line">        ++examined;</div>
 <div class="line">        <span class="keywordflow">if</span> (i &gt;= values.size()) {</div>
 <div class="line">            <span class="keywordflow">return</span> make_right&lt;int&gt;(IntListF&lt;std::size_t&gt;{Nil&lt;int&gt;{}});</div>
@@ -141,12 +139,12 @@ elgot: The Coalgebra's Veto</h1>
 <div class="line">        <span class="keywordflow">if</span> (values[i] == 0) {</div>
 <div class="line">            <span class="keywordflow">return</span> make_left&lt;IntListF&lt;std::size_t&gt;&gt;(0);</div>
 <div class="line">        }</div>
-<div class="line">        <span class="keywordflow">return</span> make_right&lt;int&gt;(IntListF&lt;std::size_t&gt;{Cons&lt;int, std::size_t&gt;{</div>
-<div class="line">            values[i], make_box&lt;std::size_t&gt;(i + 1)}});</div>
+<div class="line">        <span class="keywordflow">return</span> make_right&lt;int&gt;(IntListF&lt;std::size_t&gt;{</div>
+<div class="line">            Cons&lt;int, std::size_t&gt;{values[i], make_box&lt;std::size_t&gt;(i + 1)}});</div>
 <div class="line">    };</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordtype">int</span> product = elgot&lt;int, IntListF&gt;(product_algebra, coalgebra,</div>
-<div class="line">                                       std::size_t{0});</div>
+<div class="line">    <span class="keywordtype">int</span> product =</div>
+<div class="line">        elgot&lt;int, IntListF&gt;(product_algebra, coalgebra, std::size_t{0});</div>
 <div class="line"> </div>
 <div class="line">    std::println(<span class="stringliteral">&quot;values: {} elements&quot;</span>, values.size());</div>
 <div class="line">    std::println(<span class="stringliteral">&quot;product (bails out at the first 0): {}&quot;</span>, product);</div>
@@ -157,7 +155,7 @@ elgot: The Coalgebra's Veto</h1>
 <div class="fragment"><div class="line">values: 6 elements</div>
 <div class="line">product (bails out at the first 0): 0</div>
 <div class="line">elements examined: 3 / 6</div>
-</div><!-- fragment --><p>The examined-count is not decoration &amp;#x2014; it is the <em>only</em> observable evidence of the short-circuit. The product alone proves nothing: multiplying by zero swallows whether the tail was visited. The header makes the same point about testing, and it generalizes: a plausible off-by-one &amp;#x2014; expand one extra layer, then discard it &amp;#x2014; still gets every numeric answer right, so the test suite counts coalgebra invocations instead of trusting outputs. When a scheme's contract is about <em>work avoided</em>, test the work, not the answer.</p>
+</div><!-- fragment --><p>The examined-count is not decoration &mdash; it is the <em>only</em> observable evidence of the short-circuit. The product alone proves nothing: multiplying by zero swallows whether the tail was visited. The header makes the same point about testing, and it generalizes: a plausible off-by-one &mdash; expand one extra layer, then discard it &mdash; still gets every numeric answer right, so the test suite counts coalgebra invocations instead of trusting outputs. When a scheme's contract is about <em>work avoided</em>, test the work, not the answer.</p>
 <h1><a class="anchor" id="autotoc_md39"></a>
 coelgot: The Algebra Gets the Seed</h1>
 <p>Dualize once more. Where <code>elgot</code> strengthens the coalgebra, <code>coelgot</code> strengthens the algebra: alongside the already-folded children, it receives <em>the seed that produced the current layer</em>:</p>
@@ -174,8 +172,8 @@ coelgot: The Algebra Gets the Seed</h1>
 <div class="line">        layer);</div>
 <div class="line">    <span class="keywordflow">return</span> algebra(seed, evaluated);</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>No short-circuit here &amp;#x2014; the extra power is context, not control. It is <code>para</code>'s move transplanted to hylomorphisms: <code>para</code>'s algebra saw the original subtree next to each result; <code>coelgot</code>'s sees the original <em>seed</em> next to the folded layer, in a refold where no subtree ever exists to show.</p>
-<p>One implementation note earns its comment: <code>coalgebra(seed)</code> is bound to a local before the <code>fmap</code>. A careless transcription that calls <code>psi</code> twice &amp;#x2014; once to build the layer, once inside the fold &amp;#x2014; would be invisible to every test with a pure coalgebra and would silently double the cost, and the side effects, of an impure one. The elgot/coelgot pair is small; the discipline in the comments is most of its value.</p>
+</div><!-- fragment --><p>No short-circuit here &mdash; the extra power is context, not control. It is <code>para</code>'s move transplanted to hylomorphisms: <code>para</code>'s algebra saw the original subtree next to each result; <code>coelgot</code>'s sees the original <em>seed</em> next to the folded layer, in a refold where no subtree ever exists to show.</p>
+<p>One implementation note earns its comment: <code>coalgebra(seed)</code> is bound to a local before the <code>fmap</code>. A careless transcription that calls <code>psi</code> twice &mdash; once to build the layer, once inside the fold &mdash; would be invisible to every test with a pure coalgebra and would silently double the cost, and the side effects, of an impure one. The elgot/coelgot pair is small; the discipline in the comments is most of its value.</p>
 <h1><a class="anchor" id="autotoc_md40"></a>
 The Pattern Completing</h1>
 <p>Count the extra-power moves the catalog has made:</p>
@@ -183,7 +181,7 @@ The Pattern Completing</h1>
 <li>give the <b>algebra</b> more input: para (subtree), zygo (helper), histo (history), coelgot (seed);</li>
 <li>give the <b>coalgebra</b> more output: apo (graft-or-seed), futu (chunk), elgot (answer-or-layer).</li>
 </ul>
-<p>Every one is "same three-line worker, richer type at one position", and each side's riches line up with the other's &amp;#x2014; products and annotations feeding algebras, sums and chunks flowing from coalgebras. The catalog is complete except for the reveal: Part 11 shows the one construction all the algebra-side schemes are instances of, the one all the coalgebra-side schemes are instances of, and the single moving part &amp;#x2014; a distributive law &amp;#x2014; that selects among them.</p>
+<p>Every one is "same three-line worker, richer type at one position", and each side's riches line up with the other's &mdash; products and annotations feeding algebras, sums and chunks flowing from coalgebras. The catalog is complete except for the reveal: Part 11 shows the one construction all the algebra-side schemes are instances of, the one all the coalgebra-side schemes are instances of, and the single moving part &mdash; a distributive law &mdash; that selects among them.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_11_generalized.html">Next: Part 11 - Distributive Laws and the Generalized Schemes →</a></p>
 <p>&lt;/nav&gt;</p>

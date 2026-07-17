@@ -99,13 +99,13 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_4_para_apo.html','')
   <div class="headertitle"><div class="title">part-4-para-apo </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="org2df3883"> </div><div class="abstract" id="org2df3883"> A fold that can still see the tree it is consuming, and an unfold that can stop expanding and graft a finished subtree in place. Paramorphism and apomorphism are the first proper duals in the catalog, and their carriers &amp;#x2014; <code>std::pair</code> and a project <code>either</code> &amp;#x2014; are the product and coproduct the rest of the series is built from. </div><div class="abstract" id="org2df3883"></div><div class="abstract" id="org2df3883"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="org5b3dbf8"> </div><div class="abstract" id="org5b3dbf8"> A fold that can still see the tree it is consuming, and an unfold that can stop expanding and graft a finished subtree in place. Paramorphism and apomorphism are the first proper duals in the catalog, and their carriers &mdash; <code>std::pair</code> and a project <code>either</code> &mdash; are the product and coproduct the rest of the series is built from. </div><div class="abstract" id="org5b3dbf8"></div><div class="abstract" id="org5b3dbf8"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_3_classical.html">Part 3 - Fold, Unfold, Refold ←</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md70"></a>
 para: A Fold That Remembers the Original</h1>
-<p><code>fold_fix</code> has amnesia by design. By the time the algebra sees an <code><a class="el" href="structAdd.html">Add</a></code>, the children are already strings or ints; what they <em>were</em> is gone. Usually that is the point. Sometimes it is the problem: a pretty-printer that wants minimal parentheses needs each child's rendered string <b>and</b> its original shape &amp;#x2014; parenthesize the rendering only if the original was an <code><a class="el" href="structAdd.html">Add</a></code> under a <code><a class="el" href="structMul.html">Mul</a></code>.</p>
+<p><code>fold_fix</code> has amnesia by design. By the time the algebra sees an <code><a class="el" href="structAdd.html">Add</a></code>, the children are already strings or ints; what they <em>were</em> is gone. Usually that is the point. Sometimes it is the problem: a pretty-printer that wants minimal parentheses needs each child's rendered string <b>and</b> its original shape &mdash; parenthesize the rendering only if the original was an <code><a class="el" href="structAdd.html">Add</a></code> under a <code><a class="el" href="structMul.html">Mul</a></code>.</p>
 <p>The paramorphism (Meertens, Lambert, 1992) hands the algebra both. From <a href="../../src/smd/fixpoint/para.hpp"><code>src/smd/fixpoint/para.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
@@ -114,13 +114,13 @@ para: A Fold That Remembers the Original</h1>
 <div class="line">    <span class="keyword">auto</span> evaluated = layer_fmap(</div>
 <div class="line">        [&amp;](<span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;child) -&gt; std::pair&lt;<a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a>, Result&gt; {</div>
 <div class="line">            <span class="keywordflow">return</span> std::pair&lt;Fix&lt;F&gt;, Result&gt;{child,</div>
-<div class="line">                                              para&lt;Result&gt;(algebra, child)};</div>
+<div class="line">                                             para&lt;Result&gt;(algebra, child)};</div>
 <div class="line">        },</div>
 <div class="line">        layer);</div>
 <div class="line">    <span class="keywordflow">return</span> algebra(evaluated);</div>
 <div class="line">}</div>
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
-</div><!-- fragment --><p>The delta against <code>fold_fix</code> is one lambda: instead of mapping children to <code>Result</code>, it maps them to <code>std::pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;</code> &amp;#x2014; the original subtree first, the fold result second. The algebra's argument type <code>F&lt;pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;&gt;</code> says exactly what is available at each child: everything.</p>
+</div><!-- fragment --><p>The delta against <code>fold_fix</code> is one lambda: instead of mapping children to <code>Result</code>, it maps them to <code>std::pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;</code> &mdash; the original subtree first, the fold result second. The algebra's argument type <code>F&lt;pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;&gt;</code> says exactly what is available at each child: everything.</p>
 <p>The pretty-printer, from <a href="../../src/examples/para_pretty_print.cpp"><code>src/examples/para_pretty_print.cpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">auto</span> is_add(<span class="keyword">const</span> Expr &amp;e) -&gt; <span class="keywordtype">bool</span> {</div>
@@ -131,31 +131,32 @@ para: A Fold That Remembers the Original</h1>
 <div class="line"><span class="comment">// child arrives as {original subtree, its rendered string}; the Mul case</span></div>
 <div class="line"><span class="comment">// consults `.first` (the original subtree) to decide whether `.second`</span></div>
 <div class="line"><span class="comment">// (the rendered string) needs wrapping in parentheses.</span></div>
-<div class="line"><span class="keyword">auto</span> pretty = [](<span class="keyword">const</span> <a class="code hl_typedef" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a3c4be46769dca02e2ac3024bf5ed2a60">ExprF&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;layer)</div>
-<div class="line">    -&gt; std::string {</div>
-<div class="line">    <span class="keywordflow">return</span> std::visit(</div>
-<div class="line">        <a class="code hl_struct" href="structoverloaded.html">overloaded</a>{</div>
-<div class="line">            [](<span class="keyword">const</span> <a class="code hl_struct" href="structConst.html">Const&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;c) {</div>
-<div class="line">                <span class="keywordflow">return</span> std::to_string(c.val);</div>
-<div class="line">            },</div>
-<div class="line">            [](<span class="keyword">const</span> <a class="code hl_struct" href="structAdd.html">Add&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;a) {</div>
-<div class="line">                <span class="comment">// Addition is the lowest-precedence operator here, so</span></div>
-<div class="line">                <span class="comment">// neither child (Const, Add, or Mul) ever needs parens.</span></div>
-<div class="line">                <span class="keywordflow">return</span> a.left-&gt;second + <span class="stringliteral">&quot; + &quot;</span> + a.right-&gt;second;</div>
-<div class="line">            },</div>
-<div class="line">            [](<span class="keyword">const</span> <a class="code hl_struct" href="structMul.html">Mul&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;m) {</div>
-<div class="line">                <span class="keyword">auto</span> render_child =</div>
-<div class="line">                    [](<span class="keyword">const</span> std::pair&lt;Expr, std::string&gt; &amp;child)</div>
-<div class="line">                    -&gt; std::string {</div>
-<div class="line">                    <span class="keywordflow">if</span> (<a class="code hl_function" href="namespaceanonymous__namespace_02para__pretty__print_8cpp_03.html#ab6a38557076a2b37adbe91798f8130e9">is_add</a>(child.first)) {</div>
-<div class="line">                        <span class="keywordflow">return</span> <span class="stringliteral">&quot;(&quot;</span> + child.second + <span class="stringliteral">&quot;)&quot;</span>;</div>
-<div class="line">                    }</div>
-<div class="line">                    <span class="keywordflow">return</span> child.second;</div>
-<div class="line">                };</div>
-<div class="line">                <span class="keywordflow">return</span> render_child(*m.left) + <span class="stringliteral">&quot; * &quot;</span> + render_child(*m.right);</div>
-<div class="line">            },</div>
-<div class="line">        },</div>
-<div class="line">        layer);</div>
+<div class="line"><span class="keyword">auto</span> pretty =</div>
+<div class="line">    [](<span class="keyword">const</span> <a class="code hl_typedef" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a3c4be46769dca02e2ac3024bf5ed2a60">ExprF&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;layer) -&gt; std::string {</div>
+<div class="line">    <span class="keywordflow">return</span> std::visit(<a class="code hl_struct" href="structoverloaded.html">overloaded</a>{</div>
+<div class="line">                          [](<span class="keyword">const</span> <a class="code hl_struct" href="structConst.html">Const&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;c) {</div>
+<div class="line">                              <span class="keywordflow">return</span> std::to_string(c.val);</div>
+<div class="line">                          },</div>
+<div class="line">                          [](<span class="keyword">const</span> <a class="code hl_struct" href="structAdd.html">Add&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;a) {</div>
+<div class="line">                              <span class="comment">// Addition is the lowest-precedence operator</span></div>
+<div class="line">                              <span class="comment">// here, so neither child (Const, Add, or Mul)</span></div>
+<div class="line">                              <span class="comment">// ever needs parens.</span></div>
+<div class="line">                              <span class="keywordflow">return</span> a.left-&gt;second + <span class="stringliteral">&quot; + &quot;</span> + a.right-&gt;second;</div>
+<div class="line">                          },</div>
+<div class="line">                          [](<span class="keyword">const</span> <a class="code hl_struct" href="structMul.html">Mul&lt;std::pair&lt;Expr, std::string&gt;</a>&gt; &amp;m) {</div>
+<div class="line">                              <span class="keyword">auto</span> render_child =</div>
+<div class="line">                                  [](<span class="keyword">const</span> std::pair&lt;Expr, std::string&gt; &amp;child)</div>
+<div class="line">                                  -&gt; std::string {</div>
+<div class="line">                                  <span class="keywordflow">if</span> (<a class="code hl_function" href="namespaceanonymous__namespace_02para__pretty__print_8cpp_03.html#ab6a38557076a2b37adbe91798f8130e9">is_add</a>(child.first)) {</div>
+<div class="line">                                      <span class="keywordflow">return</span> <span class="stringliteral">&quot;(&quot;</span> + child.second + <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line">                                  }</div>
+<div class="line">                                  <span class="keywordflow">return</span> child.second;</div>
+<div class="line">                              };</div>
+<div class="line">                              <span class="keywordflow">return</span> render_child(*m.left) + <span class="stringliteral">&quot; * &quot;</span> +</div>
+<div class="line">                                     render_child(*m.right);</div>
+<div class="line">                          },</div>
+<div class="line">                      },</div>
+<div class="line">                      layer);</div>
 <div class="line">};</div>
 <div class="ttc" id="anamespaceanonymous__namespace_02para__pretty__print_8cpp_03_html_ab6a38557076a2b37adbe91798f8130e9"><div class="ttname"><a href="namespaceanonymous__namespace_02para__pretty__print_8cpp_03.html#ab6a38557076a2b37adbe91798f8130e9">anonymous_namespace{para_pretty_print.cpp}::is_add</a></div><div class="ttdeci">auto is_add(const Expr &amp;e) -&gt; bool</div><div class="ttdef"><b>Definition:</b> para_pretty_print.cpp:37</div></div>
 <div class="ttc" id="asmd_2fixpoint_2fixpoint__tree__example_8cpp_html_a3c4be46769dca02e2ac3024bf5ed2a60"><div class="ttname"><a href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#a3c4be46769dca02e2ac3024bf5ed2a60">ExprF</a></div><div class="ttdeci">std::variant&lt; Const&lt; A &gt;, Add&lt; A &gt;, Mul&lt; A &gt; &gt; ExprF</div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:34</div></div>
@@ -163,11 +164,11 @@ para: A Fold That Remembers the Original</h1>
 <div class="ttc" id="astructConst_html"><div class="ttname"><a href="structConst.html">Const</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:21</div></div>
 <div class="ttc" id="astructMul_html"><div class="ttname"><a href="structMul.html">Mul</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:29</div></div>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
-</div><!-- fragment --><p>The <code><a class="el" href="structMul.html">Mul</a></code> case is the payoff line: <code>is_add(child.first)</code> interrogates the original subtree; <code>child.second</code> is the already-rendered string it wraps or passes through. The program prints <code>2 * 3 + 4</code> for one association and <code>2 * (3 + 4)</code> for the other &amp;#x2014; parentheses exactly where meaning requires them, nowhere else.</p>
-<p>Degeneracy law: ignore <code>.first</code> everywhere and <code>para</code> <em>is</em> <code>fold_fix</code>. The test suite states that literally, and every scheme from here on has a law of the same shape &amp;#x2014; forget the extra power, recover the simpler scheme.</p>
+</div><!-- fragment --><p>The <code><a class="el" href="structMul.html">Mul</a></code> case is the payoff line: <code>is_add(child.first)</code> interrogates the original subtree; <code>child.second</code> is the already-rendered string it wraps or passes through. The program prints <code>2 * 3 + 4</code> for one association and <code>2 * (3 + 4)</code> for the other &mdash; parentheses exactly where meaning requires them, nowhere else.</p>
+<p>Degeneracy law: ignore <code>.first</code> everywhere and <code>para</code> <em>is</em> <code>fold_fix</code>. The test suite states that literally, and every scheme from here on has a law of the same shape &mdash; forget the extra power, recover the simpler scheme.</p>
 <h1><a class="anchor" id="autotoc_md71"></a>
 apo: An Unfold That Can Stop Early</h1>
-<p>Now dualize. <code>para</code>'s algebra receives, alongside each result, the original subtree &amp;#x2014; a product. <code>apo</code>'s coalgebra returns, at each child position, <em>either</em> a finished subtree to graft <em>or</em> a seed to keep unfolding &amp;#x2014; a coproduct (Uustalu, Tarmo and Vene, Varmo, 1999) (Vene, Varmo, 2000). From <a href="../../src/smd/fixpoint/apo.hpp"><code>src/smd/fixpoint/apo.hpp</code></a>:</p>
+<p>Now dualize. <code>para</code>'s algebra receives, alongside each result, the original subtree &mdash; a product. <code>apo</code>'s coalgebra returns, at each child position, <em>either</em> a finished subtree to graft <em>or</em> a seed to keep unfolding &mdash; a coproduct (Uustalu, Tarmo and Vene, Varmo, 1999) (Vene, Varmo, 2000). From <a href="../../src/smd/fixpoint/apo.hpp"><code>src/smd/fixpoint/apo.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Coalgebra, <span class="keyword">class </span>Seed&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> apo(<span class="keyword">const</span> Coalgebra &amp;coalgebra, <span class="keyword">const</span> Seed &amp;seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
@@ -175,8 +176,7 @@ apo: An Unfold That Can Stop Early</h1>
 <div class="line">    <span class="keyword">auto</span> expanded = layer_fmap(</div>
 <div class="line">        [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;step) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
 <div class="line">            <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1typeclass.html#ac720edac69885cbecb44e3921643abd0">smd::typeclass::match</a>(</div>
-<div class="line">                step,</div>
-<div class="line">                [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;subtree) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> { <span class="keywordflow">return</span> subtree; },</div>
+<div class="line">                step, [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;subtree) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> { <span class="keywordflow">return</span> subtree; },</div>
 <div class="line">                [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;next_seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
 <div class="line">                    <span class="keywordflow">return</span> apo&lt;F&gt;(coalgebra, next_seed);</div>
 <div class="line">                });</div>
@@ -185,12 +185,12 @@ apo: An Unfold That Can Stop Early</h1>
 <div class="line">    <span class="keywordflow">return</span> wrap_fix&lt;F&gt;(std::move(expanded));</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1typeclass_html_ac720edac69885cbecb44e3921643abd0"><div class="ttname"><a href="namespacesmd_1_1typeclass.html#ac720edac69885cbecb44e3921643abd0">smd::typeclass::match</a></div><div class="ttdeci">constexpr auto match(const either&lt; L, R &gt; &amp;e, OnLeft &amp;&amp;on_left, OnRight &amp;&amp;on_right)</div><div class="ttdef"><b>Definition:</b> either.hpp:216</div></div>
-</div><!-- fragment --><p>The worker <code>match</code>-es each child: Left returns its subtree as-is &amp;#x2014; no recursion &amp;#x2014; and Right recurses like <code>unfold_fix</code>. Note what the doc comment promises about references: a coalgebra may return <code>either&lt;const <a class="el" href="structFix.html">Fix</a>&lt;F&gt;&amp;, Seed&gt;</code>, and the graft copies exactly once, at the graft point. The zero-copy graft falls out of <code>match</code> never asking which instantiation it holds.</p>
+</div><!-- fragment --><p>The worker <code>match</code>-es each child: Left returns its subtree as-is &mdash; no recursion &mdash; and Right recurses like <code>unfold_fix</code>. Note what the doc comment promises about references: a coalgebra may return <code>either&lt;const <a class="el" href="structFix.html">Fix</a>&lt;F&gt;&amp;, Seed&gt;</code>, and the graft copies exactly once, at the graft point. The zero-copy graft falls out of <code>match</code> never asking which instantiation it holds.</p>
 <p>The motivating example is ordered insertion into a sorted list. Unfold the output list element by element while the input's head is smaller; the moment the insertion point appears, emit the new value and graft the <em>entire untouched remainder</em> with Left. From <a href="../../src/examples/apo_sorted_insert.cpp"><code>src/examples/apo_sorted_insert.cpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">auto</span> make_insert_coalgebra(<span class="keywordtype">int</span> value) {</div>
-<div class="line">    <span class="keywordflow">return</span> [value](<span class="keyword">const</span> IntList &amp;remaining)</div>
-<div class="line">               -&gt; IntListF&lt;either&lt;IntList, IntList&gt;&gt; {</div>
+<div class="line">    <span class="keywordflow">return</span> [value](</div>
+<div class="line">               <span class="keyword">const</span> IntList &amp;remaining) -&gt; IntListF&lt;either&lt;IntList, IntList&gt;&gt; {</div>
 <div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> &amp;layer = unwrap_fix(remaining);</div>
 <div class="line">        <span class="keywordflow">return</span> std::visit(</div>
 <div class="line">            <a class="code hl_struct" href="structoverloaded.html">overloaded</a>{</div>
@@ -218,7 +218,7 @@ apo: An Unfold That Can Stop Early</h1>
 <div class="line">            layer);</div>
 <div class="line">    };</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>A plain <code>unfold_fix</code> cannot express "and the rest is what it already was" &amp;#x2014; it must walk to the end, rebuilding. <code>apo</code> says it in one <code>make_left</code>.</p>
+</div><!-- fragment --><p>A plain <code>unfold_fix</code> cannot express "and the rest is what it already was" &mdash; it must walk to the end, rebuilding. <code>apo</code> says it in one <code>make_left</code>.</p>
 <h1><a class="anchor" id="autotoc_md72"></a>
 either: The Sum the Library Actually Wanted</h1>
 <p>That Left/Right vocabulary is a project type, and it exists because the obvious candidate failed. From <a href="../../src/smd/typeclass/either.hpp"><code>src/smd/typeclass/either.hpp</code></a>:</p>
@@ -243,9 +243,9 @@ either: The Sum the Library Actually Wanted</h1>
 <div class="line">    <span class="keywordflow">return</span> either&lt;L, R&gt;{std::variant&lt;Left&lt;L&gt;, Right&lt;R&gt;&gt;{Right&lt;R&gt;{v}}};</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1typeclass_html_ae36845fa96e573c0ad50e2699c1e1907"><div class="ttname"><a href="namespacesmd_1_1typeclass.html#ae36845fa96e573c0ad50e2699c1e1907">smd::typeclass::make_right</a></div><div class="ttdeci">constexpr auto make_right(R v) -&gt; either&lt; L, R &gt;</div><div class="ttdef"><b>Definition:</b> either.hpp:158</div></div>
-</div><!-- fragment --><p><code>std::expected</code> was considered and rejected, and the decision log is specific. Its sides are asymmetric: the error side needs the <code>unexpected</code> wrapper, error-side mapping is spelled differently, and above all <code>expected&lt;T, T&gt;</code> &amp;#x2014; which arises <em>naturally</em> here, an apo whose Seed is itself <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code>, as in the insert above &amp;#x2014; forces tag-only construction and ambushes generic code. <code>either</code> makes <code>Left</code> and <code>Right</code> distinct wrapper types on <b>both</b> sides, so <code>either&lt;T, T&gt;</code> constructs and compares without ceremony.</p>
+</div><!-- fragment --><p><code>std::expected</code> was considered and rejected, and the decision log is specific. Its sides are asymmetric: the error side needs the <code>unexpected</code> wrapper, error-side mapping is spelled differently, and above all <code>expected&lt;T, T&gt;</code> &mdash; which arises <em>naturally</em> here, an apo whose Seed is itself <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code>, as in the insert above &mdash; forces tag-only construction and ambushes generic code. <code>either</code> makes <code>Left</code> and <code>Right</code> distinct wrapper types on <b>both</b> sides, so <code>either&lt;T, T&gt;</code> constructs and compares without ceremony.</p>
 <p>The side convention is fixed once, library-wide, matching the Haskell sources: <b>Left stops, Right continues</b>. Apo: Left = graft this subtree. Elgot (Part 10): Left = here is the final answer. The monad instance is right-biased, <code>pure</code> is <code>make_right</code>, and Part 11 will lean on exactly that when <code>apo</code> is recovered from the generalized unfold.</p>
-<p>One more symmetry worth seeing now: the design treats <code>std::pair</code> and <code>either</code> as proper duals &amp;#x2014; product and coproduct &amp;#x2014; with matched vocabulary on each side: <code>fanout</code> builds toward a pair as <code>fanin</code> matches away from an either, and the value slot sits second in both (<code>pair</code>'s env-comonad <code>extract</code> is <code>.second</code>; <code>either</code>'s monadic <code>pure</code> is <code>make_right</code>). <code>para</code> rides the pair; <code>apo</code> rides the either. The duality is not decoration &amp;#x2014; in Part 11 it becomes the actual mechanism, when <code>dist_para</code> (pair side) and <code>dist_apo</code> (either side) sit in the same slot of <code>gcata</code> and <code>gana</code> respectively.</p>
+<p>One more symmetry worth seeing now: the design treats <code>std::pair</code> and <code>either</code> as proper duals &mdash; product and coproduct &mdash; with matched vocabulary on each side: <code>fanout</code> builds toward a pair as <code>fanin</code> matches away from an either, and the value slot sits second in both (<code>pair</code>'s env-comonad <code>extract</code> is <code>.second</code>; <code>either</code>'s monadic <code>pure</code> is <code>make_right</code>). <code>para</code> rides the pair; <code>apo</code> rides the either. The duality is not decoration &mdash; in Part 11 it becomes the actual mechanism, when <code>dist_para</code> (pair side) and <code>dist_apo</code> (either side) sit in the same slot of <code>gcata</code> and <code>gana</code> respectively.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_5_zygo_mutu.html">Next: Part 5 - Zygomorphisms and Mutumorphisms →</a></p>
 <p>&lt;/nav&gt;</p>

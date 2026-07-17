@@ -99,14 +99,14 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_12_capstone.html',''
   <div class="headertitle"><div class="title">part-12-capstone </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="org6e65643"> </div><div class="abstract" id="org6e65643"> "Can I have a zygomorphism, a histomorphism, and a prepromorphism at the
-same time?" Kmett's zygoHistoPrepro answers by composition: transform the generalized fold with a natural transformation, compose the env comonad onto Cofree, write one distributive law, done. This part builds it, and meets the one place where the generic machinery genuinely could not serve &amp;#x2014; the composed comonad needed its own instance, and the reason is worth the whole part. </div><div class="abstract" id="org6e65643"></div><div class="abstract" id="org6e65643"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="orgf947ad9"> </div><div class="abstract" id="orgf947ad9"> "Can I have a zygomorphism, a histomorphism, and a prepromorphism at the
+same time?" Kmett's zygoHistoPrepro answers by composition: transform the generalized fold with a natural transformation, compose the env comonad onto Cofree, write one distributive law, done. This part builds it, and meets the one place where the generic machinery genuinely could not serve &mdash; the composed comonad needed its own instance, and the reason is worth the whole part. </div><div class="abstract" id="orgf947ad9"></div><div class="abstract" id="orgf947ad9"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_11_generalized.html">Part 11 - Distributive Laws and the Generalized Schemes ←</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md48"></a>
 gprepro: Part 6's Delta, One Level Up</h1>
-<p>Part 6 observed that <code>prepro</code> is <code>fold_fix</code> with one insertion &amp;#x2014; <code>hoist&lt;F&gt;(e, child)</code> before the recursive call. <code>gprepro</code> makes the same insertion in <code>gcata</code>'s worker. From <a href="../../src/smd/fixpoint/generalized.hpp"><code>src/smd/fixpoint/generalized.hpp</code></a>:</p>
+<p>Part 6 observed that <code>prepro</code> is <code>fold_fix</code> with one insertion &mdash; <code>hoist&lt;F&gt;(e, child)</code> before the recursive call. <code>gprepro</code> makes the same insertion in <code>gcata</code>'s worker. From <a href="../../src/smd/fixpoint/generalized.hpp"><code>src/smd/fixpoint/generalized.hpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
 <div class="line">          <span class="keyword">class </span>Nat, <span class="keyword">class </span>GAlgebra&gt;</div>
 <div class="line"><span class="keyword">struct </span>gprepro_worker_t {</div>
@@ -132,7 +132,7 @@ gprepro: Part 6's Delta, One Level Up</h1>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
 <div class="line">          <span class="keyword">class </span><a class="code hl_typedef" href="namespacesmd_1_1concrete.html#a2f46784529c937373bfc23c4e4a5ac14">Nat</a>, <span class="keyword">class </span>GAlgebra&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a2597bbad24df51a2cdfb7307033f4b99">gprepro</a>(<span class="keyword">const</span> Dist &amp;dist, <span class="keyword">const</span> Nat &amp;e, <span class="keyword">const</span> GAlgebra &amp;algebra,</div>
-<div class="line">                      <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree) -&gt; Result {</div>
+<div class="line">                       <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree) -&gt; Result {</div>
 <div class="line">    gprepro_worker_t&lt;Result, WResult, F, Dist, Nat, GAlgebra&gt; worker{dist, e,</div>
 <div class="line">                                                                     algebra};</div>
 <div class="line">    <span class="keywordflow">return</span> algebra(</div>
@@ -143,18 +143,18 @@ gprepro: Part 6's Delta, One Level Up</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a356b503bd1b48e5a3ef5a93caee729b1"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a></div><div class="ttdeci">constexpr auto extract(const Cofree&lt; F, A &gt; &amp;c) -&gt; const A &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:55</div></div>
 <div class="ttc" id="asmd_2fixpoint_2fixpoint__tree__example_8cpp_html_afc68f0a4db3ef52829b14e9682553d1d"><div class="ttname"><a href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#afc68f0a4db3ef52829b14e9682553d1d">fmap</a></div><div class="ttdeci">ExprF&lt; B &gt; fmap(Func &amp;&amp;f, const ExprF&lt; A &gt; &amp;fa)</div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:62</div></div>
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
-</div><!-- fragment --><p>Diff it against Part 11's <code>gcata_worker_t</code>: one expression changed, <code>(*this)(hoist&lt;F&gt;(e, child))</code> where <code>(*this)(child)</code> was. The degeneracy laws triangulate it: identity transformation recovers <code>gcata</code>; <code>dist_cata</code> recovers <code>prepro</code>; both at once recover <code>fold_fix</code>. (<code>gpostpro</code> mirrors the splice on <code>gana</code>'s side &amp;#x2014; hoist each recursive <em>result</em> before grafting &amp;#x2014; completing the dual pair.)</p>
+</div><!-- fragment --><p>Diff it against Part 11's <code>gcata_worker_t</code>: one expression changed, <code>(*this)(hoist&lt;F&gt;(e, child))</code> where <code>(*this)(child)</code> was. The degeneracy laws triangulate it: identity transformation recovers <code>gcata</code>; <code>dist_cata</code> recovers <code>prepro</code>; both at once recover <code>fold_fix</code>. (<code>gpostpro</code> mirrors the splice on <code>gana</code>'s side &mdash; hoist each recursive <em>result</em> before grafting &mdash; completing the dual pair.)</p>
 <p>With <code>gprepro</code> in hand, Kmett's capstone is a two-liner:</p>
 <div class="fragment"><div class="line"> </div>
-<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> Helper, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F,</div>
-<div class="line">          <span class="keyword">class </span>HelperAlg, <span class="keyword">class </span>Nat, <span class="keyword">class </span>MainAlg&gt;</div>
+<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> Helper, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>HelperAlg,</div>
+<div class="line">          <span class="keyword">class </span>Nat, <span class="keyword">class </span>MainAlg&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> zygo_histo_prepro(<span class="keyword">const</span> HelperAlg &amp;f, <span class="keyword">const</span> Nat &amp;e,</div>
 <div class="line">                                 <span class="keyword">const</span> MainAlg &amp;g, <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree)</div>
 <div class="line">    -&gt; Result {</div>
 <div class="line">    <span class="keyword">using </span>WResult = std::pair&lt;Helper, Cofree&lt;F, Result&gt;&gt;;</div>
 <div class="line">    <span class="keywordflow">return</span> gprepro&lt;Result, WResult&gt;(dist_zygo_histo&lt;F&gt;(f), e, g, tree);</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>The composed comonad is <code>W&lt;X&gt; = std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &amp;#x2014; Haskell's <code>EnvT Helper (Cofree F)</code>: zygo's env layer wrapped around histo's Cofree. A zygomorphism, a histomorphism, and a prepromorphism, one pass. Everything interesting is in the two ingredients that make the two-liner legal.</p>
+</div><!-- fragment --><p>The composed comonad is <code>W&lt;X&gt; = std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &mdash; Haskell's <code>EnvT Helper (Cofree F)</code>: zygo's env layer wrapped around histo's Cofree. A zygomorphism, a histomorphism, and a prepromorphism, one pass. Everything interesting is in the two ingredients that make the two-liner legal.</p>
 <h1><a class="anchor" id="autotoc_md49"></a>
 The Distributive Law for a Composed Comonad</h1>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>HelperAlg&gt;</div>
@@ -162,8 +162,7 @@ The Distributive Law for a Composed Comonad</h1>
 <div class="line">    HelperAlg helper;</div>
 <div class="line"> </div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> Helper, <span class="keyword">class</span> X&gt;</div>
-<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span></div>
-<div class="line">    operator()(<span class="keyword">const</span> F&lt;std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt;&gt; &amp;l) <span class="keyword">const</span></div>
+<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> operator()(<span class="keyword">const</span> F&lt;std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt;&gt; &amp;l) <span class="keyword">const</span></div>
 <div class="line">        -&gt; std::pair&lt;Helper, Cofree&lt;F, F&lt;X&gt;&gt;&gt; {</div>
 <div class="line">        <span class="keyword">auto</span> helper_layer = layer_fmap(</div>
 <div class="line">            [](<span class="keyword">const</span> std::pair&lt;Helper, Cofree&lt;F, X&gt;&gt; &amp;p) -&gt; Helper {</div>
@@ -176,7 +175,7 @@ The Distributive Law for a Composed Comonad</h1>
 <div class="line">            },</div>
 <div class="line">            l);</div>
 <div class="line">        <span class="keywordflow">return</span> std::pair&lt;Helper, Cofree&lt;F, F&lt;X&gt;&gt;&gt;{helper(helper_layer),</div>
-<div class="line">                                                   dist_histo&lt;F&gt;(w_layer)};</div>
+<div class="line">                                                  dist_histo&lt;F&gt;(w_layer)};</div>
 <div class="line">    }</div>
 <div class="line">};</div>
 <div class="line"> </div>
@@ -186,16 +185,17 @@ The Distributive Law for a Composed Comonad</h1>
 <div class="line">    <span class="keywordflow">return</span> dist_zygo_histo_t&lt;F, HelperAlg&gt;{std::move(helper)};</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a588919c5f9e29aee1f29200a12996573"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a588919c5f9e29aee1f29200a12996573">smd::fixpoint::dist_zygo_histo</a></div><div class="ttdeci">constexpr auto dist_zygo_histo(HelperAlg helper) -&gt; dist_zygo_histo_t&lt; F, HelperAlg &gt;</div><div class="ttdef"><b>Definition:</b> generalized.hpp:720</div></div>
-</div><!-- fragment --><p><code>dist_zygo_histo</code> is a factory (it closes over the helper algebra, as <code>dist_zygo</code> did) transcribing Kmett's <code>distZygoT</code>: fold the helper components out of the layer with <code>f</code>, redistribute the Cofree components with <code>dist_histo&lt;F&gt;</code>, pair the results. A distributive law for a composed comonad is the two component laws, composed. It lives here rather than in <code><a class="el" href="dist__laws_8hpp.html">dist_laws.hpp</a></code> deliberately &amp;#x2014; it is capstone-specific, and the library keeps one-off machinery next to its one use.</p>
+</div><!-- fragment --><p><code>dist_zygo_histo</code> is a factory (it closes over the helper algebra, as <code>dist_zygo</code> did) transcribing Kmett's <code>distZygoT</code>: fold the helper components out of the layer with <code>f</code>, redistribute the Cofree components with <code>dist_histo&lt;F&gt;</code>, pair the results. A distributive law for a composed comonad is the two component laws, composed. It lives here rather than in <code><a class="el" href="dist__laws_8hpp.html">dist_laws.hpp</a></code> deliberately &mdash; it is capstone-specific, and the library keeps one-off machinery next to its one use.</p>
 <h1><a class="anchor" id="autotoc_md50"></a>
 The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
-<p>Here is the part worth the price of admission. The library already has a comonad instance for <code>std::pair&lt;B, A&gt;</code> &amp;#x2014; the env comonad, serving zygo and para since Part 11. <code>W&lt;X&gt; = pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> <em>is</em> a pair. Why not let the generic instance serve?</p>
-<p>Because it computes the wrong <code>duplicate</code>. The generic pair instance re-nests the <em>pair</em> layer: <code>duplicate(pair&lt;B, X&gt;)</code> is <code>pair&lt;B, pair&lt;B, X&gt;&gt;</code>. For the composed comonad, <code>W&lt;W&lt;X&gt;&gt;</code> must be <code>pair&lt;Helper, Cofree&lt;F, pair&lt;Helper, Cofree&lt;F, X&gt;&gt;&gt;&gt;</code> &amp;#x2014; the duplication has to happen <em>inside the Cofree</em>, re-annotating every node of the history with the environment re-attached. Same outer type, different nesting, and only one of them is the <code>EnvT</code> comonad. The dedicated instance does what Haskell's <code>EnvT</code> does: run Cofree's own <code>duplicate</code>, then <code>fmap</code> the environment back onto every position:</p>
+<p>Here is the part worth the price of admission. The library already has a comonad instance for <code>std::pair&lt;B, A&gt;</code> &mdash; the env comonad, serving zygo and para since Part 11. <code>W&lt;X&gt; = pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> <em>is</em> a pair. Why not let the generic instance serve?</p>
+<p>Because it computes the wrong <code>duplicate</code>. The generic pair instance re-nests the <em>pair</em> layer: <code>duplicate(pair&lt;B, X&gt;)</code> is <code>pair&lt;B, pair&lt;B, X&gt;&gt;</code>. For the composed comonad, <code>W&lt;W&lt;X&gt;&gt;</code> must be <code>pair&lt;Helper, Cofree&lt;F, pair&lt;Helper, Cofree&lt;F, X&gt;&gt;&gt;&gt;</code> &mdash; the duplication has to happen <em>inside the Cofree</em>, re-annotating every node of the history with the environment re-attached. Same outer type, different nesting, and only one of them is the <code>EnvT</code> comonad. The dedicated instance does what Haskell's <code>EnvT</code> does: run Cofree's own <code>duplicate</code>, then <code>fmap</code> the environment back onto every position:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Helper, <span class="keyword">class </span>X&gt;</div>
 <div class="line"><span class="keyword">struct </span>ZygoHistoComonadImpl {</div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> Y&gt;</div>
 <div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span></div>
-<div class="line">    extract(<span class="keyword">this</span> <span class="keyword">auto</span> &amp;&amp;, <span class="keyword">const</span> std::pair&lt;Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt; &amp;w)</div>
+<div class="line">    extract(<span class="keyword">this</span> <span class="keyword">auto</span> &amp;&amp;,</div>
+<div class="line">            <span class="keyword">const</span> std::pair&lt;Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt; &amp;w)</div>
 <div class="line">        -&gt; <span class="keyword">const</span> Y &amp; {</div>
 <div class="line">        <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a>(w.second);</div>
 <div class="line">    }</div>
@@ -205,8 +205,8 @@ The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
 <div class="line">    duplicate(<span class="keyword">this</span> <span class="keyword">auto</span> &amp;&amp;,</div>
 <div class="line">              <span class="keyword">const</span> std::pair&lt;Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt; &amp;w)</div>
 <div class="line">        -&gt; std::pair&lt;Helper,</div>
-<div class="line">                    <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a>&lt;</div>
-<div class="line">                        F, std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, Y&gt;&gt;&gt;&gt; {</div>
+<div class="line">                     <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a>&lt;</div>
+<div class="line">                         F, std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, Y&gt;&gt;&gt;&gt; {</div>
 <div class="line">        <span class="keyword">const</span> Helper &amp;env = w.first;</div>
 <div class="line">        <span class="keyword">auto</span> duplicated_cofree =</div>
 <div class="line">            comonad_typeclass&lt;smd::fixpoint::Cofree&lt;F, Y&gt;&gt;.duplicate(w.second);</div>
@@ -216,16 +216,16 @@ The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
 <div class="line">                <span class="keywordflow">return</span> std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, Y&gt;&gt;{env, c};</div>
 <div class="line">            },</div>
 <div class="line">            duplicated_cofree);</div>
-<div class="line">        <span class="keywordflow">return</span> std::pair&lt;Helper,</div>
-<div class="line">                         <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a>&lt;</div>
-<div class="line">                             F, std::pair&lt;Helper,</div>
-<div class="line">                                         <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt;&gt;&gt;{</div>
+<div class="line">        <span class="keywordflow">return</span> std::pair&lt;</div>
+<div class="line">            Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a>&lt;</div>
+<div class="line">                        F, std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, Y&gt;&gt;&gt;&gt;{</div>
 <div class="line">            env, std::move(reattached)};</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> Fn, <span class="keyword">class</span> Y&gt;</div>
-<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_function" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#afc68f0a4db3ef52829b14e9682553d1d">fmap</a>(<span class="keyword">this</span> <span class="keyword">auto</span> &amp;&amp;, Fn &amp;&amp;fn,</div>
-<div class="line">                        <span class="keyword">const</span> std::pair&lt;Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt; &amp;w) {</div>
+<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span></div>
+<div class="line">    <a class="code hl_function" href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#afc68f0a4db3ef52829b14e9682553d1d">fmap</a>(<span class="keyword">this</span> <span class="keyword">auto</span> &amp;&amp;, Fn &amp;&amp;fn,</div>
+<div class="line">         <span class="keyword">const</span> std::pair&lt;Helper, <a class="code hl_struct" href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree&lt;F, Y&gt;</a>&gt; &amp;w) {</div>
 <div class="line">        <span class="keyword">using </span>Z = remove_cvref_t&lt;std::invoke_result_t&lt;Fn, const Y &amp;&gt;&gt;;</div>
 <div class="line">        <span class="keywordflow">return</span> std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, Z&gt;&gt;{</div>
 <div class="line">            w.first, comonad_typeclass&lt;smd::fixpoint::Cofree&lt;F, Y&gt;&gt;.fmap(</div>
@@ -245,7 +245,7 @@ The Thin Ice: Why the Generic Pair Instance Is Wrong</h1>
 <div class="line">    comonad_typeclass&lt;std::pair&lt;Helper, smd::fixpoint::Cofree&lt;F, X&gt;&gt;&gt; =</div>
 <div class="line">        ZygoHistoComonadMap&lt;F, Helper, X&gt;{};</div>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1Cofree_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1Cofree.html">smd::fixpoint::Cofree</a></div><div class="ttdef"><b>Definition:</b> cofree.hpp:35</div></div>
-</div><!-- fragment --><p>The registration is a partial specialization keyed on <code>pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &amp;#x2014; strictly more specialized than the generic <code>pair&lt;B, A&gt;</code>, so it wins exactly when the value slot is a Cofree and never otherwise. Zygo's and para's pairs still use the generic instance, untouched. This is the typeclass-object machinery of Part 2 earning its keep under real load: two lawful comonad structures on the same C++ type, disambiguated by specialization order, no newtype wrapper required &amp;#x2014; where Haskell <em>must</em> wrap in <code>EnvT</code> to select the instance, the C++ registry selects by type structure. (Whether that is a feature or a hazard is a fair fight; the header calls it "thin ice" and documents which side it skated to.)</p>
+</div><!-- fragment --><p>The registration is a partial specialization keyed on <code>pair&lt;Helper, Cofree&lt;F, X&gt;&gt;</code> &mdash; strictly more specialized than the generic <code>pair&lt;B, A&gt;</code>, so it wins exactly when the value slot is a Cofree and never otherwise. Zygo's and para's pairs still use the generic instance, untouched. This is the typeclass-object machinery of Part 2 earning its keep under real load: two lawful comonad structures on the same C++ type, disambiguated by specialization order, no newtype wrapper required &mdash; where Haskell <em>must</em> wrap in <code>EnvT</code> to select the instance, the C++ registry selects by type structure. (Whether that is a feature or a hazard is a fair fight; the header calls it "thin ice" and documents which side it skated to.)</p>
 <h1><a class="anchor" id="autotoc_md51"></a>
 The Capstone Computes</h1>
 <p>From <a href="../../src/examples/generalized_tour.cpp"><code>src/examples/generalized_tour.cpp</code></a>, the fourth section:</p>
@@ -261,21 +261,21 @@ The Capstone Computes</h1>
 <div class="line"><span class="comment">// ---------------------------------------------------------------------</span></div>
 <div class="line">{</div>
 <div class="line">        IntList list = list_from_vector({3, 4, -1, 5});</div>
-<div class="line">        <span class="keywordtype">int</span> computed = zygo_histo_prepro&lt;int, int&gt;(</div>
-<div class="line">            length_helper, take_while_positive_nat{}, <a class="code hl_function" href="namespaceanonymous__namespace_02generalized__tour_8cpp_03.html#a06b8d9e1344cd64c50f37c13c48c9035">even_tail_length_main</a>,</div>
-<div class="line">            list);</div>
+<div class="line">        <span class="keywordtype">int</span> computed = zygo_histo_prepro&lt;int, int&gt;(length_helper,</div>
+<div class="line">                                                   take_while_positive_nat{},</div>
+<div class="line">                                                   <a class="code hl_function" href="namespaceanonymous__namespace_02generalized__tour_8cpp_03.html#a06b8d9e1344cd64c50f37c13c48c9035">even_tail_length_main</a>, list);</div>
 <div class="line">        all_ok &amp;= <a class="code hl_function" href="namespaceanonymous__namespace_02generalized__tour_8cpp_03.html#a135c1aa63b071778ef5604cca3c0bb85">report</a>(<span class="stringliteral">&quot;zygo_histo_prepro capstone&quot;</span>, <span class="stringliteral">&quot;dist_zygo_histo&quot;</span>,</div>
 <div class="line">                         <span class="comment">/*specialized (hand-checked)=*/</span>4, computed);</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespaceanonymous__namespace_02generalized__tour_8cpp_03_html_a06b8d9e1344cd64c50f37c13c48c9035"><div class="ttname"><a href="namespaceanonymous__namespace_02generalized__tour_8cpp_03.html#a06b8d9e1344cd64c50f37c13c48c9035">anonymous_namespace{generalized_tour.cpp}::even_tail_length_main</a></div><div class="ttdeci">auto even_tail_length_main(const IntListF&lt; std::pair&lt; int, Cofree&lt; IntListF, int &gt; &gt; &gt; &amp;layer) -&gt; int</div><div class="ttdef"><b>Definition:</b> generalized_tour.cpp:131</div></div>
 <div class="ttc" id="anamespaceanonymous__namespace_02generalized__tour_8cpp_03_html_a135c1aa63b071778ef5604cca3c0bb85"><div class="ttname"><a href="namespaceanonymous__namespace_02generalized__tour_8cpp_03.html#a135c1aa63b071778ef5604cca3c0bb85">anonymous_namespace{generalized_tour.cpp}::report</a></div><div class="ttdeci">auto report(const char *scheme, const char *dist_law, int specialized, int generalized) -&gt; bool</div><div class="ttdef"><b>Definition:</b> generalized_tour.cpp:152</div></div>
-</div><!-- fragment --><p>The fixture computation: helper folds each tail's remaining length, the transformation truncates at the first negative (take-while-positive, Part 6's own fixture), and the main algebra keeps a head only when its tail's length is even &amp;#x2014; consulting the helper (zygo), the history (histo), and the pre-transformed structure (prepro) in one algebra. <code>[3, 4, -1, 5]</code> truncates to <code>[3, 4]</code>; only <code>4</code> survives the even-length test; the answer is <code>4</code>, against a hand-checked expectation &amp;#x2014; because there <em>is</em> no specialized scheme to compare with. This computation exists only because the composition machinery makes it expressible. That is the capstone's real claim: not that it reproduces the catalog, but that the catalog's pieces compose into schemes nobody bothered to name.</p>
+</div><!-- fragment --><p>The fixture computation: helper folds each tail's remaining length, the transformation truncates at the first negative (take-while-positive, Part 6's own fixture), and the main algebra keeps a head only when its tail's length is even &mdash; consulting the helper (zygo), the history (histo), and the pre-transformed structure (prepro) in one algebra. <code>[3, 4, -1, 5]</code> truncates to <code>[3, 4]</code>; only <code>4</code> survives the even-length test; the answer is <code>4</code>, against a hand-checked expectation &mdash; because there <em>is</em> no specialized scheme to compare with. This computation exists only because the composition machinery makes it expressible. That is the capstone's real claim: not that it reproduces the catalog, but that the catalog's pieces compose into schemes nobody bothered to name.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_13_conclusion.html">Next: Part 13 - Conclusion →</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md52"></a>
 References</h1>
-<p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader &amp;#x2014; zygoHistoPrepro's origin, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a>.</p>
+<p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader &mdash; zygoHistoPrepro's origin, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a>.</p>
 <p>Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). <b>Recursion Schemes from Comonads</b>, Nordic Journal of Computing 8(3). </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->

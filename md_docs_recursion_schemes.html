@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes.html',''); i
 <div class="line">.build/build-gcc-16/src/examples/Asan/&lt;example_name&gt;</div>
 </div><!-- fragment --><p>All schemes are <code>constexpr</code>-capable (design D10) and take their fold/unfold carrier(s) as leading, explicit template parameters (design D5) — C++ cannot infer a carrier type through a recursive call the way Haskell can.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md143"></a>
+<h1><a class="anchor" id="autotoc_md148"></a>
 §7.1 The classical recap — &lt;tt&gt;fold_fix&lt;/tt&gt;, &lt;tt&gt;unfold_fix&lt;/tt&gt;, &lt;tt&gt;refold&lt;/tt&gt;</h1>
 <p>Header: <code><a class="el" href="recursion__schemes_8hpp.html">smd/fixpoint/recursion_schemes.hpp</a></code>. These predate this catalog (the library's existing cata/ana/hylo, renamed per design D1) but every other scheme here is described relative to them.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
@@ -124,10 +124,10 @@ $(document).ready(function(){initNavTree('md_docs_recursion_schemes.html',''); i
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
 </div><!-- fragment --><p>Use <code>fold_fix</code> to consume a <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> tree bottom-up, <code>unfold_fix</code> to build one top-down from a seed, and <code>refold</code> to do both in one pass without ever materializing the intermediate tree. Every scheme's own degeneracy law (§9) is stated against one of these three.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md145"></a>
+<h1><a class="anchor" id="autotoc_md150"></a>
 §7.2 &lt;tt&gt;para&lt;/tt&gt; and &lt;tt&gt;apo&lt;/tt&gt; — Fokkinga's classical extensions</h1>
 <p>Header: <code><a class="el" href="para_8hpp.html">smd/fixpoint/para.hpp</a></code>, <code><a class="el" href="apo_8hpp.html">smd/fixpoint/apo.hpp</a></code>.</p>
-<h2><a class="anchor" id="autotoc_md146"></a>
+<h2><a class="anchor" id="autotoc_md151"></a>
 para</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> para(<span class="keyword">const</span> Algebra &amp;algebra, <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree) -&gt; Result;</div>
@@ -164,7 +164,7 @@ para</h2>
 <div class="ttc" id="astructMul_html"><div class="ttname"><a href="structMul.html">Mul</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:29</div></div>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
 </div><!-- fragment --><p>Example: <code>para_pretty_print</code> — minimal-parens expression pretty-printing.</p>
-<h2><a class="anchor" id="autotoc_md147"></a>
+<h2><a class="anchor" id="autotoc_md152"></a>
 apo</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Coalgebra, <span class="keyword">class </span>Seed&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> apo(<span class="keyword">const</span> Coalgebra &amp;coalgebra, <span class="keyword">const</span> Seed &amp;seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a>;</div>
@@ -184,10 +184,10 @@ apo</h2>
 <div class="ttc" id="anamespacesmd_1_1concrete_html_ad01e87a9c569908b008955b0dcabd7d6"><div class="ttname"><a href="namespacesmd_1_1concrete.html#ad01e87a9c569908b008955b0dcabd7d6">smd::concrete::IntList</a></div><div class="ttdeci">smd::fixpoint::Fix&lt; IntListF &gt; IntList</div><div class="ttdef"><b>Definition:</b> functors.hpp:178</div></div>
 </div><!-- fragment --><p>Example: <code>apo_sorted_insert</code> — ordered insert into a sorted list, the untouched tail grafted rather than rebuilt.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md149"></a>
+<h1><a class="anchor" id="autotoc_md154"></a>
 §7.3 &lt;tt&gt;zygo&lt;/tt&gt; and &lt;tt&gt;mutu&lt;/tt&gt; — auxiliary and mutual folds</h1>
 <p>Header: <code><a class="el" href="zygo_8hpp.html">smd/fixpoint/zygo.hpp</a></code>, <code><a class="el" href="mutu_8hpp.html">smd/fixpoint/mutu.hpp</a></code>.</p>
-<h2><a class="anchor" id="autotoc_md150"></a>
+<h2><a class="anchor" id="autotoc_md155"></a>
 zygo</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> Helper, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F,</div>
 <div class="line">          <span class="keyword">class </span>HelperAlg, <span class="keyword">class </span>MainAlg&gt;</div>
@@ -204,7 +204,7 @@ zygo</h2>
 <div class="line"> </div>
 <div class="line">std::println(<span class="stringliteral">&quot;{}&quot;</span>, zygo&lt;bool, int&gt;(height, is_balanced, tree));</div>
 </div><!-- fragment --><p>Example: <code>zygo_balanced</code> — height-balanced check, height as the helper fold.</p>
-<h2><a class="anchor" id="autotoc_md151"></a>
+<h2><a class="anchor" id="autotoc_md156"></a>
 mutu</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> A, <span class="keyword">class</span> B, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>AlgA, <span class="keyword">class </span>AlgB&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> mutu(<span class="keyword">const</span> AlgA &amp;alg_a, <span class="keyword">const</span> AlgB &amp;alg_b,</div>
@@ -221,7 +221,7 @@ mutu</h2>
 <div class="line"><span class="keyword">auto</span> [is_even, is_odd] = mutu&lt;bool, bool&gt;(alg_even, alg_odd, nat);</div>
 </div><!-- fragment --><p>Example: <code>mutu_even_odd</code> — mutually recursive even/odd on <code>Nat</code>.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md153"></a>
+<h1><a class="anchor" id="autotoc_md158"></a>
 §7.4 &lt;tt&gt;hoist&lt;/tt&gt;, &lt;tt&gt;prepro&lt;/tt&gt;, &lt;tt&gt;postpro&lt;/tt&gt; — natural-transformation plumbing</h1>
 <p>Header: <code><a class="el" href="prepro_8hpp.html">smd/fixpoint/prepro.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>G, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Nat&gt;</div>
@@ -248,10 +248,10 @@ mutu</h2>
 <div class="ttc" id="anamespaceanonymous__namespace_02prepro__takewhile__sum_8cpp_03_html_a0f975e588782c9e9995f444a9902619d"><div class="ttname"><a href="namespaceanonymous__namespace_02prepro__takewhile__sum_8cpp_03.html#a0f975e588782c9e9995f444a9902619d">anonymous_namespace{prepro_takewhile_sum.cpp}::sum_algebra</a></div><div class="ttdeci">auto sum_algebra(const IntListF&lt; int &gt; &amp;layer) -&gt; int</div><div class="ttdef"><b>Definition:</b> prepro_takewhile_sum.cpp:50</div></div>
 </div><!-- fragment --><p>Example: <code>prepro_takewhile_sum</code> — take-while fused into a fold; prints <code>sum(take_while(&gt;=0, [3, 4, -1, 5])) = 7</code>.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md155"></a>
+<h1><a class="anchor" id="autotoc_md160"></a>
 §7.5 &lt;tt&gt;histo&lt;/tt&gt; and &lt;tt&gt;futu&lt;/tt&gt; — course-of-values (co)recursion</h1>
 <p>Header: <code><a class="el" href="cofree_8hpp.html">smd/fixpoint/cofree.hpp</a></code> + <code><a class="el" href="histo_8hpp.html">smd/fixpoint/histo.hpp</a></code>, <code><a class="el" href="free_8hpp.html">smd/fixpoint/free.hpp</a></code> + <code><a class="el" href="futu_8hpp.html">smd/fixpoint/futu.hpp</a></code>.</p>
-<h2><a class="anchor" id="autotoc_md156"></a>
+<h2><a class="anchor" id="autotoc_md161"></a>
 histo</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> histo(<span class="keyword">const</span> Algebra &amp;algebra, <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree) -&gt; Result;</div>
@@ -269,7 +269,7 @@ histo</h2>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> result = histo&lt;int&gt;(min_coins_algebra, nat_from_int(n));</div>
 </div><!-- fragment --><p>Example: <code>histo_coin_change</code> — minimal-coins DP over the history; prints <code>minCoins(8, coins={1,4,5}) = 2</code>, <code>minCoins(12, coins={1,4,5}) = 3</code>.</p>
-<h2><a class="anchor" id="autotoc_md157"></a>
+<h2><a class="anchor" id="autotoc_md162"></a>
 futu</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Coalgebra, <span class="keyword">class </span>Seed&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> futu(<span class="keyword">const</span> Coalgebra &amp;coalgebra, <span class="keyword">const</span> Seed &amp;seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a>;</div>
@@ -286,7 +286,7 @@ futu</h2>
 <div class="ttc" id="anamespaceanonymous__namespace_02futu__rle__decode_8cpp_03_html_a0ac95eb0cf558963e4753a13b2c43a57"><div class="ttname"><a href="namespaceanonymous__namespace_02futu__rle__decode_8cpp_03.html#a0ac95eb0cf558963e4753a13b2c43a57">anonymous_namespace{futu_rle_decode.cpp}::make_rle_coalgebra</a></div><div class="ttdeci">auto make_rle_coalgebra(const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;pairs)</div><div class="ttdef"><b>Definition:</b> futu_rle_decode.cpp:55</div></div>
 </div><!-- fragment --><p>Example: <code>futu_rle_decode</code> — run-length decode; prints <code>decoded: [7, 7, 1, 1, 1]</code> for input <code>[(2, 7), (3, 1)]</code>.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md159"></a>
+<h1><a class="anchor" id="autotoc_md164"></a>
 §7.6 &lt;tt&gt;dyna&lt;/tt&gt;, &lt;tt&gt;codyna&lt;/tt&gt;, &lt;tt&gt;chrono&lt;/tt&gt; — fused course-of-values refolds</h1>
 <p>Header: <code><a class="el" href="chrono_8hpp.html">smd/fixpoint/chrono.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra,</div>
@@ -312,7 +312,7 @@ futu</h2>
 <div class="line"><span class="keywordtype">int</span> fib_n = dyna&lt;int, NatF&gt;(fib_algebra, countdown, n);</div>
 </div><!-- fragment --><p>Example: <code>dyna_fibonacci</code> — fib(n) for n in 0..10, no <code>Nat</code> tree ever built.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md161"></a>
+<h1><a class="anchor" id="autotoc_md166"></a>
 §7.7 Mendler-style &lt;tt&gt;mcata&lt;/tt&gt; and &lt;tt&gt;mhisto&lt;/tt&gt;</h1>
 <p>Header: <code><a class="el" href="mendler_8hpp.html">smd/fixpoint/mendler.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MAlgebra&gt;</div>
@@ -337,7 +337,7 @@ futu</h2>
 <div class="line">std::println(<span class="stringliteral">&quot;mcata eval: {}&quot;</span>, mcata&lt;int, ExprF&gt;(eval_via_mcata, e));</div>
 </div><!-- fragment --><p>Example: <code>mendler_eval</code> — expression evaluation via <code>mcata</code>, with no <code>Functor</code> instance in sight.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md163"></a>
+<h1><a class="anchor" id="autotoc_md168"></a>
 §7.8 Elgot (co)algebras — &lt;tt&gt;elgot&lt;/tt&gt; and &lt;tt&gt;coelgot&lt;/tt&gt;</h1>
 <p>Header: <code><a class="el" href="elgot_8hpp.html">smd/fixpoint/elgot.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra,</div>
@@ -362,7 +362,7 @@ futu</h2>
 <div class="line"><span class="keywordtype">int</span> product = elgot&lt;int, IntListF&gt;(product_algebra, coalgebra, std::size_t{0});</div>
 </div><!-- fragment --><p>Example: <code>elgot_shortcircuit</code> — product-with-zero bailout; prints <code>elements examined: 3 / 6</code> alongside the product, since the product alone (0) can't show whether the short-circuit actually happened.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md165"></a>
+<h1><a class="anchor" id="autotoc_md170"></a>
 §7.9 Distributive laws</h1>
 <p>Header: <code><a class="el" href="dist__laws_8hpp.html">smd/fixpoint/dist_laws.hpp</a></code>. Not schemes themselves — the polymorphic function objects <code>dist(F&lt;W&lt;X&gt;&gt;) -&gt; W&lt;F&lt;X&gt;&gt;</code> (comonadic) or <code>dist(M&lt;F&lt;X&gt;&gt;) -&gt; F&lt;M&lt;X&gt;&gt;</code> (monadic) that parameterize gcata/gana/ghylo (§7.10) below. Per `DEV-02`, not every one of these is callable with zero explicit template arguments the way design §4 first suggested — three need their functor named explicitly, and two need an explicit result-element type, both genuine C++ deduction limits (a template-template parameter can't be recovered from an already-elaborated alias-template application; <code>make_left</code>'s result-side type is never deducible from its argument).</p>
 <table class="markdownTable">
@@ -387,7 +387,7 @@ futu</h2>
 </table>
 <p>No dedicated example; exercised end-to-end by <code>generalized_tour</code> (§7.10/11 below) and pinned by <code><a class="el" href="dist__laws_8t_8cpp.html">dist_laws.t.cpp</a></code>'s own shape/naturality tests.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md167"></a>
+<h1><a class="anchor" id="autotoc_md172"></a>
 §7.10 &lt;tt&gt;gcata&lt;/tt&gt;, &lt;tt&gt;gana&lt;/tt&gt;, &lt;tt&gt;ghylo&lt;/tt&gt; — comonadic/monadic generalizations</h1>
 <p>Header: <code><a class="el" href="generalized_8hpp.html">smd/fixpoint/generalized.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
@@ -420,7 +420,7 @@ futu</h2>
 <div class="line"><span class="comment">// fib_specialized == fib_generalized</span></div>
 </div><!-- fragment --><p>Example: <code>generalized_tour</code> — walks fold_fix/histo/dyna against their <code>gcata</code>/<code>ghylo</code> equivalents, printing each "specialized vs generalized" pair (and failing loudly, exit 1, on any mismatch).</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md169"></a>
+<h1><a class="anchor" id="autotoc_md174"></a>
 §7.11 &lt;tt&gt;gprepro&lt;/tt&gt;, &lt;tt&gt;gpostpro&lt;/tt&gt;, &lt;tt&gt;zygo_histo_prepro&lt;/tt&gt; — the capstone</h1>
 <p>Header: <code><a class="el" href="generalized_8hpp.html">smd/fixpoint/generalized.hpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Dist,</div>
@@ -449,7 +449,7 @@ down/out" delta <code>prepro</code>/<code>postpro</code> already have against <c
 <div class="line"><span class="comment">// [3, 4, -1, 5] -&gt; truncated to [3, 4] by e -&gt; result == 4</span></div>
 </div><!-- fragment --><p>Example: <code>generalized_tour</code>'s fourth section — the capstone computation above, printed against its hand-checked expectation (<code>4</code>).</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md171"></a>
+<h1><a class="anchor" id="autotoc_md176"></a>
 Supporting types</h1>
 <p>These aren't schemes but are used throughout the catalog above:</p>
 <ul>

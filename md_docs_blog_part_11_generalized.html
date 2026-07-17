@@ -99,17 +99,17 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_11_generalized.html'
   <div class="headertitle"><div class="title">part-11-generalized </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="orga38389c"> </div><div class="abstract" id="orga38389c"> Ten parts of schemes, each "fold_fix with a richer carrier". Here is the theorem behind the pattern: every fold in the catalog is one construction &amp;#x2014; gcata &amp;#x2014; instantiated at a comonad, every unfold is gana at a monad, and the only scheme-specific ingredient is a distributive law that pushes the functor through the (co)monad. The proof is executable and ships as an example. </div><div class="abstract" id="orga38389c"></div><div class="abstract" id="orga38389c"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="org4c6b005"> </div><div class="abstract" id="org4c6b005"> Ten parts of schemes, each "fold_fix with a richer carrier". Here is the theorem behind the pattern: every fold in the catalog is one construction &mdash; gcata &mdash; instantiated at a comonad, every unfold is gana at a monad, and the only scheme-specific ingredient is a distributive law that pushes the functor through the (co)monad. The proof is executable and ships as an example. </div><div class="abstract" id="org4c6b005"></div><div class="abstract" id="org4c6b005"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_10_elgot.html">Part 10 - Elgot Algebras ←</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md42"></a>
 The Carriers Were (Co)monads All Along</h1>
-<p>Line up the fold carriers this series has used: <code>Result</code> bare, then <code>pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;</code> (para), <code>pair&lt;Helper, Result&gt;</code> (zygo), <code>Cofree&lt;F, Result&gt;</code> (histo). Each is a comonad <code>W</code> applied to <code>Result</code> &amp;#x2014; the Identity comonad, the env comonad twice, Cofree. The unfold carriers: <code>Seed</code> bare (Identity monad), <code>either&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Seed&gt;</code> (apo &amp;#x2014; either's right-biased monad), <code>Free&lt;F, Seed&gt;</code> (futu). Monads, every one. The library registered exactly these <code>comonad_typeclass</code> and <code>monad_typeclass</code> instances back in their own parts, quietly.</p>
-<p>Uustalu, Vene, and Pardo made the pattern a theorem (Uustalu, Tarmo and Vene, Varmo and Pardo, Alberto, 2001): a fold with carrier <code>W&lt;Result&gt;</code> needs only one scheme-specific ingredient &amp;#x2014; a <em>distributive law</em> of the functor over the comonad, <code>dist : F&lt;W&lt;X&gt;&gt; -&gt; W&lt;F&lt;X&gt;&gt;</code> for every <code>X</code>. Kmett's library packages that as <code>gcata~/~gana</code> (Kmett, Edward, 2011); Hinze, Wu, and Gibbons later unified further (Hinze, Ralf and Wu, Nicolas and Gibbons, Jeremy, 2013). This library transcribes the whole apparatus.</p>
+<p>Line up the fold carriers this series has used: <code>Result</code> bare, then <code>pair&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Result&gt;</code> (para), <code>pair&lt;Helper, Result&gt;</code> (zygo), <code>Cofree&lt;F, Result&gt;</code> (histo). Each is a comonad <code>W</code> applied to <code>Result</code> &mdash; the Identity comonad, the env comonad twice, Cofree. The unfold carriers: <code>Seed</code> bare (Identity monad), <code>either&lt;<a class="el" href="structFix.html">Fix</a>&lt;F&gt;, Seed&gt;</code> (apo &mdash; either's right-biased monad), <code>Free&lt;F, Seed&gt;</code> (futu). Monads, every one. The library registered exactly these <code>comonad_typeclass</code> and <code>monad_typeclass</code> instances back in their own parts, quietly.</p>
+<p>Uustalu, Vene, and Pardo made the pattern a theorem (Uustalu, Tarmo and Vene, Varmo and Pardo, Alberto, 2001): a fold with carrier <code>W&lt;Result&gt;</code> needs only one scheme-specific ingredient &mdash; a <em>distributive law</em> of the functor over the comonad, <code>dist : F&lt;W&lt;X&gt;&gt; -&gt; W&lt;F&lt;X&gt;&gt;</code> for every <code>X</code>. Kmett's library packages that as <code>gcata~/~gana</code> (Kmett, Edward, 2011); Hinze, Wu, and Gibbons later unified further (Hinze, Ralf and Wu, Nicolas and Gibbons, Jeremy, 2013). This library transcribes the whole apparatus.</p>
 <h1><a class="anchor" id="autotoc_md43"></a>
 The Laws Themselves</h1>
-<p>A distributive law is another polymorphic function object &amp;#x2014; Part 6's natural transformation, one level up. The simplest two, from <a href="../../src/smd/fixpoint/dist_laws.hpp"><code>src/smd/fixpoint/dist_laws.hpp</code></a>:</p>
+<p>A distributive law is another polymorphic function object &mdash; Part 6's natural transformation, one level up. The simplest two, from <a href="../../src/smd/fixpoint/dist_laws.hpp"><code>src/smd/fixpoint/dist_laws.hpp</code></a>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">struct </span>dist_cata_t {</div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> Layer&gt; <span class="comment">// Layer = F&lt;Identity&lt;A&gt;&gt;</span></div>
@@ -126,8 +126,8 @@ The Laws Themselves</h1>
 <div class="line"> </div>
 <div class="line"><span class="keyword">struct </span>dist_ana_t {</div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> Layer&gt; <span class="comment">// Layer = F&lt;A&gt;; argument is Identity&lt;Layer&gt;</span></div>
-<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> operator()(<span class="keyword">const</span> <a class="code hl_struct" href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity&lt;Layer&gt;</a> &amp;ident)<span class="keyword"></span></div>
-<div class="line"><span class="keyword">        const </span>{</div>
+<div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span></div>
+<div class="line">    operator()(<span class="keyword">const</span> <a class="code hl_struct" href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity&lt;Layer&gt;</a> &amp;ident)<span class="keyword"> const </span>{</div>
 <div class="line">        <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#aa4d11a627a08cb72e17923e11fd1346c">layer_fmap</a>(</div>
 <div class="line">            [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;x) {</div>
 <div class="line">                <span class="keywordflow">return</span> <a class="code hl_struct" href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity</a>&lt;</div>
@@ -142,15 +142,15 @@ The Laws Themselves</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_aa4d11a627a08cb72e17923e11fd1346c"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#aa4d11a627a08cb72e17923e11fd1346c">smd::fixpoint::layer_fmap</a></div><div class="ttdeci">constexpr auto layer_fmap(Fn &amp;&amp;fn, const Layer &amp;layer)</div><div class="ttdef"><b>Definition:</b> fmap.hpp:66</div></div>
 <div class="ttc" id="astructsmd_1_1typeclass_1_1Identity_html"><div class="ttname"><a href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity</a></div><div class="ttdef"><b>Definition:</b> identity.hpp:26</div></div>
 <div class="ttc" id="astructsmd_1_1typeclass_1_1Identity_html_af8aea04f10635ad312c33ea3de50a886"><div class="ttname"><a href="structsmd_1_1typeclass_1_1Identity.html#af8aea04f10635ad312c33ea3de50a886">smd::typeclass::Identity::value</a></div><div class="ttdeci">A value</div><div class="ttdef"><b>Definition:</b> identity.hpp:28</div></div>
-</div><!-- fragment --><p><code>dist_cata</code> pushes Identity out of a layer; <code>dist_ana</code> pushes it in. (The <code>dist_ana</code> comment preserves a real bug hunt: <code>Identity{x}</code> with CTAD silently <em>copies</em> an <code>x</code> that is already an <code>Identity</code> instead of nesting it &amp;#x2014; the deduction-guide copy candidate, the same reason <code>vector{v}</code> copies. Naming the template argument sidesteps CTAD. Deviations like this are logged, not patched over.)</p>
+</div><!-- fragment --><p><code>dist_cata</code> pushes Identity out of a layer; <code>dist_ana</code> pushes it in. (The <code>dist_ana</code> comment preserves a real bug hunt: <code>Identity{x}</code> with CTAD silently <em>copies</em> an <code>x</code> that is already an <code>Identity</code> instead of nesting it &mdash; the deduction-guide copy candidate, the same reason <code>vector{v}</code> copies. Naming the template argument sidesteps CTAD. Deviations like this are logged, not patched over.)</p>
 <p>The interesting law is histo's:</p>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F&gt;</div>
 <div class="line"><span class="keyword">struct </span>dist_histo_t {</div>
 <div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> A&gt;</div>
 <div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> operator()(<span class="keyword">const</span> F&lt;Cofree&lt;F, A&gt;&gt; &amp;l) <span class="keyword">const</span></div>
 <div class="line">        -&gt; Cofree&lt;F, F&lt;A&gt;&gt; {</div>
-<div class="line">        <span class="keyword">auto</span> head = layer_fmap(</div>
-<div class="line">            [](<span class="keyword">const</span> Cofree&lt;F, A&gt; &amp;c) { <span class="keywordflow">return</span> extract(c); }, l);</div>
+<div class="line">        <span class="keyword">auto</span> head =</div>
+<div class="line">            layer_fmap([](<span class="keyword">const</span> Cofree&lt;F, A&gt; &amp;c) { <span class="keywordflow">return</span> extract(c); }, l);</div>
 <div class="line">        <span class="keyword">auto</span> tail = layer_fmap(</div>
 <div class="line">            [<span class="keyword">this</span>](<span class="keyword">const</span> Cofree&lt;F, A&gt; &amp;c) -&gt; Cofree&lt;F, F&lt;A&gt;&gt; {</div>
 <div class="line">                <span class="keywordflow">return</span> (*<span class="keyword">this</span>)(c.tail);</div>
@@ -163,7 +163,7 @@ The Laws Themselves</h1>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F&gt;</div>
 <div class="line"><span class="keyword">inline</span> <span class="keyword">constexpr</span> dist_histo_t&lt;F&gt; <a class="code hl_variable" href="namespacesmd_1_1fixpoint.html#a6247b0446aa184473a192adad6a41667">dist_histo</a>{};</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a6247b0446aa184473a192adad6a41667"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a6247b0446aa184473a192adad6a41667">smd::fixpoint::dist_histo</a></div><div class="ttdeci">constexpr dist_histo_t&lt; F &gt; dist_histo</div><div class="ttdef"><b>Definition:</b> dist_laws.hpp:158</div></div>
-</div><!-- fragment --><p><code>F&lt;Cofree&lt;F,A&gt;&gt; -&gt; Cofree&lt;F, F&lt;A&gt;&gt;</code>: heads out, tails redistributed, recursively. Note it is a variable <em>template</em>, called <code>dist_histo&lt;F&gt;(layer)</code> with <code>F</code> explicit &amp;#x2014; a genuine C++ deduction limit, recorded as a deviation: GCC cannot deduce a template-template parameter back out of an already-elaborated alias application. The full roster &amp;#x2014; <code>dist_zygo(helper)</code>, <code>dist_para&lt;F&gt;</code>, <code>dist_apo</code>, <code>dist_futu&lt;F&gt;</code>, <code>dist_gapo(coalg)</code> &amp;#x2014; lives in the same header, each side of Part 4's pair/either duality getting its mirror-image law.</p>
+</div><!-- fragment --><p><code>F&lt;Cofree&lt;F,A&gt;&gt; -&gt; Cofree&lt;F, F&lt;A&gt;&gt;</code>: heads out, tails redistributed, recursively. Note it is a variable <em>template</em>, called <code>dist_histo&lt;F&gt;(layer)</code> with <code>F</code> explicit &mdash; a genuine C++ deduction limit, recorded as a deviation: GCC cannot deduce a template-template parameter back out of an already-elaborated alias application. The full roster &mdash; <code>dist_zygo(helper)</code>, <code>dist_para&lt;F&gt;</code>, <code>dist_apo</code>, <code>dist_futu&lt;F&gt;</code>, <code>dist_gapo(coalg)</code> &mdash; lives in the same header, each side of Part 4's pair/either duality getting its mirror-image law.</p>
 <h1><a class="anchor" id="autotoc_md44"></a>
 gcata: One Fold to Rule Them</h1>
 <p>From <a href="../../src/smd/fixpoint/generalized.hpp"><code>src/smd/fixpoint/generalized.hpp</code></a>:</p>
@@ -200,24 +200,21 @@ gcata: One Fold to Rule Them</h1>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a356b503bd1b48e5a3ef5a93caee729b1"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a></div><div class="ttdeci">constexpr auto extract(const Cofree&lt; F, A &gt; &amp;c) -&gt; const A &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:55</div></div>
 <div class="ttc" id="asmd_2fixpoint_2fixpoint__tree__example_8cpp_html_afc68f0a4db3ef52829b14e9682553d1d"><div class="ttname"><a href="smd_2fixpoint_2fixpoint__tree__example_8cpp.html#afc68f0a4db3ef52829b14e9682553d1d">fmap</a></div><div class="ttdeci">ExprF&lt; B &gt; fmap(Func &amp;&amp;f, const ExprF&lt; A &gt; &amp;fa)</div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:62</div></div>
 <div class="ttc" id="astructFix_html"><div class="ttname"><a href="structFix.html">Fix</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:38</div></div>
-</div><!-- fragment --><p>The worker <code>c : <a class="el" href="structFix.html">Fix</a>&lt;F&gt; -&gt; W&lt;F&lt;WResult&gt;&gt;</code> is the equation <code>c = k ∘ fmapF(duplicate ∘ fmapW g ∘ c) ∘ unfix</code> made into a struct, and the struct-ness is itself a lesson: <code>c</code> recurses into itself through a lambda, and a deduced return type cannot be used before its own deduction completes &amp;#x2014; so the return type <code>C</code> is computed <em>up front</em>, from <code>Result~/~WResult~/~F~/~Dist</code> alone, and the worker is a named type recursing via <code>(*this)</code>. Every self-recursive helper in this codebase independently rediscovered that discipline; the header comments cite the trail.</p>
-<p>One subtlety the comment documents: only <em>one</em> <code>comonad_typeclass</code> lookup happens, keyed on <code>WResult</code>, even though the worker needs <code>extract~/~duplicate~/~fmap</code> at other instantiations along the way. That works because every comonad instance in the library keeps its operations generic over their element type &amp;#x2014; the instance's keying type pins the <em>shape</em> (which comonad), not the element. A design invariant, discovered the hard way and then enforced everywhere.</p>
+</div><!-- fragment --><p>The worker <code>c : <a class="el" href="structFix.html">Fix</a>&lt;F&gt; -&gt; W&lt;F&lt;WResult&gt;&gt;</code> is the equation <code>c = k ∘ fmapF(duplicate ∘ fmapW g ∘ c) ∘ unfix</code> made into a struct, and the struct-ness is itself a lesson: <code>c</code> recurses into itself through a lambda, and a deduced return type cannot be used before its own deduction completes &mdash; so the return type <code>C</code> is computed <em>up front</em>, from <code>Result~/~WResult~/~F~/~Dist</code> alone, and the worker is a named type recursing via <code>(*this)</code>. Every self-recursive helper in this codebase independently rediscovered that discipline; the header comments cite the trail.</p>
+<p>One subtlety the comment documents: only <em>one</em> <code>comonad_typeclass</code> lookup happens, keyed on <code>WResult</code>, even though the worker needs <code>extract~/~duplicate~/~fmap</code> at other instantiations along the way. That works because every comonad instance in the library keeps its operations generic over their element type &mdash; the instance's keying type pins the <em>shape</em> (which comonad), not the element. A design invariant, discovered the hard way and then enforced everywhere.</p>
 <p>The recoveries are almost embarrassing in their brevity:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> cata_via_gcata(<span class="keyword">const</span> Algebra &amp;algebra, <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree)</div>
 <div class="line">    -&gt; Result {</div>
 <div class="line">    <span class="keyword">auto</span> algebra_prime =</div>
-<div class="line">        [&amp;algebra](<span class="keyword">const</span> F&lt;smd::typeclass::Identity&lt;Result&gt;&gt; &amp;layer)</div>
-<div class="line">        -&gt; Result {</div>
-<div class="line">        <span class="keywordflow">return</span> algebra(layer_fmap(</div>
-<div class="line">            [](<span class="keyword">const</span> <a class="code hl_struct" href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity&lt;Result&gt;</a> &amp;i) -&gt; Result {</div>
-<div class="line">                <span class="keywordflow">return</span> i.<a class="code hl_variable" href="structsmd_1_1typeclass_1_1Identity.html#af8aea04f10635ad312c33ea3de50a886">value</a>;</div>
-<div class="line">            },</div>
-<div class="line">            layer));</div>
+<div class="line">        [&amp;algebra](<span class="keyword">const</span> F&lt;smd::typeclass::Identity&lt;Result&gt;&gt; &amp;layer) -&gt; Result {</div>
+<div class="line">        <span class="keywordflow">return</span> algebra(layer_fmap([](<span class="keyword">const</span> <a class="code hl_struct" href="structsmd_1_1typeclass_1_1Identity.html">smd::typeclass::Identity&lt;Result&gt;</a> &amp;i)</div>
+<div class="line">                                      -&gt; Result { <span class="keywordflow">return</span> i.<a class="code hl_variable" href="structsmd_1_1typeclass_1_1Identity.html#af8aea04f10635ad312c33ea3de50a886">value</a>; },</div>
+<div class="line">                                  layer));</div>
 <div class="line">    };</div>
-<div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, smd::typeclass::Identity&lt;Result&gt;&gt;(</div>
-<div class="line">        <a class="code hl_variable" href="namespacesmd_1_1fixpoint.html#a067560e63808255b7da7693f360d2e39">dist_cata</a>, algebra_prime, tree);</div>
+<div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, smd::typeclass::Identity&lt;Result&gt;&gt;(<a class="code hl_variable" href="namespacesmd_1_1fixpoint.html#a067560e63808255b7da7693f360d2e39">dist_cata</a>,</div>
+<div class="line">                                                           algebra_prime, tree);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
@@ -226,26 +223,26 @@ gcata: One Fold to Rule Them</h1>
 <div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, Cofree&lt;F, Result&gt;&gt;(dist_histo&lt;F&gt;, algebra, tree);</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> Helper, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F,</div>
-<div class="line">          <span class="keyword">class </span>HelperAlg, <span class="keyword">class </span>MainAlg&gt;</div>
+<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> Helper, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>HelperAlg,</div>
+<div class="line">          <span class="keyword">class </span>MainAlg&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#ac62fa910619352fe72784504765bff5a">zygo_via_gcata</a>(<span class="keyword">const</span> HelperAlg &amp;helper, <span class="keyword">const</span> MainAlg &amp;<a class="code hl_function" href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>,</div>
 <div class="line">                              <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree) -&gt; Result {</div>
 <div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, std::pair&lt;Helper, Result&gt;&gt;(<a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a29d65ff75c18cc72dba6682f4fc4cd0a">dist_zygo</a>(helper), <a class="code hl_function" href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>,</div>
-<div class="line">                                                     tree);</div>
+<div class="line">                                                    tree);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#af031045c1c76f4171858c31585f8b0cc">para_via_gcata</a>(<span class="keyword">const</span> Algebra &amp;algebra, <span class="keyword">const</span> <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> &amp;tree)</div>
 <div class="line">    -&gt; Result {</div>
 <div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, std::pair&lt;Fix&lt;F&gt;, Result&gt;&gt;(dist_para&lt;F&gt;, algebra,</div>
-<div class="line">                                                     tree);</div>
+<div class="line">                                                    tree);</div>
 <div class="line">}</div>
 <div class="ttc" id="aapo__sorted__insert_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> apo_sorted_insert.cpp:84</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a29d65ff75c18cc72dba6682f4fc4cd0a"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a29d65ff75c18cc72dba6682f4fc4cd0a">smd::fixpoint::dist_zygo</a></div><div class="ttdeci">constexpr auto dist_zygo(HelperAlg helper) -&gt; dist_zygo_t&lt; HelperAlg &gt;</div><div class="ttdef"><b>Definition:</b> dist_laws.hpp:242</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_ac62fa910619352fe72784504765bff5a"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#ac62fa910619352fe72784504765bff5a">smd::fixpoint::zygo_via_gcata</a></div><div class="ttdeci">constexpr auto zygo_via_gcata(const HelperAlg &amp;helper, const MainAlg &amp;main, const Fix&lt; F &gt; &amp;tree) -&gt; Result</div><div class="ttdef"><b>Definition:</b> generalized.hpp:169</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_ad436e3636237374a0d1ee86cfb97e823"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#ad436e3636237374a0d1ee86cfb97e823">smd::fixpoint::histo_via_gcata</a></div><div class="ttdeci">constexpr auto histo_via_gcata(const Algebra &amp;algebra, const Fix&lt; F &gt; &amp;tree) -&gt; Result</div><div class="ttdef"><b>Definition:</b> generalized.hpp:155</div></div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_af031045c1c76f4171858c31585f8b0cc"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#af031045c1c76f4171858c31585f8b0cc">smd::fixpoint::para_via_gcata</a></div><div class="ttdeci">constexpr auto para_via_gcata(const Algebra &amp;algebra, const Fix&lt; F &gt; &amp;tree) -&gt; Result</div><div class="ttdef"><b>Definition:</b> generalized.hpp:184</div></div>
-</div><!-- fragment --><p><code>histo</code>, <code>zygo</code>, <code>para</code>: their algebras pass through <em>unchanged</em>, because their carriers were already exactly <code>W&lt;Result&gt;</code> for the right <code>W</code>. Only <code>cata</code> needs a shim &amp;#x2014; its plain algebra never knew about the Identity wrappers. The catalog's folds were <code>gcata</code> instances all along; the recovery functions just say so in the type system.</p>
+</div><!-- fragment --><p><code>histo</code>, <code>zygo</code>, <code>para</code>: their algebras pass through <em>unchanged</em>, because their carriers were already exactly <code>W&lt;Result&gt;</code> for the right <code>W</code>. Only <code>cata</code> needs a shim &mdash; its plain algebra never knew about the Identity wrappers. The catalog's folds were <code>gcata</code> instances all along; the recovery functions just say so in the type system.</p>
 <h1><a class="anchor" id="autotoc_md45"></a>
 gana and ghylo: The Mirror and the Fusion</h1>
 <div class="fragment"><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MSeed, <span class="keyword">class </span>Dist, <span class="keyword">class </span>GCoalgebra&gt;</div>
@@ -261,8 +258,7 @@ gana and ghylo: The Mirror and the Fusion</h1>
 <div class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> operator()(<span class="keyword">const</span> MFMS &amp;m) <span class="keyword">const</span> -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
 <div class="line">        <span class="keywordflow">return</span> wrap_fix&lt;F&gt;(layer_fmap(</div>
 <div class="line">            [<span class="keyword">this</span>](<span class="keyword">const</span> MMS &amp;mms) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
-<div class="line">                <span class="keyword">auto</span> joined =</div>
-<div class="line">                    smd::typeclass::monad_typeclass&lt;MSeed&gt;.join(mms);</div>
+<div class="line">                <span class="keyword">auto</span> joined = smd::typeclass::monad_typeclass&lt;MSeed&gt;.join(mms);</div>
 <div class="line">                <span class="keyword">auto</span> next = layer_fmap(coalgebra, joined);</div>
 <div class="line">                <span class="keywordflow">return</span> (*<span class="keyword">this</span>)(next);</div>
 <div class="line">            },</div>
@@ -270,16 +266,15 @@ gana and ghylo: The Mirror and the Fusion</h1>
 <div class="line">    }</div>
 <div class="line">};</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MSeed, <span class="keyword">class </span>Dist,</div>
-<div class="line">          <span class="keyword">class </span>GCoalgebra, <span class="keyword">class </span>Seed&gt;</div>
+<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MSeed, <span class="keyword">class </span>Dist, <span class="keyword">class </span>GCoalgebra,</div>
+<div class="line">          <span class="keyword">class </span>Seed&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a4f58f26aecc7d848aa4d5dd95f43c86c">gana</a>(<span class="keyword">const</span> Dist &amp;dist, <span class="keyword">const</span> GCoalgebra &amp;coalgebra,</div>
 <div class="line">                    <span class="keyword">const</span> Seed &amp;seed) -&gt; <a class="code hl_struct" href="structFix.html">Fix&lt;F&gt;</a> {</div>
 <div class="line">    gana_worker_t&lt;F, MSeed, Dist, GCoalgebra&gt; worker{dist, coalgebra};</div>
-<div class="line">    <span class="keywordflow">return</span> worker(</div>
-<div class="line">        smd::typeclass::monad_typeclass&lt;MSeed&gt;.pure(coalgebra(seed)));</div>
+<div class="line">    <span class="keywordflow">return</span> worker(smd::typeclass::monad_typeclass&lt;MSeed&gt;.pure(coalgebra(seed)));</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a4f58f26aecc7d848aa4d5dd95f43c86c"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a4f58f26aecc7d848aa4d5dd95f43c86c">smd::fixpoint::gana</a></div><div class="ttdeci">constexpr auto gana(const Dist &amp;dist, const GCoalgebra &amp;coalgebra, const Seed &amp;seed) -&gt; Fix&lt; F &gt;</div><div class="ttdef"><b>Definition:</b> generalized.hpp:272</div></div>
-</div><!-- fragment --><p><code>gana</code> mirrors <code>gcata</code> arrow for arrow: monad for comonad, <code>pure</code> for <code>extract</code>, <code>join</code> for <code>duplicate</code>, the distributive law flipped to <code>M&lt;F&lt;X&gt;&gt; -&gt; F&lt;M&lt;X&gt;&gt;</code>. <code>ana_via_gana</code>, <code>apo_via_gana</code>, and <code>futu_via_gana</code> recover the unfolds exactly as their fold counterparts did &amp;#x2014; apo and futu passing their coalgebras straight through.</p>
+</div><!-- fragment --><p><code>gana</code> mirrors <code>gcata</code> arrow for arrow: monad for comonad, <code>pure</code> for <code>extract</code>, <code>join</code> for <code>duplicate</code>, the distributive law flipped to <code>M&lt;F&lt;X&gt;&gt; -&gt; F&lt;M&lt;X&gt;&gt;</code>. <code>ana_via_gana</code>, <code>apo_via_gana</code>, and <code>futu_via_gana</code> recover the unfolds exactly as their fold counterparts did &mdash; apo and futu passing their coalgebras straight through.</p>
 <p><code>ghylo</code> composes both halves:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">class</span> WResult, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>MSeed,</div>
@@ -288,13 +283,13 @@ gana and ghylo: The Mirror and the Fusion</h1>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> ghylo(<span class="keyword">const</span> WDist &amp;w_dist, <span class="keyword">const</span> GAlgebra &amp;algebra,</div>
 <div class="line">                     <span class="keyword">const</span> MDist &amp;m_dist, <span class="keyword">const</span> GCoalgebra &amp;coalgebra,</div>
 <div class="line">                     <span class="keyword">const</span> Seed &amp;seed) -&gt; Result {</div>
-<div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, WResult&gt;(</div>
-<div class="line">        w_dist, algebra, gana&lt;F, MSeed&gt;(m_dist, coalgebra, seed));</div>
+<div class="line">    <span class="keywordflow">return</span> gcata&lt;Result, WResult&gt;(w_dist, algebra,</div>
+<div class="line">                                  gana&lt;F, MSeed&gt;(m_dist, coalgebra, seed));</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>The header is candid: this shipped <em>materializing</em> &amp;#x2014; <code>gcata</code> after <code>gana</code>, intermediate tree and all &amp;#x2014; because it passed every recovery law on the first attempt and performance is an explicit non-goal. An honest engineering judgment, written where users will read it.</p>
+</div><!-- fragment --><p>The header is candid: this shipped <em>materializing</em> &mdash; <code>gcata</code> after <code>gana</code>, intermediate tree and all &mdash; because it passed every recovery law on the first attempt and performance is an explicit non-goal. An honest engineering judgment, written where users will read it.</p>
 <h1><a class="anchor" id="autotoc_md46"></a>
 The Proof Runs</h1>
-<p>The example <a href="../../src/examples/generalized_tour.cpp"><code>src/examples/generalized_tour.cpp</code></a> computes each answer twice &amp;#x2014; classical scheme and generalized recovery &amp;#x2014; and exits nonzero on any mismatch:</p>
+<p>The example <a href="../../src/examples/generalized_tour.cpp"><code>src/examples/generalized_tour.cpp</code></a> computes each answer twice &mdash; classical scheme and generalized recovery &mdash; and exits nonzero on any mismatch:</p>
 <div class="fragment"><div class="line"><span class="comment">// ---------------------------------------------------------------------</span></div>
 <div class="line"><span class="comment">// 1. fold_fix vs cata_via_gcata(dist_cata) -- Nat count, n = 5.</span></div>
 <div class="line"><span class="comment">// ---------------------------------------------------------------------</span></div>
@@ -340,7 +335,7 @@ The Proof Runs</h1>
 References</h1>
 <p>Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). <b>Recursion Schemes from Comonads</b>, Nordic Journal of Computing 8(3).</p>
 <p>Hinze, Ralf, Wu, Nicolas, and Gibbons, Jeremy (2013). <b>Unifying Structured Recursion Schemes</b>, ICFP '13.</p>
-<p>Kmett, Edward (2011&amp;#x2013;). <b>recursion-schemes</b>, Hackage, <a href="https://hackage.haskell.org/package/recursion-schemes">https://hackage.haskell.org/package/recursion-schemes</a>. </p>
+<p>Kmett, Edward (2011&ndash;). <b>recursion-schemes</b>, Hackage, <a href="https://hackage.haskell.org/package/recursion-schemes">https://hackage.haskell.org/package/recursion-schemes</a>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

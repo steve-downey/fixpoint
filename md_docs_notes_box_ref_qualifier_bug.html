@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.6"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>fixpoint: docs Directory Reference</title>
+<title>fixpoint: Follow-up: ill-formed overload pair in &lt;tt&gt;Box::operator*()&lt;/tt&gt;</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -70,7 +70,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('dir_49e56c817e5e54854c35e136979f97ca.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('md_docs_notes_box_ref_qualifier_bug.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -95,24 +95,38 @@ $(document).ready(function(){initNavTree('dir_49e56c817e5e54854c35e136979f97ca.h
 </div>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">docs Directory Reference</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">Follow-up: ill-formed overload pair in <code>Box::operator*()</code> </div></div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="subdirs" name="subdirs"></a>
-Directories</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_afb419e6288d1cbdfc085b2f331896c2.html">blog</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_a89f20f3fcaf04dc952776a22f85b2f8.html">notes</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-</div><!-- contents -->
+<div class="textblock"><p><b>File:</b> <code><a class="el" href="box_8hpp.html">src/smd/fixpoint/box.hpp</a></code>, lines 54-55 (as of commit <code>8ad39f4</code>)</p>
+<div class="fragment"><div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> operator*() const -&gt; A &amp; { <span class="keywordflow">return</span> *ptr; }</div>
+<div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> operator*() &amp;&amp; -&gt; A &amp;&amp; { <span class="keywordflow">return</span> std::move(*ptr); }</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md111"></a>
+Problem</h1>
+<p>These two overloads mix a non-ref-qualified member function (<code>const</code>) with a ref-qualified one (<code>&amp;&amp;</code>) for the same signature. Per [over.load], within a class it is ill-formed to declare a ref-qualified overload and a non-ref-qualified overload of the same member function — every overload of that name/signature must either all be ref-qualified or none of them.</p>
+<p>This is IFNDR (ill-formed, no diagnostic required), which is presumably why it has gone unnoticed: whatever toolchain was used to develop/test fixpoint accepted it silently. <b>GCC 15.2.0 (Ubuntu) rejects it as a hard error:</b></p>
+<div class="fragment"><div class="line">box.hpp:55:20: error: &#39;constexpr int&amp;&amp; Box::get() &amp;&amp;&#39; cannot be overloaded</div>
+<div class="line">with &#39;constexpr int&amp; Box::get() const&#39;</div>
+</div><!-- fragment --><p>(reproduced with a minimal <code>Box</code>-shaped repro, not just in-place).</p>
+<h1><a class="anchor" id="autotoc_md112"></a>
+Where this was found</h1>
+<p>Discovered 2026-07-17 while vendoring a snapshot of this repo (commit <code>8ad39f4</code>) into <code>generic_monads</code> for the monadic-algorithms plan — see that repo's <code>docs/notes/s01-vendoring.org</code>. The vendored copy has already been fixed there (see below); <b>this repo (fixpoint) itself still has the bug</b>, this note is the flagged follow-up.</p>
+<h1><a class="anchor" id="autotoc_md113"></a>
+Suggested fix</h1>
+<p><a class="el" href="structAdd.html">Add</a> the explicit <code>&amp;</code> lvalue ref-qualifier to the first overload:</p>
+<div class="fragment"><div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> operator*() const &amp; -&gt; A &amp; { <span class="keywordflow">return</span> *ptr; }</div>
+<div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> operator*() &amp;&amp; -&gt; A &amp;&amp; { <span class="keywordflow">return</span> std::move(*ptr); }</div>
+</div><!-- fragment --><p>Semantically identical (lvalue <code>*box</code> still resolves to the first overload; rvalue <code>*std::move(box)</code> still resolves to the second), and standard-conformant.</p>
+<h1><a class="anchor" id="autotoc_md114"></a>
+Scope check</h1>
+<p>Grepped the rest of <code>src/smd/</code> for the same pattern (a <code>&amp;&amp;</code>-qualified member mixed with a non-ref-qualified sibling of the same signature). Only <code><a class="el" href="box_8hpp.html">box.hpp</a></code> is affected — <code><a class="el" href="one__shot_8hpp.html">one_shot.hpp</a>:97</code>'s <code>operator()(Args...) &amp;&amp;</code> has no unqualified sibling overload, so it's fine as-is. </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_49e56c817e5e54854c35e136979f97ca.html">docs</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>

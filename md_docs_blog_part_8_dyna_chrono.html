@@ -99,7 +99,7 @@ $(document).ready(function(){initNavTree('md_docs_blog_part_8_dyna_chrono.html',
   <div class="headertitle"><div class="title">part-8-dyna-chrono </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><div class="abstract" id="org27c68dd"> </div><div class="abstract" id="org27c68dd"> Part 3's refold fused fold-after-unfold so the tree never exists. Part 7's histo and futu gave folds history and unfolds chunks. Compose the two ideas and you get dynamic programming straight from a seed: dyna, codyna, and chrono, where Fibonacci's memo table is a Cofree that no one ever declared. </div><div class="abstract" id="org27c68dd"></div><div class="abstract" id="org27c68dd"></div><p>{{TEASER_END}}</p>
+<div class="textblock"><div class="abstract" id="org7c36ab2"> </div><div class="abstract" id="org7c36ab2"> Part 3's refold fused fold-after-unfold so the tree never exists. Part 7's histo and futu gave folds history and unfolds chunks. Compose the two ideas and you get dynamic programming straight from a seed: dyna, codyna, and chrono, where Fibonacci's memo table is a Cofree that no one ever declared. </div><div class="abstract" id="org7c36ab2"></div><div class="abstract" id="org7c36ab2"></div><p>{{TEASER_END}}</p>
 <p>&lt;nav style="margin-bottom: 2em; border-bottom: 1px solid #ccc; padding-bottom: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_7_histo_futu.html">Part 7 - Histomorphisms and Futumorphisms ←</a></p>
 <p>&lt;/nav&gt;</p>
@@ -109,7 +109,7 @@ Three Fusions, One Header</h1>
 <div class="fragment"><div class="line">dyna    = histo . ana     -- fold-with-history over a generated structure</div>
 <div class="line">codyna  = cata  . futu    -- plain fold over a chunked unfold</div>
 <div class="line">chrono  = histo . futu    -- history on the way up, chunks on the way down</div>
-</div><!-- fragment --><p>Each could be written as exactly that composition &amp;#x2014; unfold, then fold &amp;#x2014; and the test suite does write them that way, as the laws that pin the fused versions. But the composition builds the whole intermediate <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> and walks it twice. The header fuses each through <code>refold</code>, so the intermediate tree <em>never exists</em>; the coalgebra's layers flow straight into the algebra's carrier.</p>
+</div><!-- fragment --><p>Each could be written as exactly that composition &mdash; unfold, then fold &mdash; and the test suite does write them that way, as the laws that pin the fused versions. But the composition builds the whole intermediate <code><a class="el" href="structFix.html">Fix</a>&lt;F&gt;</code> and walks it twice. The header fuses each through <code>refold</code>, so the intermediate tree <em>never exists</em>; the coalgebra's layers flow straight into the algebra's carrier.</p>
 <h1><a class="anchor" id="autotoc_md101"></a>
 dyna: The Dynamorphism</h1>
 <p>From <a href="../../src/smd/fixpoint/chrono.hpp"><code>src/smd/fixpoint/chrono.hpp</code></a>:</p>
@@ -125,7 +125,7 @@ dyna: The Dynamorphism</h1>
 <div class="line">    <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">extract</a>(refold&lt;Carrier, F&gt;(combined, coalgebra, seed));</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a356b503bd1b48e5a3ef5a93caee729b1"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">smd::fixpoint::extract</a></div><div class="ttdeci">constexpr auto extract(const Cofree&lt; F, A &gt; &amp;c) -&gt; const A &amp;</div><div class="ttdef"><b>Definition:</b> cofree.hpp:55</div></div>
-</div><!-- fragment --><p>Compare with <code>histo</code> from Part 7: identical <code>combined</code> algebra, identical <code>Cofree</code> carrier, identical <code>extract</code> at the end &amp;#x2014; but <code>refold</code> where <code>fold_fix</code> was, so the layers come from a coalgebra instead of an existing tree. That is the entire diff. The library's schemes keep composing because they are all the same three lines wearing different carriers.</p>
+</div><!-- fragment --><p>Compare with <code>histo</code> from Part 7: identical <code>combined</code> algebra, identical <code>Cofree</code> carrier, identical <code>extract</code> at the end &mdash; but <code>refold</code> where <code>fold_fix</code> was, so the layers come from a coalgebra instead of an existing tree. That is the entire diff. The library's schemes keep composing because they are all the same three lines wearing different carriers.</p>
 <p>Fibonacci is the canonical demonstration. From <a href="../../src/examples/dyna_fibonacci.cpp"><code>src/examples/dyna_fibonacci.cpp</code></a>:</p>
 <div class="fragment"><div class="line"><span class="comment">// The ana half: counts down from n to 0. Seed and layer element type are</span></div>
 <div class="line"><span class="comment">// both plain int — no Free chunk, unlike futu/codyna/chrono&#39;s coalgebras.</span></div>
@@ -164,18 +164,20 @@ dyna: The Dynamorphism</h1>
 <div class="ttc" id="anamespaceanonymous__namespace_02dyna__fibonacci_8cpp_03_html_a32ef06f3ba42f00ca5e05b98cbad460e"><div class="ttname"><a href="namespaceanonymous__namespace_02dyna__fibonacci_8cpp_03.html#a32ef06f3ba42f00ca5e05b98cbad460e">anonymous_namespace{dyna_fibonacci.cpp}::fib_algebra</a></div><div class="ttdeci">auto fib_algebra(const NatF&lt; Cofree&lt; NatF, int &gt; &gt; &amp;layer) -&gt; int</div><div class="ttdef"><b>Definition:</b> dyna_fibonacci.cpp:53</div></div>
 <div class="ttc" id="anamespaceanonymous__namespace_02dyna__fibonacci_8cpp_03_html_ad9c69fc7c8f1a6180e09a9bf7829651a"><div class="ttname"><a href="namespaceanonymous__namespace_02dyna__fibonacci_8cpp_03.html#ad9c69fc7c8f1a6180e09a9bf7829651a">anonymous_namespace{dyna_fibonacci.cpp}::fib</a></div><div class="ttdeci">auto fib(int n) -&gt; int</div><div class="ttdef"><b>Definition:</b> dyna_fibonacci.cpp:72</div></div>
 <div class="ttc" id="astructoverloaded_html"><div class="ttname"><a href="structoverloaded.html">overloaded</a></div><div class="ttdef"><b>Definition:</b> fixpoint_tree_example.cpp:55</div></div>
-</div><!-- fragment --><p>Naive recursive <code>fib</code> is exponential because it recomputes; memoized <code>fib</code> drags a table through the code. Here the countdown coalgebra generates <code>n, n-1, ..., 0</code> and the algebra reads <code>fib(n-1)</code> from its child's head and <code>fib(n-2)</code> from one step deeper in the history. The <code>Cofree&lt;NatF, int&gt;</code> <b>is</b> the DP table &amp;#x2014; built by the scheme, indexed by structure, never named in user code. Linear time falls out; nobody wrote a cache.</p>
+</div><!-- fragment --><p>Naive recursive <code>fib</code> is exponential because it recomputes; memoized <code>fib</code> drags a table through the code. Here the countdown coalgebra generates <code>n, n-1, ..., 0</code> and the algebra reads <code>fib(n-1)</code> from its child's head and <code>fib(n-2)</code> from one step deeper in the history. The <code>Cofree&lt;NatF, int&gt;</code> <b>is</b> the DP table &mdash; built by the scheme, indexed by structure, never named in user code. Linear time falls out; nobody wrote a cache.</p>
 <p>The example's header comment makes the fusion point precise: the algebra cannot tell <code>dyna</code> from <code>histo</code>-after-<code>unfold_fix</code>. What it sees is identical. The fusion changes only whether the intermediate <code>Nat</code> ever occupies memory.</p>
 <h1><a class="anchor" id="autotoc_md102"></a>
 codyna and chrono: Chunks on the Way In</h1>
-<p>The other two fusions take a <em>futu</em>-style coalgebra &amp;#x2014; one that emits <code>Free</code> chunks &amp;#x2014; and the interesting engineering is the impedance match. <code>refold</code> wants a one-layer-per-call coalgebra; a chunk is many layers. The bridge is <code>unroll</code>:</p>
+<p>The other two fusions take a <em>futu</em>-style coalgebra &mdash; one that emits <code>Free</code> chunks &mdash; and the interesting engineering is the impedance match. <code>refold</code> wants a one-layer-per-call coalgebra; a chunk is many layers. The bridge is <code>unroll</code>:</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> Result, <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt; <span class="keyword">class </span>F, <span class="keyword">class </span>Algebra,</div>
 <div class="line">          <span class="keyword">class </span>Coalgebra, <span class="keyword">class </span>Seed&gt;</div>
 <div class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> codyna(<span class="keyword">const</span> Algebra &amp;algebra, <span class="keyword">const</span> Coalgebra &amp;coalgebra,</div>
 <div class="line">                      <span class="keyword">const</span> Seed &amp;seed) -&gt; Result {</div>
-<div class="line">    <span class="keyword">auto</span> unroll_step = [&amp;coalgebra](<span class="keyword">const</span> Free&lt;F, Seed&gt; &amp;chunk)</div>
-<div class="line">        -&gt; F&lt;Free&lt;F, Seed&gt;&gt; { <span class="keywordflow">return</span> unroll&lt;F&gt;(coalgebra, chunk); };</div>
+<div class="line">    <span class="keyword">auto</span> unroll_step =</div>
+<div class="line">        [&amp;coalgebra](<span class="keyword">const</span> Free&lt;F, Seed&gt; &amp;chunk) -&gt; F&lt;Free&lt;F, Seed&gt;&gt; {</div>
+<div class="line">        <span class="keywordflow">return</span> unroll&lt;F&gt;(coalgebra, chunk);</div>
+<div class="line">    };</div>
 <div class="line">    <span class="keywordflow">return</span> refold&lt;Result, F&gt;(algebra, unroll_step, pure_free&lt;F&gt;(seed));</div>
 <div class="line">}</div>
 <div class="line"> </div>
@@ -187,22 +189,24 @@ codyna and chrono: Chunks on the Way In</h1>
 <div class="line">    <span class="keyword">auto</span> combined = [&amp;](<span class="keyword">const</span> F&lt;Carrier&gt; &amp;layer) -&gt; Carrier {</div>
 <div class="line">        <span class="keywordflow">return</span> Carrier{algebra(layer), layer};</div>
 <div class="line">    };</div>
-<div class="line">    <span class="keyword">auto</span> unroll_step = [&amp;coalgebra](<span class="keyword">const</span> Free&lt;F, Seed&gt; &amp;chunk)</div>
-<div class="line">        -&gt; F&lt;Free&lt;F, Seed&gt;&gt; { <span class="keywordflow">return</span> unroll&lt;F&gt;(coalgebra, chunk); };</div>
+<div class="line">    <span class="keyword">auto</span> unroll_step =</div>
+<div class="line">        [&amp;coalgebra](<span class="keyword">const</span> Free&lt;F, Seed&gt; &amp;chunk) -&gt; F&lt;Free&lt;F, Seed&gt;&gt; {</div>
+<div class="line">        <span class="keywordflow">return</span> unroll&lt;F&gt;(coalgebra, chunk);</div>
+<div class="line">    };</div>
 <div class="line">    <span class="keywordflow">return</span> <a class="code hl_function" href="namespacesmd_1_1fixpoint.html#a356b503bd1b48e5a3ef5a93caee729b1">extract</a>(</div>
 <div class="line">        refold&lt;Carrier, F&gt;(combined, unroll_step, pure_free&lt;F&gt;(seed)));</div>
 <div class="line">}</div>
 <div class="ttc" id="anamespacesmd_1_1fixpoint_html_a1693a77f7480436fbc93666c103c2c71"><div class="ttname"><a href="namespacesmd_1_1fixpoint.html#a1693a77f7480436fbc93666c103c2c71">smd::fixpoint::chrono</a></div><div class="ttdeci">constexpr auto chrono(const Algebra &amp;algebra, const Coalgebra &amp;coalgebra, const Seed &amp;seed) -&gt; Result</div><div class="ttdef"><b>Definition:</b> chrono.hpp:100</div></div>
-</div><!-- fragment --><p>The seed type becomes <code>Free&lt;F, Seed&gt;</code> itself, starting at <code>pure_free(seed)</code>. Each <code>refold</code> step peels exactly one layer: a <code>Pure</code> leaf calls the real coalgebra for a fresh chunk; a <code>Roll</code> layer yields its top, leaving the children &amp;#x2014; still chunks &amp;#x2014; for the next steps. The chunk is consumed lazily, one layer per demand, which is precisely what a fused pipeline needs and precisely what <code>futu</code>'s own worker (which resolves whole chunks eagerly) does not do. <code>chrono</code> (Kmett, Edward, 2009) then stacks both extensions &amp;#x2014; Cofree carrier up, Free chunks down &amp;#x2014; and its body is, once more, the same three lines.</p>
+</div><!-- fragment --><p>The seed type becomes <code>Free&lt;F, Seed&gt;</code> itself, starting at <code>pure_free(seed)</code>. Each <code>refold</code> step peels exactly one layer: a <code>Pure</code> leaf calls the real coalgebra for a fresh chunk; a <code>Roll</code> layer yields its top, leaving the children &mdash; still chunks &mdash; for the next steps. The chunk is consumed lazily, one layer per demand, which is precisely what a fused pipeline needs and precisely what <code>futu</code>'s own worker (which resolves whole chunks eagerly) does not do. <code>chrono</code> (Kmett, Edward, 2009) then stacks both extensions &mdash; Cofree carrier up, Free chunks down &mdash; and its body is, once more, the same three lines.</p>
 <h1><a class="anchor" id="autotoc_md103"></a>
 Where the Streak Stands</h1>
-<p>Every scheme so far obeys the same recipe: pick a carrier (plain, pair, either, Cofree, Free), adjust the three-line worker, prove the degeneracy law. The recipe has been so uniform that the next two parts are each a deliberate break from it. Part 9 removes the one ingredient every scheme has depended on &amp;#x2014; the Functor instance itself. Part 10 moves the short-circuit power from the carrier into the (co)algebra's return type. After that, Part 11 explains <em>why</em> the recipe kept working: the carriers were comonads and monads all along, and the recipe is one theorem.</p>
+<p>Every scheme so far obeys the same recipe: pick a carrier (plain, pair, either, Cofree, Free), adjust the three-line worker, prove the degeneracy law. The recipe has been so uniform that the next two parts are each a deliberate break from it. Part 9 removes the one ingredient every scheme has depended on &mdash; the Functor instance itself. Part 10 moves the short-circuit power from the carrier into the (co)algebra's return type. After that, Part 11 explains <em>why</em> the recipe kept working: the carriers were comonads and monads all along, and the recipe is one theorem.</p>
 <p>&lt;nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em"&gt;</p>
 <p><a class="el" href="md_docs_blog_index.html">↑ Series Index</a> | <a class="el" href="md_docs_blog_part_9_mendler.html">Next: Part 9 - Mendler Style →</a></p>
 <p>&lt;/nav&gt;</p>
 <h1><a class="anchor" id="autotoc_md104"></a>
 References</h1>
-<p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a> &amp;#x2014; including the dynamorphism and chronomorphism entries.</p>
+<p>Kmett, Edward (2009). <b>Recursion Schemes: A Field Guide (Redux)</b>, The Comonad.Reader, <a href="http://comonad.com/reader/2009/recursion-schemes/">http://comonad.com/reader/2009/recursion-schemes/</a> &mdash; including the dynamorphism and chronomorphism entries.</p>
 <p>Uustalu, Tarmo and Vene, Varmo (1999). <b>Primitive (Co)Recursion and Course-of-Value (Co)Iteration, Categorically</b>, Informatica 10(1). </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
