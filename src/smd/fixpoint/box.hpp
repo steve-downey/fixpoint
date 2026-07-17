@@ -51,7 +51,7 @@ struct Box {
 
     constexpr ~Box() { delete ptr; }
 
-    constexpr auto operator*() const -> A & { return *ptr; }
+    constexpr auto operator*() const & -> A & { return *ptr; }
     constexpr auto operator*() && -> A && { return std::move(*ptr); }
     constexpr auto operator->() const -> A * { return ptr; }
 
