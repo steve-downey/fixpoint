@@ -1,4 +1,4 @@
-<div class="abstract" id="org3ac7beb">
+<div class="abstract" id="org0d6c6f3">
 <p>
 A recursive type that names itself is ordinary. A type that is the fixed
 point of a <b>non-recursive</b> template is the foundation every recursion scheme
@@ -138,7 +138,8 @@ struct Box {
 
     constexpr ~Box() { delete ptr; }
 
-    constexpr auto operator*() const -> A & { return *ptr; }
+    constexpr auto operator*() const & -> A & { return *ptr; }
+    constexpr auto operator*() && -> A && { return std::move(*ptr); }
     constexpr auto operator->() const -> A * { return ptr; }
 
     friend constexpr auto operator==(Box const &lhs, Box const &rhs) -> bool {

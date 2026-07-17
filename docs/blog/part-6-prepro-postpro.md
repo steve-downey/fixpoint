@@ -1,4 +1,4 @@
-<div class="abstract" id="org1553d42">
+<div class="abstract" id="org744c66e">
 <p>
 So far the algebras have decided what to compute; the <i>shape</i> of the tree
 was taken as given. A natural transformation rewrites the shape itself,

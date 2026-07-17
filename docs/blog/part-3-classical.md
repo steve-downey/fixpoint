@@ -1,4 +1,4 @@
-<div class="abstract" id="orga144c53">
+<div class="abstract" id="org9fb30e2">
 <p>
 Catamorphism, anamorphism, hylomorphism: tear a structure down, build one
 up, do both at once without ever holding the structure. The classical trio
@@ -19,7 +19,7 @@ argument for calling them <code>fold_fix</code>, <code>unfold_fix</code>, and <c
 
 # The Algebra Handles One Layer
 
-An *F-algebra* is a function `F<Result> -> Result`: it consumes one layer whose child positions already hold finished results (Meijer, Erik and Fokkinga, Maarten and Paterson, Ross, 1991). The `eval` from Part 1 is built on exactly such an algebra &#x2014; an `ExprF<int> -> int` where an `Add`'s children are already `int` s. The algebra adds; it never recurses; it cannot even express recursion, because its argument type has no subtrees in it. That typing discipline is the design's whole safety story: the shape of the algebra's argument *proves* the recursion has already happened.
+An *F-algebra* is a function `F<Result> -> Result`: it consumes one layer whose child positions already hold finished results (Meijer, Erik and Fokkinga, Maarten and Paterson, Ross, 1991). The `eval` from Part 1 is built on exactly such an algebra &mdash; an `ExprF<int> -> int` where an `Add`'s children are already `int` s. The algebra adds; it never recurses; it cannot even express recursion, because its argument type has no subtrees in it. That typing discipline is the design's whole safety story: the shape of the algebra's argument *proves* the recursion has already happened.
 
 The fold supplies that recursion, once, for every algebra anyone will ever write.
 
@@ -30,8 +30,7 @@ From [`src/smd/fixpoint/recursion_schemes.hpp`](../../src/smd/fixpoint/recursion
 
 ```cpp
 template <typename Result, template <typename> class F, typename Algebra>
-constexpr auto fold_fix(const Algebra &algebra, const Fix<F> &tree)
-    -> Result {
+constexpr auto fold_fix(const Algebra &algebra, const Fix<F> &tree) -> Result {
     const auto &layer = unwrap_fix(tree);
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> Result {
@@ -67,7 +66,7 @@ constexpr auto refold(const Algebra &algebra, const Coalgebra &coalgebra,
 }
 ```
 
-Read `fold_fix` inside out. `unwrap_fix` exposes the root layer, `F<Fix<F>>` &#x2014; children are subtrees. `layer_fmap` applies the bracketed lambda at every child position, and the lambda is the recursive call; the result is `F<Result>` &#x2014; children are now finished values. The algebra combines them. Three lines of body, and it is the equation `cata φ = φ ∘ fmap (cata φ) ∘ unfix` transcribed with the names this library uses.
+Read `fold_fix` inside out. `unwrap_fix` exposes the root layer, `F<Fix<F>>` &mdash; children are subtrees. `layer_fmap` applies the bracketed lambda at every child position, and the lambda is the recursive call; the result is `F<Result>` &mdash; children are now finished values. The algebra combines them. Three lines of body, and it is the equation `cata φ = φ ∘ fmap (cata φ) ∘ unfix` transcribed with the names this library uses.
 
 One C++ concession, recorded as a design decision: the carrier `Result` is a leading, *explicit* template parameter. Haskell infers the carrier from the algebra; C++ cannot infer a type through a recursive call that returns it. You write `fold_fix<int>(algebra, tree)` and everything else deduces. Every scheme in the series inherits this convention, so I will not mention it again.
 
@@ -148,13 +147,13 @@ Termination is the programmer's promise, not the type system's. A coalgebra that
 
 # refold: The Hylomorphism
 
-Unfold a tree, immediately fold it: the composition is so common it earns a fusion. `refold` interleaves the two so the intermediate `Fix<F>` *never exists* &#x2014; where `fold_fix` unwraps an existing layer, `refold` asks the coalgebra to produce one; where `unfold_fix` wraps, `refold` hands the layer straight to the algebra. Look back at the transclusion above: `refold`'s body is `fold_fix`'s body with `unwrap_fix(tree)` replaced by `coalgebra(seed)`. The defining law, which the test suite pins:
+Unfold a tree, immediately fold it: the composition is so common it earns a fusion. `refold` interleaves the two so the intermediate `Fix<F>` *never exists* &mdash; where `fold_fix` unwraps an existing layer, `refold` asks the coalgebra to produce one; where `unfold_fix` wraps, `refold` hands the layer straight to the algebra. Look back at the transclusion above: `refold`'s body is `fold_fix`'s body with `unwrap_fix(tree)` replaced by `coalgebra(seed)`. The defining law, which the test suite pins:
 
 ```
 refold<R, F>(alg, coalg, seed) == fold_fix<R>(alg, unfold_fix<F>(coalg, seed))
 ```
 
-Same answer, no tree. Everything in Part 8 &#x2014; dynamic programming straight from a seed &#x2014; is this idea wearing a comonad.
+Same answer, no tree. Everything in Part 8 &mdash; dynamic programming straight from a seed &mdash; is this idea wearing a comonad.
 
 
 # The Explicit-fmap Escape Hatch
@@ -202,14 +201,14 @@ constexpr auto refold(const Algebra &algebra, const Coalgebra &coalgebra,
 }
 ```
 
-These predate `layer_fmap` and stay for two reasons. The existing tests depend on them. And they remain the zero-machinery path for a one-off functor that will never earn a `functor_typeclass` instance &#x2014; mode 3 of Part 2, before mode 3 existed.
+These predate `layer_fmap` and stay for two reasons. The existing tests depend on them. And they remain the zero-machinery path for a one-off functor that will never earn a `functor_typeclass` instance &mdash; mode 3 of Part 2, before mode 3 existed.
 
 
 # Why Not cata?
 
-The library deliberately renamed the trio, and deprecated `cata` rather than keep it as a synonym. The reasoning, from the decision log: *catamorphism*, *anamorphism*, and *hylomorphism* are precise terms, but they are jargon most C++ programmers have no reason to know, and these three schemes are the ones ordinary code meets first. Haskell's `data-fix` (Kholomiov, Anton and Kmett, Edward and others, ????) reached the same conclusion &#x2014; `foldFix`, `unfoldFix`, `refold` &#x2014; and this library follows it exactly. The schemes still to come keep their literature names (`para`, `zygo`, `histo`, &#x2026;) because they are terms of art with no adequate descriptive equivalents; a "helper-consulting fold" tells you less than *zygomorphism* once you know the word. Descriptive names for the common; precise names for the precise.
+The library deliberately renamed the trio, and deprecated `cata` rather than keep it as a synonym. The reasoning, from the decision log: *catamorphism*, *anamorphism*, and *hylomorphism* are precise terms, but they are jargon most C++ programmers have no reason to know, and these three schemes are the ones ordinary code meets first. Haskell's `data-fix` (Kholomiov, Anton and Kmett, Edward and others, ????) reached the same conclusion &mdash; `foldFix`, `unfoldFix`, `refold` &mdash; and this library follows it exactly. The schemes still to come keep their literature names (`para`, `zygo`, `histo`, &hellip;) because they are terms of art with no adequate descriptive equivalents; a "helper-consulting fold" tells you less than *zygomorphism* once you know the word. Descriptive names for the common; precise names for the precise.
 
-The classical trio is the baseline. Every scheme from here on is one of these three with a more interesting carrier &#x2014; and the series ends, in Parts 11 and 12, by making that sentence a theorem.
+The classical trio is the baseline. Every scheme from here on is one of these three with a more interesting carrier &mdash; and the series ends, in Parts 11 and 12, by making that sentence a theorem.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 

@@ -1,4 +1,4 @@
-<div class="abstract" id="org27c68dd">
+<div class="abstract" id="org7c36ab2">
 <p>
 Part 3's refold fused fold-after-unfold so the tree never exists. Part 7's
 histo and futu gave folds history and unfolds chunks. Compose the two ideas
@@ -27,7 +27,7 @@ codyna  = cata  . futu    -- plain fold over a chunked unfold
 chrono  = histo . futu    -- history on the way up, chunks on the way down
 ```
 
-Each could be written as exactly that composition &#x2014; unfold, then fold &#x2014; and the test suite does write them that way, as the laws that pin the fused versions. But the composition builds the whole intermediate `Fix<F>` and walks it twice. The header fuses each through `refold`, so the intermediate tree *never exists*; the coalgebra's layers flow straight into the algebra's carrier.
+Each could be written as exactly that composition &mdash; unfold, then fold &mdash; and the test suite does write them that way, as the laws that pin the fused versions. But the composition builds the whole intermediate `Fix<F>` and walks it twice. The header fuses each through `refold`, so the intermediate tree *never exists*; the coalgebra's layers flow straight into the algebra's carrier.
 
 
 # dyna: The Dynamorphism
@@ -52,7 +52,7 @@ constexpr auto dyna(const Algebra &algebra, const Coalgebra &coalgebra,
 }
 ```
 
-Compare with `histo` from Part 7: identical `combined` algebra, identical `Cofree` carrier, identical `extract` at the end &#x2014; but `refold` where `fold_fix` was, so the layers come from a coalgebra instead of an existing tree. That is the entire diff. The library's schemes keep composing because they are all the same three lines wearing different carriers.
+Compare with `histo` from Part 7: identical `combined` algebra, identical `Cofree` carrier, identical `extract` at the end &mdash; but `refold` where `fold_fix` was, so the layers come from a coalgebra instead of an existing tree. That is the entire diff. The library's schemes keep composing because they are all the same three lines wearing different carriers.
 
 Fibonacci is the canonical demonstration. From [`src/examples/dyna_fibonacci.cpp`](../../src/examples/dyna_fibonacci.cpp):
 
@@ -93,14 +93,14 @@ auto fib_algebra(const NatF<Cofree<NatF, int>> &layer) -> int {
 auto fib(int n) -> int { return dyna<int, NatF>(fib_algebra, countdown, n); }
 ```
 
-Naive recursive `fib` is exponential because it recomputes; memoized `fib` drags a table through the code. Here the countdown coalgebra generates `n, n-1, ..., 0` and the algebra reads `fib(n-1)` from its child's head and `fib(n-2)` from one step deeper in the history. The `Cofree<NatF, int>` **is** the DP table &#x2014; built by the scheme, indexed by structure, never named in user code. Linear time falls out; nobody wrote a cache.
+Naive recursive `fib` is exponential because it recomputes; memoized `fib` drags a table through the code. Here the countdown coalgebra generates `n, n-1, ..., 0` and the algebra reads `fib(n-1)` from its child's head and `fib(n-2)` from one step deeper in the history. The `Cofree<NatF, int>` **is** the DP table &mdash; built by the scheme, indexed by structure, never named in user code. Linear time falls out; nobody wrote a cache.
 
 The example's header comment makes the fusion point precise: the algebra cannot tell `dyna` from `histo`-after-`unfold_fix`. What it sees is identical. The fusion changes only whether the intermediate `Nat` ever occupies memory.
 
 
 # codyna and chrono: Chunks on the Way In
 
-The other two fusions take a *futu*-style coalgebra &#x2014; one that emits `Free` chunks &#x2014; and the interesting engineering is the impedance match. `refold` wants a one-layer-per-call coalgebra; a chunk is many layers. The bridge is `unroll`:
+The other two fusions take a *futu*-style coalgebra &mdash; one that emits `Free` chunks &mdash; and the interesting engineering is the impedance match. `refold` wants a one-layer-per-call coalgebra; a chunk is many layers. The bridge is `unroll`:
 
 ```cpp
 /** codyna :: (f b -> b) -> (a -> f (Free f a)) -> a -> b
@@ -112,8 +112,10 @@ template <class Result, template <class> class F, class Algebra,
           class Coalgebra, class Seed>
 constexpr auto codyna(const Algebra &algebra, const Coalgebra &coalgebra,
                       const Seed &seed) -> Result {
-    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
-        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    auto unroll_step =
+        [&coalgebra](const Free<F, Seed> &chunk) -> F<Free<F, Seed>> {
+        return unroll<F>(coalgebra, chunk);
+    };
     return refold<Result, F>(algebra, unroll_step, pure_free<F>(seed));
 }
 
@@ -130,19 +132,21 @@ constexpr auto chrono(const Algebra &algebra, const Coalgebra &coalgebra,
     auto combined = [&](const F<Carrier> &layer) -> Carrier {
         return Carrier{algebra(layer), layer};
     };
-    auto unroll_step = [&coalgebra](const Free<F, Seed> &chunk)
-        -> F<Free<F, Seed>> { return unroll<F>(coalgebra, chunk); };
+    auto unroll_step =
+        [&coalgebra](const Free<F, Seed> &chunk) -> F<Free<F, Seed>> {
+        return unroll<F>(coalgebra, chunk);
+    };
     return extract(
         refold<Carrier, F>(combined, unroll_step, pure_free<F>(seed)));
 }
 ```
 
-The seed type becomes `Free<F, Seed>` itself, starting at `pure_free(seed)`. Each `refold` step peels exactly one layer: a `Pure` leaf calls the real coalgebra for a fresh chunk; a `Roll` layer yields its top, leaving the children &#x2014; still chunks &#x2014; for the next steps. The chunk is consumed lazily, one layer per demand, which is precisely what a fused pipeline needs and precisely what `futu`'s own worker (which resolves whole chunks eagerly) does not do. `chrono` (Kmett, Edward, 2009) then stacks both extensions &#x2014; Cofree carrier up, Free chunks down &#x2014; and its body is, once more, the same three lines.
+The seed type becomes `Free<F, Seed>` itself, starting at `pure_free(seed)`. Each `refold` step peels exactly one layer: a `Pure` leaf calls the real coalgebra for a fresh chunk; a `Roll` layer yields its top, leaving the children &mdash; still chunks &mdash; for the next steps. The chunk is consumed lazily, one layer per demand, which is precisely what a fused pipeline needs and precisely what `futu`'s own worker (which resolves whole chunks eagerly) does not do. `chrono` (Kmett, Edward, 2009) then stacks both extensions &mdash; Cofree carrier up, Free chunks down &mdash; and its body is, once more, the same three lines.
 
 
 # Where the Streak Stands
 
-Every scheme so far obeys the same recipe: pick a carrier (plain, pair, either, Cofree, Free), adjust the three-line worker, prove the degeneracy law. The recipe has been so uniform that the next two parts are each a deliberate break from it. Part 9 removes the one ingredient every scheme has depended on &#x2014; the Functor instance itself. Part 10 moves the short-circuit power from the carrier into the (co)algebra's return type. After that, Part 11 explains *why* the recipe kept working: the carriers were comonads and monads all along, and the recipe is one theorem.
+Every scheme so far obeys the same recipe: pick a carrier (plain, pair, either, Cofree, Free), adjust the three-line worker, prove the degeneracy law. The recipe has been so uniform that the next two parts are each a deliberate break from it. Part 9 removes the one ingredient every scheme has depended on &mdash; the Functor instance itself. Part 10 moves the short-circuit power from the carrier into the (co)algebra's return type. After that, Part 11 explains *why* the recipe kept working: the carriers were comonads and monads all along, and the recipe is one theorem.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
@@ -153,6 +157,6 @@ Every scheme so far obeys the same recipe: pick a carrier (plain, pair, either, 
 
 # References
 
-Kmett, Edward (2009). **Recursion Schemes: A Field Guide (Redux)**, The Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/> &#x2014; including the dynamorphism and chronomorphism entries.
+Kmett, Edward (2009). **Recursion Schemes: A Field Guide (Redux)**, The Comonad.Reader, <http://comonad.com/reader/2009/recursion-schemes/> &mdash; including the dynamorphism and chronomorphism entries.
 
 Uustalu, Tarmo and Vene, Varmo (1999). **Primitive (Co)Recursion and Course-of-Value (Co)Iteration, Categorically**, Informatica 10(1).

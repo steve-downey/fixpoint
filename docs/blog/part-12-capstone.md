@@ -1,11 +1,11 @@
-<div class="abstract" id="org6e65643">
+<div class="abstract" id="orgf947ad9">
 <p>
 "Can I have a zygomorphism, a histomorphism, and a prepromorphism at the
 same time?" Kmett's zygoHistoPrepro answers by composition: transform the
 generalized fold with a natural transformation, compose the env comonad
 onto Cofree, write one distributive law, done. This part builds it, and
 meets the one place where the generic machinery genuinely could not serve
-&#x2014; the composed comonad needed its own instance, and the reason is worth
+&mdash; the composed comonad needed its own instance, and the reason is worth
 the whole part.
 </p>
 
@@ -22,7 +22,7 @@ the whole part.
 
 # gprepro: Part 6's Delta, One Level Up
 
-Part 6 observed that `prepro` is `fold_fix` with one insertion &#x2014; `hoist<F>(e, child)` before the recursive call. `gprepro` makes the same insertion in `gcata`'s worker. From [`src/smd/fixpoint/generalized.hpp`](../../src/smd/fixpoint/generalized.hpp):
+Part 6 observed that `prepro` is `fold_fix` with one insertion &mdash; `hoist<F>(e, child)` before the recursive call. `gprepro` makes the same insertion in `gcata`'s worker. From [`src/smd/fixpoint/generalized.hpp`](../../src/smd/fixpoint/generalized.hpp):
 
 ```cpp
 template <class Result, class WResult, template <class> class F, class Dist,
@@ -74,7 +74,7 @@ struct gprepro_worker_t {
 template <class Result, class WResult, template <class> class F, class Dist,
           class Nat, class GAlgebra>
 constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
-                      const Fix<F> &tree) -> Result {
+                       const Fix<F> &tree) -> Result {
     gprepro_worker_t<Result, WResult, F, Dist, Nat, GAlgebra> worker{dist, e,
                                                                      algebra};
     return algebra(
@@ -82,7 +82,7 @@ constexpr auto gprepro(const Dist &dist, const Nat &e, const GAlgebra &algebra,
 }
 ```
 
-Diff it against Part 11's `gcata_worker_t`: one expression changed, `(*this)(hoist<F>(e, child))` where `(*this)(child)` was. The degeneracy laws triangulate it: identity transformation recovers `gcata`; `dist_cata` recovers `prepro`; both at once recover `fold_fix`. (`gpostpro` mirrors the splice on `gana`'s side &#x2014; hoist each recursive *result* before grafting &#x2014; completing the dual pair.)
+Diff it against Part 11's `gcata_worker_t`: one expression changed, `(*this)(hoist<F>(e, child))` where `(*this)(child)` was. The degeneracy laws triangulate it: identity transformation recovers `gcata`; `dist_cata` recovers `prepro`; both at once recover `fold_fix`. (`gpostpro` mirrors the splice on `gana`'s side &mdash; hoist each recursive *result* before grafting &mdash; completing the dual pair.)
 
 With `gprepro` in hand, Kmett's capstone is a two-liner:
 
@@ -106,8 +106,8 @@ With `gprepro` in hand, Kmett's capstone is a two-liner:
  * @param g the main algebra `F<std::pair<Helper, Cofree<F,Result>>> ->
  *   Result`
  */
-template <class Result, class Helper, template <class> class F,
-          class HelperAlg, class Nat, class MainAlg>
+template <class Result, class Helper, template <class> class F, class HelperAlg,
+          class Nat, class MainAlg>
 constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
                                  const MainAlg &g, const Fix<F> &tree)
     -> Result {
@@ -116,7 +116,7 @@ constexpr auto zygo_histo_prepro(const HelperAlg &f, const Nat &e,
 }
 ```
 
-The composed comonad is `W<X> = std::pair<Helper, Cofree<F, X>>` &#x2014; Haskell's `EnvT Helper (Cofree F)`: zygo's env layer wrapped around histo's Cofree. A zygomorphism, a histomorphism, and a prepromorphism, one pass. Everything interesting is in the two ingredients that make the two-liner legal.
+The composed comonad is `W<X> = std::pair<Helper, Cofree<F, X>>` &mdash; Haskell's `EnvT Helper (Cofree F)`: zygo's env layer wrapped around histo's Cofree. A zygomorphism, a histomorphism, and a prepromorphism, one pass. Everything interesting is in the two ingredients that make the two-liner legal.
 
 
 # The Distributive Law for a Composed Comonad
@@ -127,8 +127,7 @@ struct dist_zygo_histo_t {
     HelperAlg helper;
 
     template <class Helper, class X>
-    constexpr auto
-    operator()(const F<std::pair<Helper, Cofree<F, X>>> &l) const
+    constexpr auto operator()(const F<std::pair<Helper, Cofree<F, X>>> &l) const
         -> std::pair<Helper, Cofree<F, F<X>>> {
         auto helper_layer = layer_fmap(
             [](const std::pair<Helper, Cofree<F, X>> &p) -> Helper {
@@ -141,7 +140,7 @@ struct dist_zygo_histo_t {
             },
             l);
         return std::pair<Helper, Cofree<F, F<X>>>{helper(helper_layer),
-                                                   dist_histo<F>(w_layer)};
+                                                  dist_histo<F>(w_layer)};
     }
 };
 
@@ -158,21 +157,22 @@ constexpr auto dist_zygo_histo(HelperAlg helper)
 }
 ```
 
-`dist_zygo_histo` is a factory (it closes over the helper algebra, as `dist_zygo` did) transcribing Kmett's `distZygoT`: fold the helper components out of the layer with `f`, redistribute the Cofree components with `dist_histo<F>`, pair the results. A distributive law for a composed comonad is the two component laws, composed. It lives here rather than in `dist_laws.hpp` deliberately &#x2014; it is capstone-specific, and the library keeps one-off machinery next to its one use.
+`dist_zygo_histo` is a factory (it closes over the helper algebra, as `dist_zygo` did) transcribing Kmett's `distZygoT`: fold the helper components out of the layer with `f`, redistribute the Cofree components with `dist_histo<F>`, pair the results. A distributive law for a composed comonad is the two component laws, composed. It lives here rather than in `dist_laws.hpp` deliberately &mdash; it is capstone-specific, and the library keeps one-off machinery next to its one use.
 
 
 # The Thin Ice: Why the Generic Pair Instance Is Wrong
 
-Here is the part worth the price of admission. The library already has a comonad instance for `std::pair<B, A>` &#x2014; the env comonad, serving zygo and para since Part 11. `W<X> = pair<Helper, Cofree<F, X>>` *is* a pair. Why not let the generic instance serve?
+Here is the part worth the price of admission. The library already has a comonad instance for `std::pair<B, A>` &mdash; the env comonad, serving zygo and para since Part 11. `W<X> = pair<Helper, Cofree<F, X>>` *is* a pair. Why not let the generic instance serve?
 
-Because it computes the wrong `duplicate`. The generic pair instance re-nests the *pair* layer: `duplicate(pair<B, X>)` is `pair<B, pair<B, X>>`. For the composed comonad, `W<W<X>>` must be `pair<Helper, Cofree<F, pair<Helper, Cofree<F, X>>>>` &#x2014; the duplication has to happen *inside the Cofree*, re-annotating every node of the history with the environment re-attached. Same outer type, different nesting, and only one of them is the `EnvT` comonad. The dedicated instance does what Haskell's `EnvT` does: run Cofree's own `duplicate`, then `fmap` the environment back onto every position:
+Because it computes the wrong `duplicate`. The generic pair instance re-nests the *pair* layer: `duplicate(pair<B, X>)` is `pair<B, pair<B, X>>`. For the composed comonad, `W<W<X>>` must be `pair<Helper, Cofree<F, pair<Helper, Cofree<F, X>>>>` &mdash; the duplication has to happen *inside the Cofree*, re-annotating every node of the history with the environment re-attached. Same outer type, different nesting, and only one of them is the `EnvT` comonad. The dedicated instance does what Haskell's `EnvT` does: run Cofree's own `duplicate`, then `fmap` the environment back onto every position:
 
 ```cpp
 template <template <class> class F, class Helper, class X>
 struct ZygoHistoComonadImpl {
     template <class Y>
     constexpr auto
-    extract(this auto &&, const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
+    extract(this auto &&,
+            const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
         -> const Y & {
         return smd::fixpoint::extract(w.second);
     }
@@ -182,8 +182,8 @@ struct ZygoHistoComonadImpl {
     duplicate(this auto &&,
               const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w)
         -> std::pair<Helper,
-                    smd::fixpoint::Cofree<
-                        F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>> {
+                     smd::fixpoint::Cofree<
+                         F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>> {
         const Helper &env = w.first;
         auto duplicated_cofree =
             comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.duplicate(w.second);
@@ -193,16 +193,16 @@ struct ZygoHistoComonadImpl {
                 return std::pair<Helper, smd::fixpoint::Cofree<F, Y>>{env, c};
             },
             duplicated_cofree);
-        return std::pair<Helper,
-                         smd::fixpoint::Cofree<
-                             F, std::pair<Helper,
-                                         smd::fixpoint::Cofree<F, Y>>>>{
+        return std::pair<
+            Helper, smd::fixpoint::Cofree<
+                        F, std::pair<Helper, smd::fixpoint::Cofree<F, Y>>>>{
             env, std::move(reattached)};
     }
 
     template <class Fn, class Y>
-    constexpr auto fmap(this auto &&, Fn &&fn,
-                        const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w) {
+    constexpr auto
+    fmap(this auto &&, Fn &&fn,
+         const std::pair<Helper, smd::fixpoint::Cofree<F, Y>> &w) {
         using Z = remove_cvref_t<std::invoke_result_t<Fn, const Y &>>;
         return std::pair<Helper, smd::fixpoint::Cofree<F, Z>>{
             w.first, comonad_typeclass<smd::fixpoint::Cofree<F, Y>>.fmap(
@@ -232,7 +232,7 @@ inline constexpr auto
         ZygoHistoComonadMap<F, Helper, X>{};
 ```
 
-The registration is a partial specialization keyed on `pair<Helper, Cofree<F, X>>` &#x2014; strictly more specialized than the generic `pair<B, A>`, so it wins exactly when the value slot is a Cofree and never otherwise. Zygo's and para's pairs still use the generic instance, untouched. This is the typeclass-object machinery of Part 2 earning its keep under real load: two lawful comonad structures on the same C++ type, disambiguated by specialization order, no newtype wrapper required &#x2014; where Haskell *must* wrap in `EnvT` to select the instance, the C++ registry selects by type structure. (Whether that is a feature or a hazard is a fair fight; the header calls it "thin ice" and documents which side it skated to.)
+The registration is a partial specialization keyed on `pair<Helper, Cofree<F, X>>` &mdash; strictly more specialized than the generic `pair<B, A>`, so it wins exactly when the value slot is a Cofree and never otherwise. Zygo's and para's pairs still use the generic instance, untouched. This is the typeclass-object machinery of Part 2 earning its keep under real load: two lawful comonad structures on the same C++ type, disambiguated by specialization order, no newtype wrapper required &mdash; where Haskell *must* wrap in `EnvT` to select the instance, the C++ registry selects by type structure. (Whether that is a feature or a hazard is a fair fight; the header calls it "thin ice" and documents which side it skated to.)
 
 
 # The Capstone Computes
@@ -252,15 +252,15 @@ From [`src/examples/generalized_tour.cpp`](../../src/examples/generalized_tour.c
 // ---------------------------------------------------------------------
 {
         IntList list = list_from_vector({3, 4, -1, 5});
-        int computed = zygo_histo_prepro<int, int>(
-            length_helper, take_while_positive_nat{}, even_tail_length_main,
-            list);
+        int computed = zygo_histo_prepro<int, int>(length_helper,
+                                                   take_while_positive_nat{},
+                                                   even_tail_length_main, list);
         all_ok &= report("zygo_histo_prepro capstone", "dist_zygo_histo",
                          /*specialized (hand-checked)=*/4, computed);
 }
 ```
 
-The fixture computation: helper folds each tail's remaining length, the transformation truncates at the first negative (take-while-positive, Part 6's own fixture), and the main algebra keeps a head only when its tail's length is even &#x2014; consulting the helper (zygo), the history (histo), and the pre-transformed structure (prepro) in one algebra. `[3, 4, -1, 5]` truncates to `[3, 4]`; only `4` survives the even-length test; the answer is `4`, against a hand-checked expectation &#x2014; because there *is* no specialized scheme to compare with. This computation exists only because the composition machinery makes it expressible. That is the capstone's real claim: not that it reproduces the catalog, but that the catalog's pieces compose into schemes nobody bothered to name.
+The fixture computation: helper folds each tail's remaining length, the transformation truncates at the first negative (take-while-positive, Part 6's own fixture), and the main algebra keeps a head only when its tail's length is even &mdash; consulting the helper (zygo), the history (histo), and the pre-transformed structure (prepro) in one algebra. `[3, 4, -1, 5]` truncates to `[3, 4]`; only `4` survives the even-length test; the answer is `4`, against a hand-checked expectation &mdash; because there *is* no specialized scheme to compare with. This computation exists only because the composition machinery makes it expressible. That is the capstone's real claim: not that it reproduces the catalog, but that the catalog's pieces compose into schemes nobody bothered to name.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
@@ -271,6 +271,6 @@ The fixture computation: helper folds each tail's remaining length, the transfor
 
 # References
 
-Kmett, Edward (2009). **Recursion Schemes: A Field Guide (Redux)**, The Comonad.Reader &#x2014; zygoHistoPrepro's origin, <http://comonad.com/reader/2009/recursion-schemes/>.
+Kmett, Edward (2009). **Recursion Schemes: A Field Guide (Redux)**, The Comonad.Reader &mdash; zygoHistoPrepro's origin, <http://comonad.com/reader/2009/recursion-schemes/>.
 
 Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). **Recursion Schemes from Comonads**, Nordic Journal of Computing 8(3).

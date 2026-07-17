@@ -1,8 +1,8 @@
-<div class="abstract" id="orga38389c">
+<div class="abstract" id="org4c6b005">
 <p>
 Ten parts of schemes, each "fold_fix with a richer carrier". Here is the
 theorem behind the pattern: every fold in the catalog is one construction
-&#x2014; gcata &#x2014; instantiated at a comonad, every unfold is gana at a monad,
+&mdash; gcata &mdash; instantiated at a comonad, every unfold is gana at a monad,
 and the only scheme-specific ingredient is a distributive law that pushes
 the functor through the (co)monad. The proof is executable and ships as an
 example.
@@ -21,14 +21,14 @@ example.
 
 # The Carriers Were (Co)monads All Along
 
-Line up the fold carriers this series has used: `Result` bare, then `pair<Fix<F>, Result>` (para), `pair<Helper, Result>` (zygo), `Cofree<F, Result>` (histo). Each is a comonad `W` applied to `Result` &#x2014; the Identity comonad, the env comonad twice, Cofree. The unfold carriers: `Seed` bare (Identity monad), `either<Fix<F>, Seed>` (apo &#x2014; either's right-biased monad), `Free<F, Seed>` (futu). Monads, every one. The library registered exactly these `comonad_typeclass` and `monad_typeclass` instances back in their own parts, quietly.
+Line up the fold carriers this series has used: `Result` bare, then `pair<Fix<F>, Result>` (para), `pair<Helper, Result>` (zygo), `Cofree<F, Result>` (histo). Each is a comonad `W` applied to `Result` &mdash; the Identity comonad, the env comonad twice, Cofree. The unfold carriers: `Seed` bare (Identity monad), `either<Fix<F>, Seed>` (apo &mdash; either's right-biased monad), `Free<F, Seed>` (futu). Monads, every one. The library registered exactly these `comonad_typeclass` and `monad_typeclass` instances back in their own parts, quietly.
 
-Uustalu, Vene, and Pardo made the pattern a theorem (Uustalu, Tarmo and Vene, Varmo and Pardo, Alberto, 2001): a fold with carrier `W<Result>` needs only one scheme-specific ingredient &#x2014; a *distributive law* of the functor over the comonad, `dist : F<W<X>> -> W<F<X>>` for every `X`. Kmett's library packages that as `gcata~/~gana` (Kmett, Edward, 2011); Hinze, Wu, and Gibbons later unified further (Hinze, Ralf and Wu, Nicolas and Gibbons, Jeremy, 2013). This library transcribes the whole apparatus.
+Uustalu, Vene, and Pardo made the pattern a theorem (Uustalu, Tarmo and Vene, Varmo and Pardo, Alberto, 2001): a fold with carrier `W<Result>` needs only one scheme-specific ingredient &mdash; a *distributive law* of the functor over the comonad, `dist : F<W<X>> -> W<F<X>>` for every `X`. Kmett's library packages that as `gcata~/~gana` (Kmett, Edward, 2011); Hinze, Wu, and Gibbons later unified further (Hinze, Ralf and Wu, Nicolas and Gibbons, Jeremy, 2013). This library transcribes the whole apparatus.
 
 
 # The Laws Themselves
 
-A distributive law is another polymorphic function object &#x2014; Part 6's natural transformation, one level up. The simplest two, from [`src/smd/fixpoint/dist_laws.hpp`](../../src/smd/fixpoint/dist_laws.hpp):
+A distributive law is another polymorphic function object &mdash; Part 6's natural transformation, one level up. The simplest two, from [`src/smd/fixpoint/dist_laws.hpp`](../../src/smd/fixpoint/dist_laws.hpp):
 
 ```cpp
 /** distCata :: f (Identity a) -> Identity (f a)
@@ -66,8 +66,8 @@ inline constexpr dist_cata_t dist_cata{};
  */
 struct dist_ana_t {
     template <class Layer> // Layer = F<A>; argument is Identity<Layer>
-    constexpr auto operator()(const smd::typeclass::Identity<Layer> &ident)
-        const {
+    constexpr auto
+    operator()(const smd::typeclass::Identity<Layer> &ident) const {
         return layer_fmap(
             [](const auto &x) {
                 return smd::typeclass::Identity<
@@ -79,7 +79,7 @@ struct dist_ana_t {
 inline constexpr dist_ana_t dist_ana{};
 ```
 
-`dist_cata` pushes Identity out of a layer; `dist_ana` pushes it in. (The `dist_ana` comment preserves a real bug hunt: `Identity{x}` with CTAD silently *copies* an `x` that is already an `Identity` instead of nesting it &#x2014; the deduction-guide copy candidate, the same reason `vector{v}` copies. Naming the template argument sidesteps CTAD. Deviations like this are logged, not patched over.)
+`dist_cata` pushes Identity out of a layer; `dist_ana` pushes it in. (The `dist_ana` comment preserves a real bug hunt: `Identity{x}` with CTAD silently *copies* an `x` that is already an `Identity` instead of nesting it &mdash; the deduction-guide copy candidate, the same reason `vector{v}` copies. Naming the template argument sidesteps CTAD. Deviations like this are logged, not patched over.)
 
 The interesting law is histo's:
 
@@ -89,8 +89,8 @@ struct dist_histo_t {
     template <class A>
     constexpr auto operator()(const F<Cofree<F, A>> &l) const
         -> Cofree<F, F<A>> {
-        auto head = layer_fmap(
-            [](const Cofree<F, A> &c) { return extract(c); }, l);
+        auto head =
+            layer_fmap([](const Cofree<F, A> &c) { return extract(c); }, l);
         auto tail = layer_fmap(
             [this](const Cofree<F, A> &c) -> Cofree<F, F<A>> {
                 return (*this)(c.tail);
@@ -104,7 +104,7 @@ template <template <class> class F>
 inline constexpr dist_histo_t<F> dist_histo{};
 ```
 
-`F<Cofree<F,A>> -> Cofree<F, F<A>>`: heads out, tails redistributed, recursively. Note it is a variable *template*, called `dist_histo<F>(layer)` with `F` explicit &#x2014; a genuine C++ deduction limit, recorded as a deviation: GCC cannot deduce a template-template parameter back out of an already-elaborated alias application. The full roster &#x2014; `dist_zygo(helper)`, `dist_para<F>`, `dist_apo`, `dist_futu<F>`, `dist_gapo(coalg)` &#x2014; lives in the same header, each side of Part 4's pair/either duality getting its mirror-image law.
+`F<Cofree<F,A>> -> Cofree<F, F<A>>`: heads out, tails redistributed, recursively. Note it is a variable *template*, called `dist_histo<F>(layer)` with `F` explicit &mdash; a genuine C++ deduction limit, recorded as a deviation: GCC cannot deduce a template-template parameter back out of an already-elaborated alias application. The full roster &mdash; `dist_zygo(helper)`, `dist_para<F>`, `dist_apo`, `dist_futu<F>`, `dist_gapo(coalg)` &mdash; lives in the same header, each side of Part 4's pair/either duality getting its mirror-image law.
 
 
 # gcata: One Fold to Rule Them
@@ -159,9 +159,9 @@ constexpr auto gcata(const Dist &dist, const GAlgebra &algebra,
 }
 ```
 
-The worker `c : Fix<F> -> W<F<WResult>>` is the equation `c = k ∘ fmapF(duplicate ∘ fmapW g ∘ c) ∘ unfix` made into a struct, and the struct-ness is itself a lesson: `c` recurses into itself through a lambda, and a deduced return type cannot be used before its own deduction completes &#x2014; so the return type `C` is computed *up front*, from `Result~/~WResult~/~F~/~Dist` alone, and the worker is a named type recursing via `(*this)`. Every self-recursive helper in this codebase independently rediscovered that discipline; the header comments cite the trail.
+The worker `c : Fix<F> -> W<F<WResult>>` is the equation `c = k ∘ fmapF(duplicate ∘ fmapW g ∘ c) ∘ unfix` made into a struct, and the struct-ness is itself a lesson: `c` recurses into itself through a lambda, and a deduced return type cannot be used before its own deduction completes &mdash; so the return type `C` is computed *up front*, from `Result~/~WResult~/~F~/~Dist` alone, and the worker is a named type recursing via `(*this)`. Every self-recursive helper in this codebase independently rediscovered that discipline; the header comments cite the trail.
 
-One subtlety the comment documents: only *one* `comonad_typeclass` lookup happens, keyed on `WResult`, even though the worker needs `extract~/~duplicate~/~fmap` at other instantiations along the way. That works because every comonad instance in the library keeps its operations generic over their element type &#x2014; the instance's keying type pins the *shape* (which comonad), not the element. A design invariant, discovered the hard way and then enforced everywhere.
+One subtlety the comment documents: only *one* `comonad_typeclass` lookup happens, keyed on `WResult`, even though the worker needs `extract~/~duplicate~/~fmap` at other instantiations along the way. That works because every comonad instance in the library keeps its operations generic over their element type &mdash; the instance's keying type pins the *shape* (which comonad), not the element. A design invariant, discovered the hard way and then enforced everywhere.
 
 The recoveries are almost embarrassing in their brevity:
 
@@ -179,16 +179,13 @@ template <class Result, template <class> class F, class Algebra>
 constexpr auto cata_via_gcata(const Algebra &algebra, const Fix<F> &tree)
     -> Result {
     auto algebra_prime =
-        [&algebra](const F<smd::typeclass::Identity<Result>> &layer)
-        -> Result {
-        return algebra(layer_fmap(
-            [](const smd::typeclass::Identity<Result> &i) -> Result {
-                return i.value;
-            },
-            layer));
+        [&algebra](const F<smd::typeclass::Identity<Result>> &layer) -> Result {
+        return algebra(layer_fmap([](const smd::typeclass::Identity<Result> &i)
+                                      -> Result { return i.value; },
+                                  layer));
     };
-    return gcata<Result, smd::typeclass::Identity<Result>>(
-        dist_cata, algebra_prime, tree);
+    return gcata<Result, smd::typeclass::Identity<Result>>(dist_cata,
+                                                           algebra_prime, tree);
 }
 
 /** histo_via_gcata: `gcata(dist_histo<F>, ...)` recovers histo.
@@ -211,12 +208,12 @@ constexpr auto histo_via_gcata(const Algebra &algebra, const Fix<F> &tree)
  * std::pair<Helper,Result>` here is precisely zygo's own carrier (helper
  * first, main second, S05's convention), so no projection is needed.
  */
-template <class Result, class Helper, template <class> class F,
-          class HelperAlg, class MainAlg>
+template <class Result, class Helper, template <class> class F, class HelperAlg,
+          class MainAlg>
 constexpr auto zygo_via_gcata(const HelperAlg &helper, const MainAlg &main,
                               const Fix<F> &tree) -> Result {
     return gcata<Result, std::pair<Helper, Result>>(dist_zygo(helper), main,
-                                                     tree);
+                                                    tree);
 }
 
 /** para_via_gcata: `gcata(dist_para<F>, ...)` recovers para.
@@ -231,11 +228,11 @@ template <class Result, template <class> class F, class Algebra>
 constexpr auto para_via_gcata(const Algebra &algebra, const Fix<F> &tree)
     -> Result {
     return gcata<Result, std::pair<Fix<F>, Result>>(dist_para<F>, algebra,
-                                                     tree);
+                                                    tree);
 }
 ```
 
-`histo`, `zygo`, `para`: their algebras pass through *unchanged*, because their carriers were already exactly `W<Result>` for the right `W`. Only `cata` needs a shim &#x2014; its plain algebra never knew about the Identity wrappers. The catalog's folds were `gcata` instances all along; the recovery functions just say so in the type system.
+`histo`, `zygo`, `para`: their algebras pass through *unchanged*, because their carriers were already exactly `W<Result>` for the right `W`. Only `cata` needs a shim &mdash; its plain algebra never knew about the Identity wrappers. The catalog's folds were `gcata` instances all along; the recovery functions just say so in the type system.
 
 
 # gana and ghylo: The Mirror and the Fusion
@@ -254,8 +251,7 @@ struct gana_worker_t {
     constexpr auto operator()(const MFMS &m) const -> Fix<F> {
         return wrap_fix<F>(layer_fmap(
             [this](const MMS &mms) -> Fix<F> {
-                auto joined =
-                    smd::typeclass::monad_typeclass<MSeed>.join(mms);
+                auto joined = smd::typeclass::monad_typeclass<MSeed>.join(mms);
                 auto next = layer_fmap(coalgebra, joined);
                 return (*this)(next);
             },
@@ -279,17 +275,16 @@ struct gana_worker_t {
  *   (dist_laws.hpp)
  * @param coalgebra `Seed -> F<MSeed>`
  */
-template <template <class> class F, class MSeed, class Dist,
-          class GCoalgebra, class Seed>
+template <template <class> class F, class MSeed, class Dist, class GCoalgebra,
+          class Seed>
 constexpr auto gana(const Dist &dist, const GCoalgebra &coalgebra,
                     const Seed &seed) -> Fix<F> {
     gana_worker_t<F, MSeed, Dist, GCoalgebra> worker{dist, coalgebra};
-    return worker(
-        smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
+    return worker(smd::typeclass::monad_typeclass<MSeed>.pure(coalgebra(seed)));
 }
 ```
 
-`gana` mirrors `gcata` arrow for arrow: monad for comonad, `pure` for `extract`, `join` for `duplicate`, the distributive law flipped to `M<F<X>> -> F<M<X>>`. `ana_via_gana`, `apo_via_gana`, and `futu_via_gana` recover the unfolds exactly as their fold counterparts did &#x2014; apo and futu passing their coalgebras straight through.
+`gana` mirrors `gcata` arrow for arrow: monad for comonad, `pure` for `extract`, `join` for `duplicate`, the distributive law flipped to `M<F<X>> -> F<M<X>>`. `ana_via_gana`, `apo_via_gana`, and `futu_via_gana` recover the unfolds exactly as their fold counterparts did &mdash; apo and futu passing their coalgebras straight through.
 
 `ghylo` composes both halves:
 
@@ -320,17 +315,17 @@ template <class Result, class WResult, template <class> class F, class MSeed,
 constexpr auto ghylo(const WDist &w_dist, const GAlgebra &algebra,
                      const MDist &m_dist, const GCoalgebra &coalgebra,
                      const Seed &seed) -> Result {
-    return gcata<Result, WResult>(
-        w_dist, algebra, gana<F, MSeed>(m_dist, coalgebra, seed));
+    return gcata<Result, WResult>(w_dist, algebra,
+                                  gana<F, MSeed>(m_dist, coalgebra, seed));
 }
 ```
 
-The header is candid: this shipped *materializing* &#x2014; `gcata` after `gana`, intermediate tree and all &#x2014; because it passed every recovery law on the first attempt and performance is an explicit non-goal. An honest engineering judgment, written where users will read it.
+The header is candid: this shipped *materializing* &mdash; `gcata` after `gana`, intermediate tree and all &mdash; because it passed every recovery law on the first attempt and performance is an explicit non-goal. An honest engineering judgment, written where users will read it.
 
 
 # The Proof Runs
 
-The example [`src/examples/generalized_tour.cpp`](../../src/examples/generalized_tour.cpp) computes each answer twice &#x2014; classical scheme and generalized recovery &#x2014; and exits nonzero on any mismatch:
+The example [`src/examples/generalized_tour.cpp`](../../src/examples/generalized_tour.cpp) computes each answer twice &mdash; classical scheme and generalized recovery &mdash; and exits nonzero on any mismatch:
 
 ```cpp
 // ---------------------------------------------------------------------
@@ -383,4 +378,4 @@ Uustalu, Tarmo, Vene, Varmo, and Pardo, Alberto (2001). **Recursion Schemes from
 
 Hinze, Ralf, Wu, Nicolas, and Gibbons, Jeremy (2013). **Unifying Structured Recursion Schemes**, ICFP '13.
 
-Kmett, Edward (2011&#x2013;). **recursion-schemes**, Hackage, <https://hackage.haskell.org/package/recursion-schemes>.
+Kmett, Edward (2011&ndash;). **recursion-schemes**, Hackage, <https://hackage.haskell.org/package/recursion-schemes>.

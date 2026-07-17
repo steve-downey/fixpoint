@@ -1,9 +1,9 @@
-<div class="abstract" id="org5aa7562">
+<div class="abstract" id="orge1c2dab">
 <p>
 Every scheme so far leaned on one hook: the Functor instance that maps the
 recursive call over a layer. Mendler-style recursion removes it. The
 algebra receives the recursive call itself as an argument and applies it
-where it chooses &#x2014; no fmap, no typeclass lookup, no instance required.
+where it chooses &mdash; no fmap, no typeclass lookup, no instance required.
 What it costs is a guarantee C++ cannot express.
 </p>
 
@@ -20,7 +20,7 @@ What it costs is a guarantee C++ cannot express.
 
 # Inverting the Contract
 
-A `fold_fix` algebra is passive: by the time it runs, `layer_fmap` has already folded every child, and the algebra sees only results. A Mendler algebra (Mendler, Nax Paul, 1991) is active: it receives the *unevaluated* layer &#x2014; children still trees &#x2014; plus the recursive call `recurse` as an explicit callable argument, and it decides which children to fold, in what order, or whether to fold them at all.
+A `fold_fix` algebra is passive: by the time it runs, `layer_fmap` has already folded every child, and the algebra sees only results. A Mendler algebra (Mendler, Nax Paul, 1991) is active: it receives the *unevaluated* layer &mdash; children still trees &mdash; plus the recursive call `recurse` as an explicit callable argument, and it decides which children to fold, in what order, or whether to fold them at all.
 
 The scheme shrinks accordingly. From [`src/smd/fixpoint/mendler.hpp`](../../src/smd/fixpoint/mendler.hpp):
 
@@ -42,7 +42,7 @@ constexpr auto mcata(const MAlgebra &phi, const Fix<F> &tree) -> Result {
 }
 ```
 
-That is the whole of `mcata`: build the partially-applied recursive call, unwrap one layer, hand both to the algebra. No `layer_fmap` anywhere &#x2014; which means **no `functor_typeclass` instance is ever looked up**. `mcata` compiles and runs over any base functor, instanced or not. For a one-off functor in a test, or a functor whose `fmap` would be awkward to state, that is the entire sales pitch.
+That is the whole of `mcata`: build the partially-applied recursive call, unwrap one layer, hand both to the algebra. No `layer_fmap` anywhere &mdash; which means **no `functor_typeclass` instance is ever looked up**. `mcata` compiles and runs over any base functor, instanced or not. For a one-off functor in a test, or a functor whose `fmap` would be awkward to state, that is the entire sales pitch.
 
 Evaluation, Mendler style, from [`src/examples/mendler_eval.cpp`](../../src/examples/mendler_eval.cpp):
 
@@ -52,17 +52,16 @@ Evaluation, Mendler style, from [`src/examples/mendler_eval.cpp`](../../src/exam
 // itself, never named as a type (design §7.7's pitfall: keep it a plain
 // generic callable).
 auto eval_via_mcata = [](auto recurse, const ExprF<Expr> &layer) -> int {
-    return std::visit(
-        overloaded{
-            [](const Const<Expr> &c) { return c.val; },
-            [&](const Add<Expr> &a) -> int {
-                return recurse(*a.left) + recurse(*a.right);
-            },
-            [&](const Mul<Expr> &m) -> int {
-                return recurse(*m.left) * recurse(*m.right);
-            },
-        },
-        layer);
+    return std::visit(overloaded{
+                          [](const Const<Expr> &c) { return c.val; },
+                          [&](const Add<Expr> &a) -> int {
+                              return recurse(*a.left) + recurse(*a.right);
+                          },
+                          [&](const Mul<Expr> &m) -> int {
+                              return recurse(*m.left) * recurse(*m.right);
+                          },
+                      },
+                      layer);
 };
 ```
 
@@ -79,7 +78,7 @@ mcata :: (forall y. (y -> c) -> f y -> c) -> Fix f -> c
 
 That `forall y` is doing real work. The algebra receives an `f y` for an *abstract* `y` it knows nothing about; the only operation available on a child is the `y -> c` it was handed. Termination and abstraction come out as theorems: the algebra *cannot* express anything with a child except folding it (Uustalu, Tarmo and Vene, Varmo, 1999).
 
-C++ has no rank-2 polymorphism, and the header is candid about the consequence: here the layer is concretely `ExprF<Expr>`, children are plain `Expr` values, and a mischievous algebra could ignore `recurse` and walk a child by hand with `unwrap_fix`. Nothing stops it. The guarantee decays into a discipline &#x2014; "`recurse` is the only thing you may do with a child" &#x2014; and the example's every branch observes it. This is the honest shape of the whole series' translation project: Haskell's types make illegal states unrepresentable; the C++ transcription sometimes only makes them unidiomatic, and the difference belongs in the documentation, not under the rug.
+C++ has no rank-2 polymorphism, and the header is candid about the consequence: here the layer is concretely `ExprF<Expr>`, children are plain `Expr` values, and a mischievous algebra could ignore `recurse` and walk a child by hand with `unwrap_fix`. Nothing stops it. The guarantee decays into a discipline &mdash; "`recurse` is the only thing you may do with a child" &mdash; and the example's every branch observes it. This is the honest shape of the whole series' translation project: Haskell's types make illegal states unrepresentable; the C++ transcription sometimes only makes them unidiomatic, and the difference belongs in the documentation, not under the rug.
 
 
 # mhisto: History Without the Annotation
@@ -111,12 +110,12 @@ constexpr auto mhisto(const MAlgebra &phi, const Fix<F> &tree) -> Result {
 }
 ```
 
-`unroll` is just `unwrap_fix`, passed in as an argument: the algebra may peel layers off any child *without* committing to fold it. Look back at what Part 7's `histo` had to build &#x2014; a full `Cofree` annotation of every node, deep copies and all &#x2014; to give its algebra history. `mhisto` gets the same expressive power by lending the algebra a flashlight instead of photocopying the archive: the "history" is the tree itself, read on demand. The trade is memoization: histo's `Cofree` head at each node is computed once; an `mhisto` algebra that re-recurses into the same child pays each time. Coin change wants histo; a scheme that peeks one layer ahead wants `mhisto`.
+`unroll` is just `unwrap_fix`, passed in as an argument: the algebra may peel layers off any child *without* committing to fold it. Look back at what Part 7's `histo` had to build &mdash; a full `Cofree` annotation of every node, deep copies and all &mdash; to give its algebra history. `mhisto` gets the same expressive power by lending the algebra a flashlight instead of photocopying the archive: the "history" is the tree itself, read on demand. The trade is memoization: histo's `Cofree` head at each node is computed once; an `mhisto` algebra that re-recurses into the same child pays each time. Coin change wants histo; a scheme that peeks one layer ahead wants `mhisto`.
 
 
 # Where This Sits in the Catalog
 
-Mendler style is the catalog's control group. Every other fold in this series is `gcata` at some comonad &#x2014; that is Part 11's theorem &#x2014; but `mcata` stands outside the theorem, because it never engages the functor machinery the theorem quantifies over. It is what recursion looks like when you strip the framework to bare metal: one knot-tying type, one partially-applied recursive call, and an algebra trusted to use it. Kmett's library ships the same pair under the same names (Kmett, Edward, 2011), and for the same reason: sometimes the instance is the expensive part.
+Mendler style is the catalog's control group. Every other fold in this series is `gcata` at some comonad &mdash; that is Part 11's theorem &mdash; but `mcata` stands outside the theorem, because it never engages the functor machinery the theorem quantifies over. It is what recursion looks like when you strip the framework to bare metal: one knot-tying type, one partially-applied recursive call, and an algebra trusted to use it. Kmett's library ships the same pair under the same names (Kmett, Edward, 2011), and for the same reason: sometimes the instance is the expensive part.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
@@ -131,4 +130,4 @@ Mendler, Nax Paul (1991). **Inductive Types and Type Constraints in the Second-O
 
 Uustalu, Tarmo and Vene, Varmo (1999). **Mendler-style Inductive Types, Categorically**, Nordic Journal of Computing 6(3).
 
-Kmett, Edward (2011&#x2013;). **recursion-schemes**, Hackage, <https://hackage.haskell.org/package/recursion-schemes>.
+Kmett, Edward (2011&ndash;). **recursion-schemes**, Hackage, <https://hackage.haskell.org/package/recursion-schemes>.

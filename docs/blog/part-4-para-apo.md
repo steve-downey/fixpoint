@@ -1,9 +1,9 @@
-<div class="abstract" id="org2df3883">
+<div class="abstract" id="org5b3dbf8">
 <p>
 A fold that can still see the tree it is consuming, and an unfold that can
 stop expanding and graft a finished subtree in place. Paramorphism and
 apomorphism are the first proper duals in the catalog, and their carriers
-&#x2014; <code>std::pair</code> and a project <code>either</code> &#x2014; are the product and coproduct
+&mdash; <code>std::pair</code> and a project <code>either</code> &mdash; are the product and coproduct
 the rest of the series is built from.
 </p>
 
@@ -20,7 +20,7 @@ the rest of the series is built from.
 
 # para: A Fold That Remembers the Original
 
-`fold_fix` has amnesia by design. By the time the algebra sees an `Add`, the children are already strings or ints; what they *were* is gone. Usually that is the point. Sometimes it is the problem: a pretty-printer that wants minimal parentheses needs each child's rendered string **and** its original shape &#x2014; parenthesize the rendering only if the original was an `Add` under a `Mul`.
+`fold_fix` has amnesia by design. By the time the algebra sees an `Add`, the children are already strings or ints; what they *were* is gone. Usually that is the point. Sometimes it is the problem: a pretty-printer that wants minimal parentheses needs each child's rendered string **and** its original shape &mdash; parenthesize the rendering only if the original was an `Add` under a `Mul`.
 
 The paramorphism (Meertens, Lambert, 1992) hands the algebra both. From [`src/smd/fixpoint/para.hpp`](../../src/smd/fixpoint/para.hpp):
 
@@ -43,14 +43,14 @@ constexpr auto para(const Algebra &algebra, const Fix<F> &tree) -> Result {
     auto evaluated = layer_fmap(
         [&](const Fix<F> &child) -> std::pair<Fix<F>, Result> {
             return std::pair<Fix<F>, Result>{child,
-                                              para<Result>(algebra, child)};
+                                             para<Result>(algebra, child)};
         },
         layer);
     return algebra(evaluated);
 }
 ```
 
-The delta against `fold_fix` is one lambda: instead of mapping children to `Result`, it maps them to `std::pair<Fix<F>, Result>` &#x2014; the original subtree first, the fold result second. The algebra's argument type `F<pair<Fix<F>, Result>>` says exactly what is available at each child: everything.
+The delta against `fold_fix` is one lambda: instead of mapping children to `Result`, it maps them to `std::pair<Fix<F>, Result>` &mdash; the original subtree first, the fold result second. The algebra's argument type `F<pair<Fix<F>, Result>>` says exactly what is available at each child: everything.
 
 The pretty-printer, from [`src/examples/para_pretty_print.cpp`](../../src/examples/para_pretty_print.cpp):
 
@@ -66,42 +66,43 @@ auto is_add(const Expr &e) -> bool {
 // child arrives as {original subtree, its rendered string}; the Mul case
 // consults `.first` (the original subtree) to decide whether `.second`
 // (the rendered string) needs wrapping in parentheses.
-auto pretty = [](const ExprF<std::pair<Expr, std::string>> &layer)
-    -> std::string {
-    return std::visit(
-        overloaded{
-            [](const Const<std::pair<Expr, std::string>> &c) {
-                return std::to_string(c.val);
-            },
-            [](const Add<std::pair<Expr, std::string>> &a) {
-                // Addition is the lowest-precedence operator here, so
-                // neither child (Const, Add, or Mul) ever needs parens.
-                return a.left->second + " + " + a.right->second;
-            },
-            [](const Mul<std::pair<Expr, std::string>> &m) {
-                auto render_child =
-                    [](const std::pair<Expr, std::string> &child)
-                    -> std::string {
-                    if (is_add(child.first)) {
-                        return "(" + child.second + ")";
-                    }
-                    return child.second;
-                };
-                return render_child(*m.left) + " * " + render_child(*m.right);
-            },
-        },
-        layer);
+auto pretty =
+    [](const ExprF<std::pair<Expr, std::string>> &layer) -> std::string {
+    return std::visit(overloaded{
+                          [](const Const<std::pair<Expr, std::string>> &c) {
+                              return std::to_string(c.val);
+                          },
+                          [](const Add<std::pair<Expr, std::string>> &a) {
+                              // Addition is the lowest-precedence operator
+                              // here, so neither child (Const, Add, or Mul)
+                              // ever needs parens.
+                              return a.left->second + " + " + a.right->second;
+                          },
+                          [](const Mul<std::pair<Expr, std::string>> &m) {
+                              auto render_child =
+                                  [](const std::pair<Expr, std::string> &child)
+                                  -> std::string {
+                                  if (is_add(child.first)) {
+                                      return "(" + child.second + ")";
+                                  }
+                                  return child.second;
+                              };
+                              return render_child(*m.left) + " * " +
+                                     render_child(*m.right);
+                          },
+                      },
+                      layer);
 };
 ```
 
-The `Mul` case is the payoff line: `is_add(child.first)` interrogates the original subtree; `child.second` is the already-rendered string it wraps or passes through. The program prints `2 * 3 + 4` for one association and `2 * (3 + 4)` for the other &#x2014; parentheses exactly where meaning requires them, nowhere else.
+The `Mul` case is the payoff line: `is_add(child.first)` interrogates the original subtree; `child.second` is the already-rendered string it wraps or passes through. The program prints `2 * 3 + 4` for one association and `2 * (3 + 4)` for the other &mdash; parentheses exactly where meaning requires them, nowhere else.
 
-Degeneracy law: ignore `.first` everywhere and `para` *is* `fold_fix`. The test suite states that literally, and every scheme from here on has a law of the same shape &#x2014; forget the extra power, recover the simpler scheme.
+Degeneracy law: ignore `.first` everywhere and `para` *is* `fold_fix`. The test suite states that literally, and every scheme from here on has a law of the same shape &mdash; forget the extra power, recover the simpler scheme.
 
 
 # apo: An Unfold That Can Stop Early
 
-Now dualize. `para`'s algebra receives, alongside each result, the original subtree &#x2014; a product. `apo`'s coalgebra returns, at each child position, *either* a finished subtree to graft *or* a seed to keep unfolding &#x2014; a coproduct (Uustalu, Tarmo and Vene, Varmo, 1999) (Vene, Varmo, 2000). From [`src/smd/fixpoint/apo.hpp`](../../src/smd/fixpoint/apo.hpp):
+Now dualize. `para`'s algebra receives, alongside each result, the original subtree &mdash; a product. `apo`'s coalgebra returns, at each child position, *either* a finished subtree to graft *or* a seed to keep unfolding &mdash; a coproduct (Uustalu, Tarmo and Vene, Varmo, 1999) (Vene, Varmo, 2000). From [`src/smd/fixpoint/apo.hpp`](../../src/smd/fixpoint/apo.hpp):
 
 ```cpp
 /** apo :: (a -> f (Either t a)) -> a -> t
@@ -125,8 +126,7 @@ constexpr auto apo(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
     auto expanded = layer_fmap(
         [&](const auto &step) -> Fix<F> {
             return smd::typeclass::match(
-                step,
-                [](const auto &subtree) -> Fix<F> { return subtree; },
+                step, [](const auto &subtree) -> Fix<F> { return subtree; },
                 [&](const auto &next_seed) -> Fix<F> {
                     return apo<F>(coalgebra, next_seed);
                 });
@@ -136,7 +136,7 @@ constexpr auto apo(const Coalgebra &coalgebra, const Seed &seed) -> Fix<F> {
 }
 ```
 
-The worker `match`-es each child: Left returns its subtree as-is &#x2014; no recursion &#x2014; and Right recurses like `unfold_fix`. Note what the doc comment promises about references: a coalgebra may return `either<const Fix<F>&, Seed>`, and the graft copies exactly once, at the graft point. The zero-copy graft falls out of `match` never asking which instantiation it holds.
+The worker `match`-es each child: Left returns its subtree as-is &mdash; no recursion &mdash; and Right recurses like `unfold_fix`. Note what the doc comment promises about references: a coalgebra may return `either<const Fix<F>&, Seed>`, and the graft copies exactly once, at the graft point. The zero-copy graft falls out of `match` never asking which instantiation it holds.
 
 The motivating example is ordered insertion into a sorted list. Unfold the output list element by element while the input's head is smaller; the moment the insertion point appears, emit the new value and graft the *entire untouched remainder* with Left. From [`src/examples/apo_sorted_insert.cpp`](../../src/examples/apo_sorted_insert.cpp):
 
@@ -147,8 +147,8 @@ The motivating example is ordered insertion into a sorted list. Unfold the outpu
  * runs out; Right keeps unfolding past elements smaller than @p value.
  */
 auto make_insert_coalgebra(int value) {
-    return [value](const IntList &remaining)
-               -> IntListF<either<IntList, IntList>> {
+    return [value](
+               const IntList &remaining) -> IntListF<either<IntList, IntList>> {
         const auto &layer = unwrap_fix(remaining);
         return std::visit(
             overloaded{
@@ -178,7 +178,7 @@ auto make_insert_coalgebra(int value) {
 }
 ```
 
-A plain `unfold_fix` cannot express "and the rest is what it already was" &#x2014; it must walk to the end, rebuilding. `apo` says it in one `make_left`.
+A plain `unfold_fix` cannot express "and the rest is what it already was" &mdash; it must walk to the end, rebuilding. `apo` says it in one `make_left`.
 
 
 # either: The Sum the Library Actually Wanted
@@ -220,11 +220,11 @@ constexpr auto make_right(R v) -> either<L, R> {
 }
 ```
 
-`std::expected` was considered and rejected, and the decision log is specific. Its sides are asymmetric: the error side needs the `unexpected` wrapper, error-side mapping is spelled differently, and above all `expected<T, T>` &#x2014; which arises *naturally* here, an apo whose Seed is itself `Fix<F>`, as in the insert above &#x2014; forces tag-only construction and ambushes generic code. `either` makes `Left` and `Right` distinct wrapper types on **both** sides, so `either<T, T>` constructs and compares without ceremony.
+`std::expected` was considered and rejected, and the decision log is specific. Its sides are asymmetric: the error side needs the `unexpected` wrapper, error-side mapping is spelled differently, and above all `expected<T, T>` &mdash; which arises *naturally* here, an apo whose Seed is itself `Fix<F>`, as in the insert above &mdash; forces tag-only construction and ambushes generic code. `either` makes `Left` and `Right` distinct wrapper types on **both** sides, so `either<T, T>` constructs and compares without ceremony.
 
 The side convention is fixed once, library-wide, matching the Haskell sources: **Left stops, Right continues**. Apo: Left = graft this subtree. Elgot (Part 10): Left = here is the final answer. The monad instance is right-biased, `pure` is `make_right`, and Part 11 will lean on exactly that when `apo` is recovered from the generalized unfold.
 
-One more symmetry worth seeing now: the design treats `std::pair` and `either` as proper duals &#x2014; product and coproduct &#x2014; with matched vocabulary on each side: `fanout` builds toward a pair as `fanin` matches away from an either, and the value slot sits second in both (`pair`'s env-comonad `extract` is `.second`; `either`'s monadic `pure` is `make_right`). `para` rides the pair; `apo` rides the either. The duality is not decoration &#x2014; in Part 11 it becomes the actual mechanism, when `dist_para` (pair side) and `dist_apo` (either side) sit in the same slot of `gcata` and `gana` respectively.
+One more symmetry worth seeing now: the design treats `std::pair` and `either` as proper duals &mdash; product and coproduct &mdash; with matched vocabulary on each side: `fanout` builds toward a pair as `fanin` matches away from an either, and the value slot sits second in both (`pair`'s env-comonad `extract` is `.second`; `either`'s monadic `pure` is `make_right`). `para` rides the pair; `apo` rides the either. The duality is not decoration &mdash; in Part 11 it becomes the actual mechanism, when `dist_para` (pair side) and `dist_apo` (either side) sit in the same slot of `gcata` and `gana` respectively.
 
 <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">
 
