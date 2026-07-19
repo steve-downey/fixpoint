@@ -1,0 +1,47 @@
+#+TITLE: Finding — make `send` constexpr (compile-time Freer programs)
+#+DATE: 2026-07-18
+
+* Summary
+
+=send= is the only thing preventing a =Freer<Sig, A>= / =Free<F, A>= program
+from being *constructed in a constant expression*. Everything else on the
+construction path is already =constexpr=:
+
+- =pure_free= (=src/smd/fixpoint/free.hpp:52=) — already =constexpr=.
+- =FreeMonadImpl::bind= (=src/smd/fixpoint/free.hpp:193, :223=) — already =constexpr=.
+- =send= (=src/smd/fixpoint/freer.hpp:153= and =src/smd/fixpoint/freer_row.hpp:257=)
+  — plain =auto send(Op op) -> Freer<...>=, NOT =constexpr=. This is the gap.
+
+* Where it bites
+
+Downstream (generic_monads, the vendored snapshot of this repo) is building a
+reflection column that runs each generic monadic algorithm at *compile time*
+over =smd::meta::comp<T>= (P2996, g++-16 =-freflection=). The =foldFree= cell
+reduces to a =static_assert= over =foldFree<comp<...>>(nt, program)=. It fails
+to compile solely because constructing the program —
+
+: smd::fixpoint::send<KV>(Get{key})
+
+— calls a non-=constexpr= function, so the whole =static_assert= is ill-formed.
+Observed error (g++-16, =-std=gnu++26 -freflection=):
+
+: error: call to non-'constexpr' function 'Freer<...> smd::fixpoint::send(Op) [...]'
+
+* Proposed change
+
+Add =constexpr= to both =send= overloads (freer.hpp and freer_row.hpp). There
+is no principled reason they can't be =constexpr=: the body allocates a
+=box=/node and returns a =Freer=, all of which is literal-type / constexpr-new
+friendly in C++23, and its siblings (=pure_free=, =Free::bind=) are already
+=constexpr=. While here, audit the rest of the =Freer= construction + bind path
+(=freer.hpp='s monad_typeclass bind, =make_box=, the =box= ctors) for the same
+qualifier so an end-to-end =foldFree= runs during constant evaluation.
+
+* Not done here
+
+Left as a note per request — this is the upstream repo, so the change itself is
+not applied here. The downstream reflection cell
+(=src/smd/algo/foldfree/foldfree.reflection.t.cpp= in generic_monads) is
+documented as blocked-pending-this-constexpr in that repo's mfix/reflection
+findings, mirroring how the eager-monad negative results are recorded as
+findings rather than forced.
