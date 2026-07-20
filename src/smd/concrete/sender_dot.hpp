@@ -59,8 +59,8 @@ struct sender_node_info {
     std::string data_type; // short name of the node's data payload; empty
                            // when the payload carries no information
 
-    friend auto operator==(const sender_node_info &,
-                           const sender_node_info &) -> bool = default;
+    friend auto operator==(const sender_node_info &, const sender_node_info &)
+        -> bool = default;
 };
 
 /** The sender tree's base functor and its fixed point. */
@@ -128,10 +128,9 @@ auto reify_sender(const Sender &sndr) -> SenderTree {
             SenderTreeF<SenderTree>{std::move(info), std::move(children)});
     } else {
         return smd::fixpoint::wrap_fix<SenderTreeF>(SenderTreeF<SenderTree>{
-            sender_node_info{
-                std::string(smd::fixpoint::short_type_name<
-                            std::remove_cvref_t<Sender>>()),
-                std::string{}},
+            sender_node_info{std::string(smd::fixpoint::short_type_name<
+                                         std::remove_cvref_t<Sender>>()),
+                             std::string{}},
             {}});
     }
 }
@@ -185,27 +184,25 @@ inline auto dot_escape(std::string_view text) -> std::string {
 inline auto to_dot(const SenderTree &tree) -> std::string {
     auto algebra = [](const SenderTreeF<detail::dot_program> &layer)
         -> detail::dot_program {
-        return detail::dot_program{
-            [label = layer.label,
-             kids = layer.children](int next) -> detail::dot_result {
-                const int my_id = next;
-                int cursor = next + 1;
-                std::string text = "  n" + std::to_string(my_id) +
-                                   " [label=\"" +
-                                   detail::dot_escape(label.tag_name);
-                if (!label.data_type.empty()) {
-                    text += "\\n" + detail::dot_escape(label.data_type);
-                }
-                text += "\"];\n";
-                for (const auto &kid : kids) {
-                    detail::dot_result sub = kid.run(cursor);
-                    cursor = sub.next_id;
-                    text += sub.text;
-                    text += "  n" + std::to_string(my_id) + " -> n" +
-                            std::to_string(sub.node_id) + ";\n";
-                }
-                return {my_id, cursor, std::move(text)};
-            }};
+        return detail::dot_program{[label = layer.label, kids = layer.children](
+                                       int next) -> detail::dot_result {
+            const int my_id = next;
+            int cursor = next + 1;
+            std::string text = "  n" + std::to_string(my_id) + " [label=\"" +
+                               detail::dot_escape(label.tag_name);
+            if (!label.data_type.empty()) {
+                text += "\\n" + detail::dot_escape(label.data_type);
+            }
+            text += "\"];\n";
+            for (const auto &kid : kids) {
+                detail::dot_result sub = kid.run(cursor);
+                cursor = sub.next_id;
+                text += sub.text;
+                text += "  n" + std::to_string(my_id) + " -> n" +
+                        std::to_string(sub.node_id) + ";\n";
+            }
+            return {my_id, cursor, std::move(text)};
+        }};
     };
     detail::dot_program program =
         smd::fixpoint::fold_fix<detail::dot_program>(algebra, tree);

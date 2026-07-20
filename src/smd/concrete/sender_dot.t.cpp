@@ -34,7 +34,8 @@ TEST_CASE("sender_dot - ReifyJustIsALeaf") {
 }
 
 TEST_CASE("sender_dot - ReifyThenHasOneChild") {
-    auto tree = reify_sender(ex::then(ex::just(1), [](int i) { return i + 1; }));
+    auto tree =
+        reify_sender(ex::then(ex::just(1), [](int i) { return i + 1; }));
     const auto &root = unwrap_fix(tree);
     CHECK(root.label.tag_name == "then");
     REQUIRE(root.children.size() == 1u);
@@ -67,7 +68,7 @@ TEST_CASE("sender_dot - DotOutputStructure") {
                     ex::then([](int a, int b) { return a + b; });
     std::string dot = sender_to_dot(pipeline);
 
-    // Preorder ids: n0 = then, n1 = when_all, n2/n3 = the two justs.
+    // Preorder ids: n0 = then, n1 = when_all, n2/n3 = the two just senders.
     CHECK(dot.find("digraph G {") == 0u);
     CHECK(dot.find("n0 [label=\"then") != std::string::npos);
     CHECK(dot.find("n1 [label=\"when_all\"]") != std::string::npos);
@@ -82,8 +83,8 @@ TEST_CASE("sender_dot - DotOutputStructure") {
 TEST_CASE("sender_dot - NonValueChannelsAreMarked") {
     // upon_error's tag is then_t<set_error_t>: the leaf name alone would
     // render it as a plain "then".
-    auto tree = reify_sender(
-        ex::upon_error(ex::just(1), [](auto &&) { return 0; }));
+    auto tree =
+        reify_sender(ex::upon_error(ex::just(1), [](auto &&) { return 0; }));
     CHECK(unwrap_fix(tree).label.tag_name == "then/error");
 
     auto stopped = reify_sender(ex::just_stopped());
@@ -100,8 +101,7 @@ TEST_CASE("sender_dot - OpaqueTypeBecomesLabeledLeaf") {
 }
 
 TEST_CASE("sender_dot - LabelsAreEscaped") {
-    SenderTree tree = rose_node<SenderTreeF>(
-        sender_node_info{"a\"b\\c", ""});
+    SenderTree tree = rose_node<SenderTreeF>(sender_node_info{"a\"b\\c", ""});
     std::string dot = to_dot(tree);
     CHECK(dot.find("n0 [label=\"a\\\"b\\\\c\"];") != std::string::npos);
 }

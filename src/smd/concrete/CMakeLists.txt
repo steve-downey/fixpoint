@@ -1,16 +1,27 @@
 include(GNUInstallDirs)
 
-# sender_dot.hpp includes beman/execution headers, so (like
-# freer_task.hpp in ../fixpoint) it cannot pass the opt-in
-# compile-headers verification target, which compiles each header with
-# only -I src.
 target_sources(
     fixpoint.fixpoint
     PUBLIC
         FILE_SET smd_concrete_headers
             TYPE HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/src
-            FILES functors.hpp sender_dot.hpp
+            FILES functors.hpp
+)
+
+# sender_dot.hpp includes beman/execution headers: same arrangement as
+# freer_task.hpp in ../fixpoint -- its own file set, verified only when
+# the beman targets exist (their include dirs reach the verification TU
+# through fixpoint.fixpoint's $<BUILD_INTERFACE:...> links, made there),
+# excluded by the top-level CMakeLists otherwise. Installs identically
+# to the main set.
+target_sources(
+    fixpoint.fixpoint
+    PUBLIC
+        FILE_SET smd_concrete_beman_headers
+            TYPE HEADERS
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
+            FILES sender_dot.hpp
 )
 
 ## Tests
