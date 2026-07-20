@@ -196,7 +196,17 @@ TEST_CASE("run_task [FD10]: retry-with-backoff -- three Sends, backoff "
             (send_calls < 3)
                 ? Send::response{std::unexpected(net_error{"boom"})}
                 : Send::response{reply{"hello-reply"}};
-        return ex::just(r);
+        // Not just(r): that stores the std::expected as a basic_sender
+        // product element, and eagerly checking that product's defaulted
+        // operator== (Clang checks deleted-ness at class instantiation)
+        // sends several libc++ snapshots' heterogeneous expected
+        // operator== constraint into self-recursion ("satisfaction of
+        // constraint ... depends on itself"; CI's clang/libc++ rows and
+        // both AppleClang lanes). Delivered through then(), the stored
+        // element is the closure and the expected only travels the value
+        // channel.
+        return ex::then(ex::just(),
+                        [r = std::move(r)]() mutable { return std::move(r); });
     };
     auto clock_handler =
         overloaded{[&log](Now op) {

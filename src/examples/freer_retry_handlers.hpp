@@ -41,7 +41,18 @@ inline auto make_network_handler(smd::fixpoint::trace &log, int &send_calls) {
             (send_calls < 3)
                 ? Send::response{std::unexpected(net_error{"boom"})}
                 : Send::response{reply{"hello-reply"}};
-        return beman::execution::just(r);
+        // Not just(r): that stores the std::expected as a basic_sender
+        // product element, and eagerly checking that product's defaulted
+        // operator== (Clang checks deleted-ness at class instantiation)
+        // sends several libc++ snapshots' heterogeneous expected
+        // operator== constraint into self-recursion ("satisfaction of
+        // constraint ... depends on itself"; CI's clang/libc++ rows and
+        // both AppleClang lanes). Delivered through then(), the stored
+        // element is the closure and the expected only travels the value
+        // channel.
+        return beman::execution::then(
+            beman::execution::just(),
+            [r = std::move(r)]() mutable { return std::move(r); });
     };
 }
 
