@@ -9,6 +9,21 @@ target_sources(
             FILES functors.hpp
 )
 
+# sender_dot.hpp includes beman/execution headers: same arrangement as
+# freer_task.hpp in ../fixpoint -- its own file set, verified only when
+# the beman targets exist (their include dirs reach the verification TU
+# through fixpoint.fixpoint's $<BUILD_INTERFACE:...> links, made there),
+# excluded by the top-level CMakeLists otherwise. Installs identically
+# to the main set.
+target_sources(
+    fixpoint.fixpoint
+    PUBLIC
+        FILE_SET smd_concrete_beman_headers
+            TYPE HEADERS
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
+            FILES sender_dot.hpp
+)
+
 ## Tests
 if(FIXPOINT_ENABLE_TESTING AND NOT Catch2_FOUND)
     find_package(Catch2 3 QUIET)
@@ -35,4 +50,25 @@ if(FIXPOINT_ENABLE_TESTING)
 
     include(Catch)
     catch_discover_tests(smd_concrete_test)
+
+    # Sender-expression -> Graphviz DOT (sender_dot.hpp). Its own
+    # executable so beman::execution stays confined, per the freer_task
+    # precedent in ../fixpoint; needs only the header-only
+    # beman::execution_headers target, which ../fixpoint's
+    # FetchContent_MakeAvailable has already created (src/smd processes
+    # fixpoint before concrete).
+    if(TARGET beman::execution_headers)
+        add_executable(sender_dot_test)
+
+        target_sources(sender_dot_test PRIVATE sender_dot.t.cpp)
+
+        target_link_libraries(
+            sender_dot_test
+            fixpoint.fixpoint
+            Catch2::Catch2WithMain
+            beman::execution_headers
+        )
+
+        catch_discover_tests(sender_dot_test)
+    endif()
 endif()

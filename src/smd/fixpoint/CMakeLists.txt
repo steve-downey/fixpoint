@@ -34,7 +34,24 @@ target_sources(
                 unfold_cofree.hpp
                 freer_cosignature.hpp
                 mcata_free.hpp
-                freer_task.hpp
+                type_name.hpp
+)
+
+# freer_task.hpp includes beman/execution and beman/task headers, so its
+# header-set verification TU only compiles when those targets' include
+# dirs are on the library's interface (linked below, build-tree only,
+# once FetchContent has made them available). A separate file set lets
+# the top-level CMakeLists exclude exactly this header from verification
+# in configures where the beman targets do not exist
+# (FIXPOINT_ENABLE_TESTING=OFF). beman_install_library() installs every
+# INTERFACE_HEADER_SET, so it installs identically to the main set.
+target_sources(
+    fixpoint.fixpoint
+    PUBLIC
+        FILE_SET smd_fixpoint_beman_headers
+            TYPE HEADERS
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
+            FILES freer_task.hpp
 )
 
 ## Tests
@@ -89,6 +106,7 @@ if(FIXPOINT_ENABLE_TESTING)
             freer_row.t.cpp
             freer_cosignature.t.cpp
             mcata_free.t.cpp
+            type_name.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)
@@ -102,13 +120,31 @@ if(FIXPOINT_ENABLE_TESTING)
     # fixpoint.fixpoint -- this step only proves the deps are fetchable and
     # linkable, S07 does the real interpreter work against them.
     #
-    # cmake/beman-deps.cmake (loaded via CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
-    # only FetchContent_Declare()s beman-execution/beman-task; the actual
+    # cmake/beman-deps.cmake only FetchContent_Declare()s beman-execution/
+    # beman-task (idempotent under include_guard); the actual
     # FetchContent_MakeAvailable() has to happen here, outside the
     # top-level project() call, to avoid a recursive project() error (see
-    # that file's comment for why).
-    include(FetchContent)
+    # that file's comment for why). Including it here, at the point of
+    # consumption, is what keeps every configure flow working: the Beman
+    # preset/matrix CI lanes put only infra/cmake/use-fetch-content.cmake
+    # (Catch2) in CMAKE_PROJECT_TOP_LEVEL_INCLUDES, so a declare left to a
+    # top-level include would be missing there and this
+    # FetchContent_MakeAvailable() would fail to configure ("No content
+    # details recorded for execution").
+    include(${PROJECT_SOURCE_DIR}/cmake/beman-deps.cmake)
     FetchContent_MakeAvailable(execution task)
+
+    # Build-tree-only usage requirements so header-set verification (the
+    # CI matrix builds the verify target as part of `all`) can compile
+    # freer_task.hpp standalone. $<BUILD_INTERFACE:...> strips these from
+    # the installed export, so consumers of the installed package never
+    # see the beman targets.
+    target_link_libraries(
+        fixpoint.fixpoint
+        PUBLIC
+            $<BUILD_INTERFACE:beman::execution_headers>
+            $<BUILD_INTERFACE:beman::task>
+    )
 
     add_executable(freer_beman_probe_test)
 

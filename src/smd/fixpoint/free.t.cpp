@@ -6,6 +6,7 @@
 
 #include <smd/concrete/functors.hpp>
 #include <smd/fixpoint/box.hpp>
+#include <smd/fixpoint/one_shot.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -265,9 +266,14 @@ TEST_CASE("free consuming bind: sequences through a Roll chunk of a "
 
 namespace {
 
+// one_shot (one_shot.hpp), not std::move_only_function: libc++ (Linux and
+// Apple rows of the CI matrix) does not declare std::move_only_function
+// at all, and one_shot is what S03's real Coyoneda layer stores anyway --
+// its rvalue-qualified call operator carries the same one-shot-ness the
+// &&-qualified move_only_function signature expressed here.
 template <class X>
 struct LazyLayer {
-    std::move_only_function<smd::fixpoint::Box<X>(int) &&> k;
+    smd::fixpoint::one_shot<smd::fixpoint::Box<X>(int)> k;
 };
 
 } // namespace
@@ -280,11 +286,12 @@ struct LazyLayerFunctorImpl {
     constexpr auto fmap(this auto &&, Fn &&fn, LazyLayer<X> &&layer)
         -> LazyLayer<remove_cvref_t<std::invoke_result_t<Fn, X &&>>> {
         using Y = remove_cvref_t<std::invoke_result_t<Fn, X &&>>;
-        return LazyLayer<Y>{[k = std::move(layer.k), fn = std::forward<Fn>(fn)](
-                                int response) mutable -> smd::fixpoint::Box<Y> {
-            return smd::fixpoint::make_box<Y>(
-                std::invoke(fn, *std::move(k)(response)));
-        }};
+        return LazyLayer<Y>{smd::fixpoint::one_shot<smd::fixpoint::Box<Y>(int)>{
+            [k = std::move(layer.k), fn = std::forward<Fn>(fn)](
+                int response) mutable -> smd::fixpoint::Box<Y> {
+                return smd::fixpoint::make_box<Y>(
+                    std::invoke(fn, *std::move(k)(response)));
+            }}};
     }
 };
 
@@ -309,10 +316,11 @@ using LazyFree = Free<LazyLayer, MoveOnlyInt>;
 
 auto make_lazy_program() -> LazyFree {
     return roll_free<LazyLayer>(
-        LazyLayer<LazyFree>{[](int response) -> Box<LazyFree> {
-            return make_box<LazyFree>(
-                pure_free<LazyLayer>(MoveOnlyInt{response}));
-        }});
+        LazyLayer<LazyFree>{smd::fixpoint::one_shot<Box<LazyFree>(int)>{
+            [](int response) -> Box<LazyFree> {
+                return make_box<LazyFree>(
+                    pure_free<LazyLayer>(MoveOnlyInt{response}));
+            }}});
 }
 
 } // namespace

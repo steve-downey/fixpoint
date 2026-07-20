@@ -9,23 +9,29 @@
 # vcpkg registry this repo resolves against (checked 2026-07-11; see
 # ops/freer/handoffs/07d-beman-deps.handoff.md for the registry search).
 # So this file is the *only* provisioning path for these two deps, in
-# *both* Makefile modes: it is appended to CMAKE_PROJECT_TOP_LEVEL_INCLUDES
-# after whichever of the vcpkg toolchain file / infra/cmake/use-fetch-
-# content.cmake the Makefile picked for Catch2 (see Makefile's
-# `_cmake_top_level`), and it runs unconditionally as the last step of the
-# top-level project() call.
+# every configure flow: it is include()d by its consumer,
+# src/smd/fixpoint/CMakeLists.txt, immediately before the
+# FetchContent_MakeAvailable(execution task) that needs these declares,
+# and include_guard(GLOBAL) makes that include idempotent. It is NOT
+# loaded via CMAKE_PROJECT_TOP_LEVEL_INCLUDES: the Beman preset/matrix CI
+# lanes control that variable themselves (they set only
+# infra/cmake/use-fetch-content.cmake, for Catch2), so a declare left to
+# a top-level include silently goes missing there and every CI lane fails
+# to configure with "No content details recorded for execution" -- which
+# is exactly what happened between 2026-07-12 and 2026-07-20.
 #
 # This file only FetchContent_Declare()s the two deps (cheap, metadata
 # only). It deliberately does NOT call FetchContent_MakeAvailable() here:
-# CMAKE_PROJECT_TOP_LEVEL_INCLUDES runs as the last step *inside* the
-# top-level project() command's own processing, and FetchContent_
-# MakeAvailable() ends up calling add_subdirectory() -> project() for each
-# fetched dep -- CMake rejects that as a recursive project() call from
-# this context ("Language 'CXX' is currently being enabled. Recursive call
-# not allowed."). So MakeAvailable() is called later, from ordinary
-# CMakeLists.txt code that runs after the top-level project() call has
-# returned (see src/smd/fixpoint/CMakeLists.txt, guarded by
-# FIXPOINT_ENABLE_TESTING since that's the only consumer right now).
+# historically this file ran from CMAKE_PROJECT_TOP_LEVEL_INCLUDES, i.e.
+# as the last step *inside* the top-level project() command's own
+# processing, where FetchContent_MakeAvailable() -- which ends up calling
+# add_subdirectory() -> project() for each fetched dep -- is rejected as
+# a recursive project() call ("Language 'CXX' is currently being
+# enabled. Recursive call not allowed."). Keeping declare and
+# MakeAvailable separate also remains the right shape now: the declares
+# are reusable metadata, the MakeAvailable belongs to the consumer that
+# needs the targets (src/smd/fixpoint/CMakeLists.txt, guarded by
+# FIXPOINT_ENABLE_TESTING since tests are the only consumers right now).
 #
 # Neither upstream repo tags releases (checked on the commits below via
 # `git ls-remote --tags`: both empty); pins are exact commit SHAs off each

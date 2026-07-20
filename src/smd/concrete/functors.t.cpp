@@ -10,6 +10,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -189,3 +190,98 @@ TEST_CASE("functors - ExprFmapSmoke") {
 
 static_assert(eval(add_node(mul_node(const_node(2), const_node(3)),
                             const_node(4))) == 10);
+
+// ---------------------------------------------------------------------
+// RoseF
+// ---------------------------------------------------------------------
+
+namespace {
+template <typename A>
+using StrRoseF = smd::concrete::RoseF<std::string, A>;
+
+using StrRose = smd::fixpoint::Fix<StrRoseF>;
+} // namespace
+
+TEST_CASE("functors - RoseFmapSmoke") {
+    using smd::concrete::RoseF;
+
+    RoseF<std::string, int> layer{"node", {1, 2, 3}};
+    auto mapped = layer_fmap([](int x) { return x + 1; }, layer);
+    CHECK(mapped.label == "node");
+    CHECK(mapped.children == std::vector<int>{2, 3, 4});
+}
+
+TEST_CASE("functors - RoseFmapIdentityAndComposition") {
+    using smd::concrete::RoseF;
+
+    RoseF<std::string, int> layer{"node", {1, 2, 3}};
+
+    auto identity_mapped = layer_fmap([](int x) { return x; }, layer);
+    CHECK(identity_mapped.label == layer.label);
+    CHECK(identity_mapped.children == layer.children);
+
+    auto f = [](int x) { return x + 1; };
+    auto g = [](int x) { return x * 2; };
+    auto composed = layer_fmap([&](int x) { return g(f(x)); }, layer);
+    auto staged = layer_fmap(g, layer_fmap(f, layer));
+    CHECK(composed.children == staged.children);
+}
+
+TEST_CASE("functors - RoseFoldFixConcatenatesLabels") {
+    using smd::concrete::rose_node;
+    using smd::fixpoint::fold_fix;
+
+    // fold_fix works for a RoseF alias with an arbitrary label type: the
+    // functor_typeclass lookup resolves StrRoseF<A> to RoseF<std::string, A>.
+    StrRose tree = rose_node<StrRoseF>(
+        std::string("root"),
+        {rose_node<StrRoseF>(std::string("a")),
+         rose_node<StrRoseF>(std::string("b"),
+                             {rose_node<StrRoseF>(std::string("c"))})});
+
+    auto labels = fold_fix<std::string>(
+        [](const StrRoseF<std::string> &layer) {
+            std::string out = layer.label;
+            for (const auto &child : layer.children) {
+                out += ' ' + child;
+            }
+            return out;
+        },
+        tree);
+    CHECK(labels == "root a b c");
+}
+
+TEST_CASE("functors - RoseFoldableToVectorAndLength") {
+    using smd::concrete::RoseF;
+    using smd::typeclass::foldable_typeclass;
+
+    RoseF<std::string, int> layer{"node", {4, 5, 6}};
+    const auto &foldable = foldable_typeclass<RoseF<std::string, int>>;
+    CHECK(foldable.to_vector(layer) == std::vector<int>{4, 5, 6});
+    CHECK(foldable.length(layer) == 3);
+    CHECK(!foldable.empty(layer));
+    CHECK(foldable.any_of(layer, [](int x) { return x == 5; }));
+    CHECK(foldable.all_of(layer, [](int x) { return x > 3; }));
+}
+
+TEST_CASE("functors - RoseTraverseOptionalTransposes") {
+    using smd::concrete::RoseF;
+    using smd::typeclass::traverse;
+
+    RoseF<std::string, int> layer{"node", {1, 2, 3}};
+
+    // All effects succeed: the optional hoists out, shape and label kept.
+    auto all =
+        traverse([](int x) { return std::optional<int>{x * 10}; }, layer);
+    REQUIRE(all.has_value());
+    CHECK(all->label == "node");
+    CHECK(all->children == std::vector<int>{10, 20, 30});
+
+    // One failure collapses the whole traversal.
+    auto failed = traverse(
+        [](int x) {
+            return x == 2 ? std::optional<int>{} : std::optional<int>{x};
+        },
+        layer);
+    CHECK(!failed.has_value());
+}

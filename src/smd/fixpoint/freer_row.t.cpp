@@ -92,7 +92,8 @@ struct Send {
     using response = std::expected<reply, net_error>;
 };
 
-auto operator<<(std::ostream &out, const Send &op) -> std::ostream & {
+[[maybe_unused]] auto operator<<(std::ostream &out, const Send &op)
+    -> std::ostream & {
     return out << "Send(" << op.req.body << ")";
 }
 

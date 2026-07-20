@@ -17,6 +17,7 @@
 #include <smd/fixpoint/recursion_schemes.hpp>
 
 #include <smd/typeclass/functor.hpp>
+#include <smd/typeclass/sequence.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -433,6 +434,115 @@ constexpr auto eval(const Expr &tree) -> int {
         tree);
 }
 // 5f486336-1b03-4f4a-87b9-ad169d481bd6 end
+
+// ---------------------------------------------------------------------
+// RoseF<E, ·> — labeled rose tree: one E label per node, arbitrarily many
+// recursive positions. Not a variant — there is only one node shape — and
+// no Box: std::vector supports an incomplete element type, so vector<A>
+// with A = Fix<RoseF<E, ·>> is a complete member type on its own.
+// ---------------------------------------------------------------------
+
+// 6c2a8614-33ab-4986-ab9d-3d97e461b50e
+template <typename E, typename A>
+struct RoseF {
+    E label;
+    std::vector<A> children;
+
+    // No operator== — Fix<F> (the A that matters) has no equality to
+    // compare children with; tests observe fields directly instead.
+};
+// 6c2a8614-33ab-4986-ab9d-3d97e461b50e end
+
+} // namespace smd::concrete
+
+namespace smd::typeclass {
+
+// 44131dae-7fa9-4705-8a5c-0d408da83008
+// RoseF's instances delegate the child positions to std::vector's
+// registered instances: the rose layer is label ⊗ vector, so mapping,
+// folding, and traversing a layer is the vector operation with the label
+// carried across unchanged.
+
+template <typename E, typename A>
+struct RoseFFunctorImpl {
+    template <typename Fn>
+    auto fmap(this auto &&, Fn &&fn, const smd::concrete::RoseF<E, A> &layer) {
+        using B = std::remove_cvref_t<std::invoke_result_t<Fn, const A &>>;
+        return smd::concrete::RoseF<E, B>{
+            layer.label, functor_typeclass<std::vector<A>>.fmap(
+                             std::forward<Fn>(fn), layer.children)};
+    }
+};
+
+template <typename E, typename A>
+struct RoseFFunctorMap : Functor<RoseFFunctorImpl<E, A>> {
+    using RoseFFunctorImpl<E, A>::fmap;
+};
+
+template <typename E, typename A>
+inline constexpr auto functor_typeclass<smd::concrete::RoseF<E, A>> =
+    RoseFFunctorMap<E, A>{};
+
+template <typename E, typename A>
+struct RoseFFoldableImpl {
+    template <typename Fn>
+    auto fold_map(this auto &&, Fn &&fn,
+                  const smd::concrete::RoseF<E, A> &layer) {
+        return foldable_typeclass<std::vector<A>>.fold_map(std::forward<Fn>(fn),
+                                                           layer.children);
+    }
+};
+
+template <typename E, typename A>
+struct RoseFFoldableMap : Foldable<RoseFFoldableImpl<E, A>> {
+    using RoseFFoldableImpl<E, A>::fold_map;
+};
+
+template <typename E, typename A>
+inline constexpr auto foldable_typeclass<smd::concrete::RoseF<E, A>> =
+    RoseFFoldableMap<E, A>{};
+
+template <typename E, typename A>
+struct RoseFTraversableImpl {
+    using element_type = A;
+
+    template <typename APPLICATIVE, typename Fn>
+    auto traverse(this auto &&, const APPLICATIVE &applicative, Fn &&fn,
+                  const smd::concrete::RoseF<E, A> &layer) {
+        return applicative.fmap(
+            [label = layer.label](const auto &children) {
+                using B = typename std::remove_cvref_t<
+                    decltype(children)>::value_type;
+                return smd::concrete::RoseF<E, B>{label, children};
+            },
+            traversable_typeclass<std::vector<A>>.traverse(
+                applicative, std::forward<Fn>(fn), layer.children));
+    }
+};
+
+template <typename E, typename A>
+struct RoseFTraversableMap : Traversable<RoseFTraversableImpl<E, A>> {
+    using RoseFTraversableImpl<E, A>::traverse;
+};
+
+template <typename E, typename A>
+inline constexpr auto traversable_typeclass<smd::concrete::RoseF<E, A>> =
+    RoseFTraversableMap<E, A>{};
+// 44131dae-7fa9-4705-8a5c-0d408da83008 end
+
+} // namespace smd::typeclass
+
+namespace smd::concrete {
+
+// e37d750c-8369-4173-82db-2eb648328c6d
+/** Build a rose-tree node labeled @p label with @p children subtrees. */
+template <template <typename> class F, typename E>
+auto rose_node(E label, std::vector<smd::fixpoint::Fix<F>> children = {})
+    -> smd::fixpoint::Fix<F> {
+    return smd::fixpoint::wrap_fix<F>(
+        F<smd::fixpoint::Fix<F>>{std::move(label), std::move(children)});
+}
+// e37d750c-8369-4173-82db-2eb648328c6d end
 
 } // namespace smd::concrete
 
