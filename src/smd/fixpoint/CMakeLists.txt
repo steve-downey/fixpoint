@@ -35,6 +35,7 @@ target_sources(
                 freer_cosignature.hpp
                 mcata_free.hpp
                 freer_task.hpp
+                type_name.hpp
 )
 
 ## Tests
@@ -89,6 +90,7 @@ if(FIXPOINT_ENABLE_TESTING)
             freer_row.t.cpp
             freer_cosignature.t.cpp
             mcata_free.t.cpp
+            type_name.t.cpp
     )
 
     target_link_libraries(smd_fixpoint_test fixpoint.fixpoint)

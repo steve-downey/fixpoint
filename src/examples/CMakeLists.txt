@@ -235,3 +235,26 @@ if(TARGET beman::task AND TARGET beman::execution_headers)
         EXCLUDE_FROM_ALL
     )
 endif()
+
+# Sender-expression -> Graphviz DOT. Needs only the header-only
+# beman::execution_headers target (no run_task), made available by
+# src/smd/fixpoint/CMakeLists.txt under FIXPOINT_ENABLE_TESTING.
+if(TARGET beman::execution_headers)
+    add_executable(sender_dot)
+
+    # Add example source file.
+    target_sources(sender_dot PRIVATE sender_dot.cpp)
+
+    # Link example with the library and the sender vocabulary.
+    target_link_libraries(
+        sender_dot
+        PRIVATE fixpoint.fixpoint beman::execution_headers
+    )
+
+    install(
+        TARGETS sender_dot
+        COMPONENT fixpoint.fixpoint.examples
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        EXCLUDE_FROM_ALL
+    )
+endif()
