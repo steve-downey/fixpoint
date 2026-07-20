@@ -1,8 +1,5 @@
 var concepts =
 [
-    [ "probe_b", "namespaceprobe__b.html", [
-      [ "probe_concept", "conceptprobe__b_1_1probe__concept.html", null ]
-    ] ],
     [ "smd", "namespacesmd.html", [
       [ "fixpoint", "namespacesmd_1_1fixpoint.html", [
         [ "functor_instance_for", "conceptsmd_1_1fixpoint_1_1functor__instance__for.html", null ],

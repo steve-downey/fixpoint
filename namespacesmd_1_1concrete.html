@@ -120,6 +120,10 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1Node.html">Node</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1RoseF.html">RoseF</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1sender__node__info.html">sender_node_info</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1Succ.html">Succ</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1Zero.html">Zero</a></td></tr>
@@ -153,6 +157,11 @@ Typedefs</h2></td></tr>
 <tr class="separator:ac7d42bc393c97c407f673deb2ce30f98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcbd78bad1ba834e0c4b1aaa2e4fb629"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#abcbd78bad1ba834e0c4b1aaa2e4fb629">Expr</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; <a class="el" href="namespacesmd_1_1concrete.html#ac7d42bc393c97c407f673deb2ce30f98">ExprF</a> &gt;</td></tr>
 <tr class="separator:abcbd78bad1ba834e0c4b1aaa2e4fb629"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a606f1f9efadeca869cb67c8beaac66d6"><td class="memTemplParams" colspan="2">template&lt;typename A &gt; </td></tr>
+<tr class="memitem:a606f1f9efadeca869cb67c8beaac66d6"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a606f1f9efadeca869cb67c8beaac66d6">SenderTreeF</a> = <a class="el" href="structsmd_1_1concrete_1_1RoseF.html">RoseF</a>&lt; <a class="el" href="structsmd_1_1concrete_1_1sender__node__info.html">sender_node_info</a>, A &gt;</td></tr>
+<tr class="separator:a606f1f9efadeca869cb67c8beaac66d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94051ef81add8a78c692075e61318e44"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">SenderTree</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; <a class="el" href="namespacesmd_1_1concrete.html#a606f1f9efadeca869cb67c8beaac66d6">SenderTreeF</a> &gt;</td></tr>
+<tr class="separator:a94051ef81add8a78c692075e61318e44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -180,6 +189,17 @@ Functions</h2></td></tr>
 <tr class="separator:a5895ed24e4a8a85feb9f094e95eb7ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64ff797ff5ad2bdd38930ebcb23c6877"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a64ff797ff5ad2bdd38930ebcb23c6877">eval</a> (const <a class="el" href="namespacesmd_1_1concrete.html#abcbd78bad1ba834e0c4b1aaa2e4fb629">Expr</a> &amp;tree) -&gt; int</td></tr>
 <tr class="separator:a64ff797ff5ad2bdd38930ebcb23c6877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a114d26069abef2608a1a5ef8a6887454"><td class="memTemplParams" colspan="2">template&lt;template&lt; typename &gt; class F, typename E &gt; </td></tr>
+<tr class="memitem:a114d26069abef2608a1a5ef8a6887454"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a114d26069abef2608a1a5ef8a6887454">rose_node</a> (E label, std::vector&lt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; F &gt; &gt; children={}) -&gt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; F &gt;</td></tr>
+<tr class="separator:a114d26069abef2608a1a5ef8a6887454"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a317863910019151274acf699ff467e7b"><td class="memTemplParams" colspan="2">template&lt;typename Sender &gt; </td></tr>
+<tr class="memitem:a317863910019151274acf699ff467e7b"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a317863910019151274acf699ff467e7b">reify_sender</a> (const Sender &amp;sndr) -&gt; <a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">SenderTree</a></td></tr>
+<tr class="separator:a317863910019151274acf699ff467e7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af43d38c0ec12619ae260cc6fa79c6005"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#af43d38c0ec12619ae260cc6fa79c6005">to_dot</a> (const <a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">SenderTree</a> &amp;tree) -&gt; std::string</td></tr>
+<tr class="separator:af43d38c0ec12619ae260cc6fa79c6005"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a079018edf3815586ca480a89dfea869b"><td class="memTemplParams" colspan="2">template&lt;typename Sender &gt; </td></tr>
+<tr class="memitem:a079018edf3815586ca480a89dfea869b"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a079018edf3815586ca480a89dfea869b">sender_to_dot</a> (const Sender &amp;sndr) -&gt; std::string</td></tr>
+<tr class="separator:a079018edf3815586ca480a89dfea869b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="abcbd78bad1ba834e0c4b1aaa2e4fb629" name="abcbd78bad1ba834e0c4b1aaa2e4fb629"></a>
@@ -315,6 +335,37 @@ template&lt;typename A &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a94051ef81add8a78c692075e61318e44" name="a94051ef81add8a78c692075e61318e44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94051ef81add8a78c692075e61318e44">&#9670;&#160;</a></span>SenderTree</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">smd::concrete::SenderTree</a> = typedef <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt;<a class="el" href="namespacesmd_1_1concrete.html#a606f1f9efadeca869cb67c8beaac66d6">SenderTreeF</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a606f1f9efadeca869cb67c8beaac66d6" name="a606f1f9efadeca869cb67c8beaac66d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a606f1f9efadeca869cb67c8beaac66d6">&#9670;&#160;</a></span>SenderTreeF</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename A &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacesmd_1_1concrete.html#a606f1f9efadeca869cb67c8beaac66d6">smd::concrete::SenderTreeF</a> = typedef <a class="el" href="structsmd_1_1concrete_1_1RoseF.html">RoseF</a>&lt;<a class="el" href="structsmd_1_1concrete_1_1sender__node__info.html">sender_node_info</a>, A&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The sender tree's base functor and its fixed point. </p>
 
 </div>
 </div>
@@ -685,6 +736,106 @@ template&lt;typename E , typename A &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Fold: count the <a class="el" href="structsmd_1_1concrete_1_1Succ.html">Succ</a> layers of <code>nat</code> (cata). </p>
+
+</div>
+</div>
+<a id="a317863910019151274acf699ff467e7b" name="a317863910019151274acf699ff467e7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a317863910019151274acf699ff467e7b">&#9670;&#160;</a></span>reify_sender()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Sender &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">auto smd::concrete::reify_sender </td>
+          <td>(</td>
+          <td class="paramtype">const Sender &amp;&#160;</td>
+          <td class="paramname"><em>sndr</em></td><td>)</td>
+          <td> -&gt; <a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">SenderTree</a> </td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reify a sender expression into a first-class SenderTree value. Deliberately unconstrained: a non-decomposable type becomes a leaf labeled with its own type name, which is also what keeps this header away from the completion-signature machinery. </p>
+
+</div>
+</div>
+<a id="a114d26069abef2608a1a5ef8a6887454" name="a114d26069abef2608a1a5ef8a6887454"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a114d26069abef2608a1a5ef8a6887454">&#9670;&#160;</a></span>rose_node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;template&lt; typename &gt; class F, typename E &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">auto smd::concrete::rose_node </td>
+          <td>(</td>
+          <td class="paramtype">E&#160;</td>
+          <td class="paramname"><em>label</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; F &gt; &gt;&#160;</td>
+          <td class="paramname"><em>children</em> = <code>{}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> -&gt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt;F&gt; </td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Build a rose-tree node labeled <code>label</code> with <code>children</code> subtrees. </p>
+
+</div>
+</div>
+<a id="a079018edf3815586ca480a89dfea869b" name="a079018edf3815586ca480a89dfea869b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a079018edf3815586ca480a89dfea869b">&#9670;&#160;</a></span>sender_to_dot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Sender &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">auto smd::concrete::sender_to_dot </td>
+          <td>(</td>
+          <td class="paramtype">const Sender &amp;&#160;</td>
+          <td class="paramname"><em>sndr</em></td><td>)</td>
+          <td> -&gt; std::string </td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reify <code>sndr</code> and render it: the whole pipeline in one call. </p>
+
+</div>
+</div>
+<a id="af43d38c0ec12619ae260cc6fa79c6005" name="af43d38c0ec12619ae260cc6fa79c6005"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af43d38c0ec12619ae260cc6fa79c6005">&#9670;&#160;</a></span>to_dot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto smd::concrete::to_dot </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacesmd_1_1concrete.html#a94051ef81add8a78c692075e61318e44">SenderTree</a> &amp;&#160;</td>
+          <td class="paramname"><em>tree</em></td><td>)</td>
+          <td> -&gt; std::string </td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Render a SenderTree as a Graphviz digraph. Ids are assigned in preorder &ndash; the root is n0, each subtree owns a contiguous id range &ndash; by folding to a dot_program and running it from 0. </p>
 
 </div>
 </div>

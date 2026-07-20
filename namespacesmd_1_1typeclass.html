@@ -263,6 +263,18 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1Right_3_01R_01_6_01_4.html">Right&lt; R &amp; &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFoldableImpl.html">RoseFFoldableImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFoldableMap.html">RoseFFoldableMap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFunctorImpl.html">RoseFFunctorImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFunctorMap.html">RoseFFunctorMap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFTraversableImpl.html">RoseFTraversableImpl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFTraversableMap.html">RoseFTraversableMap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1TestIdentityTraversableImpl.html">TestIdentityTraversableImpl</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1TestIdentityTraversableMap.html">TestIdentityTraversableMap</a></td></tr>
@@ -329,6 +341,16 @@ Functions</h2></td></tr>
 <tr class="memitem:a8911b58fede17b656dc15c0346713da2"><td class="memTemplParams" colspan="2">template&lt;class F , class G &gt; </td></tr>
 <tr class="memitem:a8911b58fede17b656dc15c0346713da2"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a8911b58fede17b656dc15c0346713da2">fanin</a> (F f, G g)</td></tr>
 <tr class="separator:a8911b58fede17b656dc15c0346713da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad731df32571bd7bff31619dd86ddb063"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
+<tr class="memitem:ad731df32571bd7bff31619dd86ddb063"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ad731df32571bd7bff31619dd86ddb063">monoid_identity</a> () -&gt; VALUE_TYPE</td></tr>
+<tr class="separator:ad731df32571bd7bff31619dd86ddb063"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
+<tr class="memitem:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a1e417e633b3e53a6a2ad23b7978a4d18">monoid_combine</a> (const VALUE_TYPE &amp;lhs, const VALUE_TYPE &amp;rhs) -&gt; VALUE_TYPE</td></tr>
+<tr class="separator:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memTemplParams" colspan="2">template&lt;class F , class T &gt; </td></tr>
+<tr class="memitem:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aa90aa21ce48b7f5eaef47c89978448eb">traverse</a> (F &amp;&amp;function, T &amp;&amp;value)</td></tr>
+<tr class="memdesc:aa90aa21ce48b7f5eaef47c89978448eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps <code>function</code> over <code>value</code>, traverses effects left-to-right, and preserves container shape.  <br /></td></tr>
+<tr class="separator:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af27c894d08b696fef80a5d0445fab397"><td class="memTemplParams" colspan="2">template&lt;class MA , class F &gt; </td></tr>
 <tr class="memitem:af27c894d08b696fef80a5d0445fab397"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#af27c894d08b696fef80a5d0445fab397">mbind</a> (MA &amp;&amp;ma, F &amp;&amp;f)</td></tr>
 <tr class="separator:af27c894d08b696fef80a5d0445fab397"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -341,16 +363,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ada9758a9b42d81d7240da1aa82989a1e"><td class="memTemplParams" colspan="2">template&lt;class F , class G &gt; </td></tr>
 <tr class="memitem:ada9758a9b42d81d7240da1aa82989a1e"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ada9758a9b42d81d7240da1aa82989a1e">fanout</a> (F f, G g)</td></tr>
 <tr class="separator:ada9758a9b42d81d7240da1aa82989a1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memTemplParams" colspan="2">template&lt;class F , class T &gt; </td></tr>
-<tr class="memitem:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aa90aa21ce48b7f5eaef47c89978448eb">traverse</a> (F &amp;&amp;function, T &amp;&amp;value)</td></tr>
-<tr class="memdesc:aa90aa21ce48b7f5eaef47c89978448eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps <code>function</code> over <code>value</code>, traverses effects left-to-right, and preserves container shape.  <br /></td></tr>
-<tr class="separator:aa90aa21ce48b7f5eaef47c89978448eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad731df32571bd7bff31619dd86ddb063"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
-<tr class="memitem:ad731df32571bd7bff31619dd86ddb063"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ad731df32571bd7bff31619dd86ddb063">monoid_identity</a> () -&gt; VALUE_TYPE</td></tr>
-<tr class="separator:ad731df32571bd7bff31619dd86ddb063"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
-<tr class="memitem:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a1e417e633b3e53a6a2ad23b7978a4d18">monoid_combine</a> (const VALUE_TYPE &amp;lhs, const VALUE_TYPE &amp;rhs) -&gt; VALUE_TYPE</td></tr>
-<tr class="separator:a1e417e633b3e53a6a2ad23b7978a4d18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -363,6 +375,18 @@ Variables</h2></td></tr>
 <tr class="memitem:a5d754f2a4267eb067d68c6a439051f9a"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a5d754f2a4267eb067d68c6a439051f9a"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a5d754f2a4267eb067d68c6a439051f9a">functor_typeclass</a> = std::false_type{}</td></tr>
 <tr class="separator:a5d754f2a4267eb067d68c6a439051f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a9c71be131539d694ac7d57e8af5461f7">applicative_typeclass</a> = std::false_type{}</td></tr>
+<tr class="separator:a9c71be131539d694ac7d57e8af5461f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebb7742804906cab06397aae73ff63a6"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:aebb7742804906cab06397aae73ff63a6"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aebb7742804906cab06397aae73ff63a6">foldable_typeclass</a> = std::false_type{}</td></tr>
+<tr class="separator:aebb7742804906cab06397aae73ff63a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10a56857d5267012e6312fec07a40df8"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
+<tr class="memitem:a10a56857d5267012e6312fec07a40df8"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structsmd_1_1typeclass_1_1Monoid.html">Monoid</a>&lt; VALUE_TYPE &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a10a56857d5267012e6312fec07a40df8">monoid_v</a> = <a class="el" href="structsmd_1_1typeclass_1_1Monoid.html">Monoid</a>&lt;VALUE_TYPE&gt;{}</td></tr>
+<tr class="separator:a10a56857d5267012e6312fec07a40df8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf85b049d4d71828a9aa46f165951b25"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:aaf85b049d4d71828a9aa46f165951b25"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aaf85b049d4d71828a9aa46f165951b25">traversable_typeclass</a> = std::false_type{}</td></tr>
+<tr class="separator:aaf85b049d4d71828a9aa46f165951b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92569f2ef59180f65a7ec9ad5ef7f94e"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a92569f2ef59180f65a7ec9ad5ef7f94e"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a92569f2ef59180f65a7ec9ad5ef7f94e">monad_typeclass</a> = std::false_type{}</td></tr>
 <tr class="separator:a92569f2ef59180f65a7ec9ad5ef7f94e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -373,9 +397,6 @@ Variables</h2></td></tr>
 requires <a class="el" href="conceptsmd_1_1fixpoint_1_1coyoneda__layer.html">smd::fixpoint::coyoneda_layer</a>&lt;Layer&gt;</td></tr>
 <tr class="memitem:ae85a7ab1bfe9df3dd8a91130ee70c121"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#ae85a7ab1bfe9df3dd8a91130ee70c121">functor_typeclass&lt; Layer &gt;</a> = <a class="el" href="structsmd_1_1typeclass_1_1CoSignatureFunctorMap.html">CoSignatureFunctorMap</a>&lt;Layer&gt;{}</td></tr>
 <tr class="separator:ae85a7ab1bfe9df3dd8a91130ee70c121"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:a9c71be131539d694ac7d57e8af5461f7"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a9c71be131539d694ac7d57e8af5461f7">applicative_typeclass</a> = std::false_type{}</td></tr>
-<tr class="separator:a9c71be131539d694ac7d57e8af5461f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf24516a75169e2f634fff013118a9d7"><td class="memTemplParams" colspan="2">template&lt;class A &gt; </td></tr>
 <tr class="memitem:aaf24516a75169e2f634fff013118a9d7"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aaf24516a75169e2f634fff013118a9d7">functor_typeclass&lt; Identity&lt; A &gt; &gt;</a> = <a class="el" href="structsmd_1_1typeclass_1_1IdentityFunctorMap.html">IdentityFunctorMap</a>&lt;A&gt;{}</td></tr>
 <tr class="separator:aaf24516a75169e2f634fff013118a9d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -397,15 +418,6 @@ requires <a class="el" href="conceptsmd_1_1fixpoint_1_1coyoneda__layer.html">smd
 <tr class="memitem:a81240ddf24f53154b1fccfabdc653917"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
 <tr class="memitem:a81240ddf24f53154b1fccfabdc653917"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a81240ddf24f53154b1fccfabdc653917">traversable_typeclass&lt; Identity&lt; VALUE_TYPE &gt; &gt;</a></td></tr>
 <tr class="separator:a81240ddf24f53154b1fccfabdc653917"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a204d658c5b21d8dc51c7ff09da77ab8a"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:a204d658c5b21d8dc51c7ff09da77ab8a"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a204d658c5b21d8dc51c7ff09da77ab8a">foldable_typeclass</a> = std::false_type{}</td></tr>
-<tr class="separator:a204d658c5b21d8dc51c7ff09da77ab8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf85b049d4d71828a9aa46f165951b25"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:aaf85b049d4d71828a9aa46f165951b25"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#aaf85b049d4d71828a9aa46f165951b25">traversable_typeclass</a> = std::false_type{}</td></tr>
-<tr class="separator:aaf85b049d4d71828a9aa46f165951b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10a56857d5267012e6312fec07a40df8"><td class="memTemplParams" colspan="2">template&lt;class VALUE_TYPE &gt; </td></tr>
-<tr class="memitem:a10a56857d5267012e6312fec07a40df8"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structsmd_1_1typeclass_1_1Monoid.html">Monoid</a>&lt; VALUE_TYPE &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1typeclass.html#a10a56857d5267012e6312fec07a40df8">monoid_v</a> = <a class="el" href="structsmd_1_1typeclass_1_1Monoid.html">Monoid</a>&lt;VALUE_TYPE&gt;{}</td></tr>
-<tr class="separator:a10a56857d5267012e6312fec07a40df8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="aa4fc9de10d4dee56f4a5a8b0f0659e56" name="aa4fc9de10d4dee56f4a5a8b0f0659e56"></a>
@@ -1051,8 +1063,8 @@ template&lt;class A &gt; </div>
 
 </div>
 </div>
-<a id="a204d658c5b21d8dc51c7ff09da77ab8a" name="a204d658c5b21d8dc51c7ff09da77ab8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a204d658c5b21d8dc51c7ff09da77ab8a">&#9670;&#160;</a></span>foldable_typeclass</h2>
+<a id="aebb7742804906cab06397aae73ff63a6" name="aebb7742804906cab06397aae73ff63a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aebb7742804906cab06397aae73ff63a6">&#9670;&#160;</a></span>foldable_typeclass</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1063,7 +1075,7 @@ template&lt;class T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto smd::typeclass::foldable_typeclass&lt; std::vector&lt; VALUE_TYPE &gt; &gt; = std::false_type{}</td>
+          <td class="memname">constexpr auto smd::typeclass::foldable_typeclass&lt; <a class="el" href="structsmd_1_1typeclass_1_1test_1_1Sequence.html">test::Sequence</a>&lt; VALUE_TYPE &gt; &gt; = std::false_type{}</td>
         </tr>
       </table>
   </td>

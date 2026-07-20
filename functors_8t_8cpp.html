@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('functors_8t_8cpp.html',''); initResiza
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">functors.t.cpp File Reference</div></div>
 </div><!--header-->
@@ -107,6 +108,7 @@ $(document).ready(function(){initNavTree('functors_8t_8cpp.html',''); initResiza
 <code>#include &lt;<a class="el" href="overloaded_8hpp_source.html">smd/fixpoint/overloaded.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="recursion__schemes_8hpp_source.html">smd/fixpoint/recursion_schemes.hpp</a>&gt;</code><br />
 <code>#include &lt;catch2/catch_test_macros.hpp&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;variant&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
@@ -115,6 +117,14 @@ $(document).ready(function(){initNavTree('functors_8t_8cpp.html',''); initResiza
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceanonymous__namespace_02functors_8t_8cpp_03"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02functors_8t_8cpp_03.html">anonymous_namespace{functors.t.cpp}</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a9ab085315df76f2bdedf485be57aab64"><td class="memTemplParams" colspan="2">template&lt;typename A &gt; </td></tr>
+<tr class="memitem:a9ab085315df76f2bdedf485be57aab64"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02functors_8t_8cpp_03.html#a9ab085315df76f2bdedf485be57aab64">anonymous_namespace{functors.t.cpp}::StrRoseF</a> = <a class="el" href="structsmd_1_1concrete_1_1RoseF.html">smd::concrete::RoseF</a>&lt; std::string, A &gt;</td></tr>
+<tr class="separator:a9ab085315df76f2bdedf485be57aab64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1aba43912ea61d34957abd04c17ddd4f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02functors_8t_8cpp_03.html#a1aba43912ea61d34957abd04c17ddd4f">anonymous_namespace{functors.t.cpp}::StrRose</a> = <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; StrRoseF &gt;</td></tr>
+<tr class="separator:a1aba43912ea61d34957abd04c17ddd4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -144,10 +154,20 @@ Functions</h2></td></tr>
 <tr class="separator:a6fb6fd78a25eb0f6da8f157cf0042508"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59adeb2f87ec42fb0259643a68b8f23a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#a59adeb2f87ec42fb0259643a68b8f23a">TEST_CASE</a> (&quot;functors - ExprFmapSmoke&quot;)</td></tr>
 <tr class="separator:a59adeb2f87ec42fb0259643a68b8f23a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9141a284b901ecaa16f79b1dc0c527f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#aa9141a284b901ecaa16f79b1dc0c527f">TEST_CASE</a> (&quot;functors - RoseFmapSmoke&quot;)</td></tr>
+<tr class="separator:aa9141a284b901ecaa16f79b1dc0c527f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab18953c2e75e1c1fdfd92442a9fa1c03"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#ab18953c2e75e1c1fdfd92442a9fa1c03">TEST_CASE</a> (&quot;functors - RoseFmapIdentityAndComposition&quot;)</td></tr>
+<tr class="separator:ab18953c2e75e1c1fdfd92442a9fa1c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae49dbffc2bc245352ba96651e1ed4b34"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#ae49dbffc2bc245352ba96651e1ed4b34">TEST_CASE</a> (&quot;functors - RoseFoldFixConcatenatesLabels&quot;)</td></tr>
+<tr class="separator:ae49dbffc2bc245352ba96651e1ed4b34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c238c2b57eea131692dcd4a6decb11b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#a3c238c2b57eea131692dcd4a6decb11b">TEST_CASE</a> (&quot;functors - RoseFoldableToVectorAndLength&quot;)</td></tr>
+<tr class="separator:a3c238c2b57eea131692dcd4a6decb11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41e2e0565b6b1f377ec50288ececfe07"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="functors_8t_8cpp.html#a41e2e0565b6b1f377ec50288ececfe07">TEST_CASE</a> (&quot;functors - RoseTraverseOptionalTransposes&quot;)</td></tr>
+<tr class="separator:a41e2e0565b6b1f377ec50288ececfe07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a6fb6fd78a25eb0f6da8f157cf0042508" name="a6fb6fd78a25eb0f6da8f157cf0042508"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6fb6fd78a25eb0f6da8f157cf0042508">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[1/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fb6fd78a25eb0f6da8f157cf0042508">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[1/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -165,7 +185,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a59adeb2f87ec42fb0259643a68b8f23a" name="a59adeb2f87ec42fb0259643a68b8f23a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a59adeb2f87ec42fb0259643a68b8f23a">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[2/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a59adeb2f87ec42fb0259643a68b8f23a">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[2/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -183,7 +203,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="aad868e6a5cd7d7d657620c15c7055c19" name="aad868e6a5cd7d7d657620c15c7055c19"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad868e6a5cd7d7d657620c15c7055c19">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[3/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aad868e6a5cd7d7d657620c15c7055c19">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[3/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -201,7 +221,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a1e55cb016fddd713ccd8dcdb938167fd" name="a1e55cb016fddd713ccd8dcdb938167fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e55cb016fddd713ccd8dcdb938167fd">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[4/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e55cb016fddd713ccd8dcdb938167fd">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[4/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -219,7 +239,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="af862e96a9fb4545408e6c668850ee4f6" name="af862e96a9fb4545408e6c668850ee4f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af862e96a9fb4545408e6c668850ee4f6">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[5/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af862e96a9fb4545408e6c668850ee4f6">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[5/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -237,7 +257,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a2cf52df0d371101cad1c8a5e3fd93ea0" name="a2cf52df0d371101cad1c8a5e3fd93ea0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2cf52df0d371101cad1c8a5e3fd93ea0">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[6/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cf52df0d371101cad1c8a5e3fd93ea0">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[6/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -255,7 +275,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a7ac98a8b68b71750f0cfe08d869533c8" name="a7ac98a8b68b71750f0cfe08d869533c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ac98a8b68b71750f0cfe08d869533c8">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[7/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ac98a8b68b71750f0cfe08d869533c8">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[7/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -273,7 +293,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a61449e2d3a4be353aaa7bad071943c8b" name="a61449e2d3a4be353aaa7bad071943c8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61449e2d3a4be353aaa7bad071943c8b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[8/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a61449e2d3a4be353aaa7bad071943c8b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[8/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -291,7 +311,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="adb7c82e8e933d0aafbe18c71fc5348ed" name="adb7c82e8e933d0aafbe18c71fc5348ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adb7c82e8e933d0aafbe18c71fc5348ed">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[9/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#adb7c82e8e933d0aafbe18c71fc5348ed">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[9/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -309,7 +329,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="acd692509ca4383678fd88ce96d7346b6" name="acd692509ca4383678fd88ce96d7346b6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd692509ca4383678fd88ce96d7346b6">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[10/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#acd692509ca4383678fd88ce96d7346b6">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[10/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -326,8 +346,98 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ab18953c2e75e1c1fdfd92442a9fa1c03" name="ab18953c2e75e1c1fdfd92442a9fa1c03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab18953c2e75e1c1fdfd92442a9fa1c03">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[11/17]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;functors - RoseFmapIdentityAndComposition&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa9141a284b901ecaa16f79b1dc0c527f" name="aa9141a284b901ecaa16f79b1dc0c527f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9141a284b901ecaa16f79b1dc0c527f">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[12/17]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;functors - RoseFmapSmoke&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3c238c2b57eea131692dcd4a6decb11b" name="a3c238c2b57eea131692dcd4a6decb11b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c238c2b57eea131692dcd4a6decb11b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[13/17]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;functors - RoseFoldableToVectorAndLength&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae49dbffc2bc245352ba96651e1ed4b34" name="ae49dbffc2bc245352ba96651e1ed4b34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae49dbffc2bc245352ba96651e1ed4b34">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[14/17]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;functors - RoseFoldFixConcatenatesLabels&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a41e2e0565b6b1f377ec50288ececfe07" name="a41e2e0565b6b1f377ec50288ececfe07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41e2e0565b6b1f377ec50288ececfe07">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[15/17]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST_CASE </td>
+          <td>(</td>
+          <td class="paramtype">&quot;functors - RoseTraverseOptionalTransposes&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a68d6f08a63cb631cd145dbcfeb913b2b" name="a68d6f08a63cb631cd145dbcfeb913b2b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68d6f08a63cb631cd145dbcfeb913b2b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[11/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a68d6f08a63cb631cd145dbcfeb913b2b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[16/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -345,7 +455,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad0abf5db44267448bcfbf11674722b5b" name="ad0abf5db44267448bcfbf11674722b5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad0abf5db44267448bcfbf11674722b5b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[12/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0abf5db44267448bcfbf11674722b5b">&#9670;&#160;</a></span>TEST_CASE() <span class="overload">[17/17]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

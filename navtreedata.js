@@ -268,16 +268,16 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"fmap_8t_8cpp.html",
-"functors_8hpp.html#ad72bfad0c754b5f5fb774754ea10e4a5",
+"fmap_8t_8cpp.html#a14c1b1b31d5ce55dad30e6de1177d4e8",
+"functors_8t_8cpp.html#a2cf52df0d371101cad1c8a5e3fd93ea0",
 "md_docs_blog_part_13_conclusion.html#autotoc_md53",
 "namespaceanonymous__namespace_02fmap_8t_8cpp_03.html#ac7828e2560632ea02f8ebc8e789d669d",
-"namespacemembers_j.html",
-"recursion__schemes_8hpp.html#ad76f03819f614acf5e7d4a026d205f52",
-"structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Get.html#a6edcc42c289f10a4ec979b240ec0826b",
-"structsmd_1_1fixpoint_1_1dist__futu__t.html#a6a0fcb7580b2864eea1435f854788aed",
-"structsmd_1_1typeclass_1_1Foldable.html#a9fd8e9522ed441d572d09d80661fd651",
-"structsmd_1_1typeclass_1_1PairFunctorMap.html"
+"namespacemembers_k.html",
+"prepro__takewhile__sum_8cpp.html#a0f975e588782c9e9995f444a9902619d",
+"structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Put.html#a8b1d2afc3dd2ae4763f271d9e170ed0b",
+"structsmd_1_1fixpoint_1_1dist__futu__t.html",
+"structsmd_1_1typeclass_1_1Foldable.html#a34e7ac6b33970a711aa0161c63981f5f",
+"structsmd_1_1typeclass_1_1PairComonadImpl.html#ae4fd146b9faf2c6c19615345279dd12e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -30,13 +30,6 @@ var annotated_dup =
       [ "NotAnOperation", "structanonymous__namespace_02freer_8t_8cpp_03_1_1NotAnOperation.html", "structanonymous__namespace_02freer_8t_8cpp_03_1_1NotAnOperation" ],
       [ "Put", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Put" ]
     ] ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03.html", [
-      [ "Get", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Get" ],
-      [ "impure_node", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1impure__node.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1impure__node" ],
-      [ "KVSig", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig" ],
-      [ "Put", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Put.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Put" ],
-      [ "unit", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit.html", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit" ]
-    ] ],
     [ "anonymous_namespace{freer_cosignature.t.cpp}", "namespaceanonymous__namespace_02freer__cosignature_8t_8cpp_03.html", [
       [ "Ask", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Ask.html", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Ask" ],
       [ "Get", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Get.html", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Get" ],
@@ -90,10 +83,6 @@ var annotated_dup =
     [ "anonymous_namespace{schemes.t.cpp}", "namespaceanonymous__namespace_02schemes_8t_8cpp_03.html", [
       [ "identity_nat", "structanonymous__namespace_02schemes_8t_8cpp_03_1_1identity__nat.html", "structanonymous__namespace_02schemes_8t_8cpp_03_1_1identity__nat" ]
     ] ],
-    [ "probe_b", "namespaceprobe__b.html", [
-      [ "local_layer", "structprobe__b_1_1local__layer.html", "structprobe__b_1_1local__layer" ],
-      [ "marker_t", "structprobe__b_1_1marker__t.html", null ]
-    ] ],
     [ "retry_example", "namespaceretry__example.html", [
       [ "net_error", "structretry__example_1_1net__error.html", "structretry__example_1_1net__error" ],
       [ "Now", "structretry__example_1_1Now.html", "structretry__example_1_1Now" ],
@@ -113,6 +102,8 @@ var annotated_dup =
         [ "Mul", "structsmd_1_1concrete_1_1Mul.html", "structsmd_1_1concrete_1_1Mul" ],
         [ "Nil", "structsmd_1_1concrete_1_1Nil.html", "structsmd_1_1concrete_1_1Nil" ],
         [ "Node", "structsmd_1_1concrete_1_1Node.html", "structsmd_1_1concrete_1_1Node" ],
+        [ "RoseF", "structsmd_1_1concrete_1_1RoseF.html", "structsmd_1_1concrete_1_1RoseF" ],
+        [ "sender_node_info", "structsmd_1_1concrete_1_1sender__node__info.html", "structsmd_1_1concrete_1_1sender__node__info" ],
         [ "Succ", "structsmd_1_1concrete_1_1Succ.html", "structsmd_1_1concrete_1_1Succ" ],
         [ "Zero", "structsmd_1_1concrete_1_1Zero.html", "structsmd_1_1concrete_1_1Zero" ]
       ] ],
@@ -146,6 +137,11 @@ var annotated_dup =
         [ "signature", "structsmd_1_1fixpoint_1_1signature.html", "structsmd_1_1fixpoint_1_1signature" ],
         [ "tracing_handler", "structsmd_1_1fixpoint_1_1tracing__handler.html", "structsmd_1_1fixpoint_1_1tracing__handler" ],
         [ "unit", "structsmd_1_1fixpoint_1_1unit.html", "structsmd_1_1fixpoint_1_1unit" ]
+      ] ],
+      [ "probe", "namespacesmd_1_1probe.html", [
+        [ "plain_type", "structsmd_1_1probe_1_1plain__type.html", null ],
+        [ "tagged_t", "structsmd_1_1probe_1_1tagged__t.html", null ],
+        [ "wrapper", "structsmd_1_1probe_1_1wrapper.html", null ]
       ] ],
       [ "typeclass", "namespacesmd_1_1typeclass.html", [
         [ "test", "namespacesmd_1_1typeclass_1_1test.html", [
@@ -226,6 +222,12 @@ var annotated_dup =
         [ "PairFunctorMap", "structsmd_1_1typeclass_1_1PairFunctorMap.html", null ],
         [ "Right", "structsmd_1_1typeclass_1_1Right.html", "structsmd_1_1typeclass_1_1Right" ],
         [ "Right< R & >", "structsmd_1_1typeclass_1_1Right_3_01R_01_6_01_4.html", "structsmd_1_1typeclass_1_1Right_3_01R_01_6_01_4" ],
+        [ "RoseFFoldableImpl", "structsmd_1_1typeclass_1_1RoseFFoldableImpl.html", "structsmd_1_1typeclass_1_1RoseFFoldableImpl" ],
+        [ "RoseFFoldableMap", "structsmd_1_1typeclass_1_1RoseFFoldableMap.html", null ],
+        [ "RoseFFunctorImpl", "structsmd_1_1typeclass_1_1RoseFFunctorImpl.html", "structsmd_1_1typeclass_1_1RoseFFunctorImpl" ],
+        [ "RoseFFunctorMap", "structsmd_1_1typeclass_1_1RoseFFunctorMap.html", null ],
+        [ "RoseFTraversableImpl", "structsmd_1_1typeclass_1_1RoseFTraversableImpl.html", "structsmd_1_1typeclass_1_1RoseFTraversableImpl" ],
+        [ "RoseFTraversableMap", "structsmd_1_1typeclass_1_1RoseFTraversableMap.html", null ],
         [ "TestIdentityTraversableImpl", "structsmd_1_1typeclass_1_1TestIdentityTraversableImpl.html", "structsmd_1_1typeclass_1_1TestIdentityTraversableImpl" ],
         [ "TestIdentityTraversableMap", "structsmd_1_1typeclass_1_1TestIdentityTraversableMap.html", null ],
         [ "TestSequenceFoldableImpl", "structsmd_1_1typeclass_1_1TestSequenceFoldableImpl.html", "structsmd_1_1typeclass_1_1TestSequenceFoldableImpl" ],

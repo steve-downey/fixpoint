@@ -393,6 +393,14 @@ requires functor_instance_for_rvalue&lt;Typeclass, Fn, Layer&gt;</td></tr>
 <tr class="memitem:a96544690ad4104f56239fef4102cc4c0"><td class="memTemplParams" colspan="2">template&lt;class Result , class Helper , template&lt; class &gt; class F, class HelperAlg , class MainAlg &gt; </td></tr>
 <tr class="memitem:a96544690ad4104f56239fef4102cc4c0"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a96544690ad4104f56239fef4102cc4c0">zygo</a> (const HelperAlg &amp;helper, const MainAlg &amp;<a class="el" href="apo__sorted__insert_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>, const <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">Fix</a>&lt; F &gt; &amp;tree) -&gt; Result</td></tr>
 <tr class="separator:a96544690ad4104f56239fef4102cc4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a743d5a7b267f9782efbe9d71ab6ac7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a2a743d5a7b267f9782efbe9d71ab6ac7"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a2a743d5a7b267f9782efbe9d71ab6ac7">type_name</a> () -&gt; std::string_view</td></tr>
+<tr class="separator:a2a743d5a7b267f9782efbe9d71ab6ac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87ab1681cb4964b6f0fc7827efd10848"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a87ab1681cb4964b6f0fc7827efd10848">short_type_name</a> (std::string_view full) -&gt; std::string_view</td></tr>
+<tr class="separator:a87ab1681cb4964b6f0fc7827efd10848"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accd7a6a4c0bccd13fee3810d32b2a056"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:accd7a6a4c0bccd13fee3810d32b2a056"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#accd7a6a4c0bccd13fee3810d32b2a056">short_type_name</a> () -&gt; std::string_view</td></tr>
+<tr class="separator:accd7a6a4c0bccd13fee3810d32b2a056"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b5d17fdd7c18a700d2765ae65a72b6b"><td class="memTemplParams" colspan="2">template&lt;class Sig , operation Op&gt; </td></tr>
 <tr class="memitem:a3b5d17fdd7c18a700d2765ae65a72b6b"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1fixpoint.html#a3b5d17fdd7c18a700d2765ae65a72b6b">send</a> (Op op) -&gt; <a class="el" href="namespacesmd_1_1fixpoint.html#a6c0ee494635b1e9fe6b56865c667c8d7">Freer</a>&lt; Sig, typename Op::response &gt;</td></tr>
 <tr class="separator:a3b5d17fdd7c18a700d2765ae65a72b6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2801,6 +2809,61 @@ vomit" the design doc warns against. Constraining on <code>row_type&lt;Row&gt;</
 
 </div>
 </div>
+<a id="accd7a6a4c0bccd13fee3810d32b2a056" name="accd7a6a4c0bccd13fee3810d32b2a056"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accd7a6a4c0bccd13fee3810d32b2a056">&#9670;&#160;</a></span>short_type_name() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto smd::fixpoint::short_type_name </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> -&gt; std::string_view </td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The leaf-identifier spelling of type <code>T</code>. </p>
+
+</div>
+</div>
+<a id="a87ab1681cb4964b6f0fc7827efd10848" name="a87ab1681cb4964b6f0fc7827efd10848"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87ab1681cb4964b6f0fc7827efd10848">&#9670;&#160;</a></span>short_type_name() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto smd::fixpoint::short_type_name </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>full</em></td><td>)</td>
+          <td> -&gt; std::string_view </td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reduce a full type spelling to its leaf identifier: drop template arguments, then any namespace qualification, then a trailing "_t". The order matters — the namespace strip must not find a "::" inside template arguments, so those go first. </p>
+
+</div>
+</div>
 <a id="aa067d1f8794707fb0b96aba4eb68c4de" name="aa067d1f8794707fb0b96aba4eb68c4de"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa067d1f8794707fb0b96aba4eb68c4de">&#9670;&#160;</a></span>tracing()</h2>
 
@@ -2837,6 +2900,34 @@ template&lt;class Handler &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>tracing(handler, log) -&gt; tracing_handler&lt;Handler&gt;: see above. </p>
+
+</div>
+</div>
+<a id="a2a743d5a7b267f9782efbe9d71ab6ac7" name="a2a743d5a7b267f9782efbe9d71ab6ac7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a743d5a7b267f9782efbe9d71ab6ac7">&#9670;&#160;</a></span>type_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto smd::fixpoint::type_name </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> -&gt; std::string_view </td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The compiler's spelling of type <code>T</code>, at compile time. </p>
 
 </div>
 </div>

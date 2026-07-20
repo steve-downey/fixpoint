@@ -16,5 +16,6 @@ var dir_e931c1a3f0014e624d0645a271726ad2 =
     [ "mutu_even_odd.cpp", "mutu__even__odd_8cpp.html", "mutu__even__odd_8cpp" ],
     [ "para_pretty_print.cpp", "para__pretty__print_8cpp.html", "para__pretty__print_8cpp" ],
     [ "prepro_takewhile_sum.cpp", "prepro__takewhile__sum_8cpp.html", "prepro__takewhile__sum_8cpp" ],
+    [ "sender_dot.cpp", "sender__dot_8cpp.html", "sender__dot_8cpp" ],
     [ "zygo_balanced.cpp", "zygo__balanced_8cpp.html", "zygo__balanced_8cpp" ]
 ];

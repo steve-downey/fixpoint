@@ -57,7 +57,6 @@ var namespaces_dup =
     [ "anonymous_namespace{free.t.cpp}", "namespaceanonymous__namespace_02free_8t_8cpp_03.html", "namespaceanonymous__namespace_02free_8t_8cpp_03" ],
     [ "anonymous_namespace{free_cofree_interlude.cpp}", "namespaceanonymous__namespace_02free__cofree__interlude_8cpp_03.html", "namespaceanonymous__namespace_02free__cofree__interlude_8cpp_03" ],
     [ "anonymous_namespace{freer.t.cpp}", "namespaceanonymous__namespace_02freer_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer_8t_8cpp_03" ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__baseline_8t_8cpp_03" ],
     [ "anonymous_namespace{freer_beman_probe.t.cpp}", "namespaceanonymous__namespace_02freer__beman__probe_8t_8cpp_03.html", [
       [ "make_answer_task", "namespaceanonymous__namespace_02freer__beman__probe_8t_8cpp_03.html#a9ec1b148862631c472a39aceca93a181", null ]
     ] ],
@@ -72,6 +71,8 @@ var namespaces_dup =
     [ "anonymous_namespace{freer_run.t.cpp}", "namespaceanonymous__namespace_02freer__run_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__run_8t_8cpp_03" ],
     [ "anonymous_namespace{freer_task.t.cpp}", "namespaceanonymous__namespace_02freer__task_8t_8cpp_03.html", "namespaceanonymous__namespace_02freer__task_8t_8cpp_03" ],
     [ "anonymous_namespace{functors.t.cpp}", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html", [
+      [ "StrRose", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html#a1aba43912ea61d34957abd04c17ddd4f", null ],
+      [ "StrRoseF", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html#a9ab085315df76f2bdedf485be57aab64", null ],
       [ "sum_leaves", "namespaceanonymous__namespace_02functors_8t_8cpp_03.html#aacd6baf89032f0cce50f44503e51c060", null ]
     ] ],
     [ "anonymous_namespace{futu.t.cpp}", "namespaceanonymous__namespace_02futu_8t_8cpp_03.html", [
@@ -182,7 +183,6 @@ var namespaces_dup =
     [ "example", "namespaceexample.html", [
       [ "fixpoint", "namespaceexample.html#aafc8ebd245999d31fa88e26ef84fb438", null ]
     ] ],
-    [ "probe_b", "namespaceprobe__b.html", "namespaceprobe__b" ],
     [ "retry_example", "namespaceretry__example.html", "namespaceretry__example" ],
     [ "smd", "namespacesmd.html", "namespacesmd" ]
 ];

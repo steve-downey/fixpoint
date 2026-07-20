@@ -109,6 +109,7 @@ $(document).ready(function(){initNavTree('functors_8hpp.html',''); initResizable
 <code>#include &lt;<a class="el" href="overloaded_8hpp_source.html">smd/fixpoint/overloaded.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="recursion__schemes_8hpp_source.html">smd/fixpoint/recursion_schemes.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="functor_8hpp_source.html">smd/typeclass/functor.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="sequence_8hpp_source.html">smd/typeclass/sequence.hpp</a>&gt;</code><br />
 <code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;functional&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
@@ -153,6 +154,20 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1ExprFFunctorImpl.html">smd::typeclass::ExprFFunctorImpl&lt; A &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1ExprFFunctorMap.html">smd::typeclass::ExprFFunctorMap&lt; A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1concrete_1_1RoseF.html">smd::concrete::RoseF&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFunctorImpl.html">smd::typeclass::RoseFFunctorImpl&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFunctorMap.html">smd::typeclass::RoseFFunctorMap&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFoldableImpl.html">smd::typeclass::RoseFFoldableImpl&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFFoldableMap.html">smd::typeclass::RoseFFoldableMap&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFTraversableImpl.html">smd::typeclass::RoseFTraversableImpl&lt; E, A &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsmd_1_1typeclass_1_1RoseFTraversableMap.html">smd::typeclass::RoseFTraversableMap&lt; E, A &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -219,6 +234,9 @@ Functions</h2></td></tr>
 <tr class="separator:a5895ed24e4a8a85feb9f094e95eb7ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64ff797ff5ad2bdd38930ebcb23c6877"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a64ff797ff5ad2bdd38930ebcb23c6877">smd::concrete::eval</a> (const Expr &amp;tree) -&gt; int</td></tr>
 <tr class="separator:a64ff797ff5ad2bdd38930ebcb23c6877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a114d26069abef2608a1a5ef8a6887454"><td class="memTemplParams" colspan="2">template&lt;template&lt; typename &gt; class F, typename E &gt; </td></tr>
+<tr class="memitem:a114d26069abef2608a1a5ef8a6887454"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesmd_1_1concrete.html#a114d26069abef2608a1a5ef8a6887454">smd::concrete::rose_node</a> (E label, std::vector&lt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; F &gt; &gt; children={}) -&gt; <a class="el" href="structsmd_1_1fixpoint_1_1Fix.html">smd::fixpoint::Fix</a>&lt; F &gt;</td></tr>
+<tr class="separator:a114d26069abef2608a1a5ef8a6887454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

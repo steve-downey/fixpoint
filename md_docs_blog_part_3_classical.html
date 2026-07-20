@@ -179,7 +179,7 @@ unfold_fix: The Anamorphism</h1>
 <div class="line">        },</div>
 <div class="line">        nat);</div>
 <div class="line">}</div>
-<div class="ttc" id="anamespacesmd_1_1concrete_html_a4867d521d3eb6fcf7c776bbe69a4e441"><div class="ttname"><a href="namespacesmd_1_1concrete.html#a4867d521d3eb6fcf7c776bbe69a4e441">smd::concrete::nat_to_int</a></div><div class="ttdeci">constexpr auto nat_to_int(const Nat &amp;nat) -&gt; int</div><div class="ttdef"><b>Definition:</b> functors.hpp:132</div></div>
+<div class="ttc" id="anamespacesmd_1_1concrete_html_a4867d521d3eb6fcf7c776bbe69a4e441"><div class="ttname"><a href="namespacesmd_1_1concrete.html#a4867d521d3eb6fcf7c776bbe69a4e441">smd::concrete::nat_to_int</a></div><div class="ttdeci">constexpr auto nat_to_int(const Nat &amp;nat) -&gt; int</div><div class="ttdef"><b>Definition:</b> functors.hpp:133</div></div>
 <div class="ttc" id="astructsmd_1_1fixpoint_1_1overloaded_html"><div class="ttname"><a href="structsmd_1_1fixpoint_1_1overloaded.html">smd::fixpoint::overloaded</a></div><div class="ttdef"><b>Definition:</b> overloaded.hpp:26</div></div>
 </div><!-- fragment --><p><code>nat_from_int</code> unfolds a countdown; <code>nat_to_int</code> folds it back. The list versions are the same pair at a different functor:</p>
 <div class="fragment"><div class="line"> </div>
@@ -213,7 +213,7 @@ unfold_fix: The Anamorphism</h1>
 <div class="line">        },</div>
 <div class="line">        list);</div>
 <div class="line">}</div>
-<div class="ttc" id="anamespacesmd_1_1concrete_html_a5202860d77a2ddd127e0d8ff35231697"><div class="ttname"><a href="namespacesmd_1_1concrete.html#a5202860d77a2ddd127e0d8ff35231697">smd::concrete::list_to_vector</a></div><div class="ttdeci">constexpr auto list_to_vector(const IntList &amp;list) -&gt; std::vector&lt; int &gt;</div><div class="ttdef"><b>Definition:</b> functors.hpp:235</div></div>
+<div class="ttc" id="anamespacesmd_1_1concrete_html_a5202860d77a2ddd127e0d8ff35231697"><div class="ttname"><a href="namespacesmd_1_1concrete.html#a5202860d77a2ddd127e0d8ff35231697">smd::concrete::list_to_vector</a></div><div class="ttdeci">constexpr auto list_to_vector(const IntList &amp;list) -&gt; std::vector&lt; int &gt;</div><div class="ttdef"><b>Definition:</b> functors.hpp:236</div></div>
 </div><!-- fragment --><p>Termination is the programmer's promise, not the type system's. A coalgebra that always returns a <code>Succ</code> unfolds forever. The Haskell original has the same property; corecursion is productive, not guaranteed finite.</p>
 <h1><a class="anchor" id="autotoc_md66"></a>
 refold: The Hylomorphism</h1>

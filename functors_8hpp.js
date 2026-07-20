@@ -17,6 +17,13 @@ var functors_8hpp =
     [ "smd::concrete::Mul< A >", "structsmd_1_1concrete_1_1Mul.html", "structsmd_1_1concrete_1_1Mul" ],
     [ "smd::typeclass::ExprFFunctorImpl< A >", "structsmd_1_1typeclass_1_1ExprFFunctorImpl.html", "structsmd_1_1typeclass_1_1ExprFFunctorImpl" ],
     [ "smd::typeclass::ExprFFunctorMap< A >", "structsmd_1_1typeclass_1_1ExprFFunctorMap.html", null ],
+    [ "smd::concrete::RoseF< E, A >", "structsmd_1_1concrete_1_1RoseF.html", "structsmd_1_1concrete_1_1RoseF" ],
+    [ "smd::typeclass::RoseFFunctorImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFFunctorImpl.html", "structsmd_1_1typeclass_1_1RoseFFunctorImpl" ],
+    [ "smd::typeclass::RoseFFunctorMap< E, A >", "structsmd_1_1typeclass_1_1RoseFFunctorMap.html", null ],
+    [ "smd::typeclass::RoseFFoldableImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFFoldableImpl.html", "structsmd_1_1typeclass_1_1RoseFFoldableImpl" ],
+    [ "smd::typeclass::RoseFFoldableMap< E, A >", "structsmd_1_1typeclass_1_1RoseFFoldableMap.html", null ],
+    [ "smd::typeclass::RoseFTraversableImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFTraversableImpl.html", "structsmd_1_1typeclass_1_1RoseFTraversableImpl" ],
+    [ "smd::typeclass::RoseFTraversableMap< E, A >", "structsmd_1_1typeclass_1_1RoseFTraversableMap.html", null ],
     [ "Expr", "functors_8hpp.html#abcbd78bad1ba834e0c4b1aaa2e4fb629", null ],
     [ "ExprF", "functors_8hpp.html#ac7d42bc393c97c407f673deb2ce30f98", null ],
     [ "IntList", "functors_8hpp.html#ad01e87a9c569908b008955b0dcabd7d6", null ],
@@ -38,5 +45,6 @@ var functors_8hpp =
     [ "make_zero", "functors_8hpp.html#af87544fd5fbad43b7d6937e445c79dd3", null ],
     [ "mul_node", "functors_8hpp.html#a5895ed24e4a8a85feb9f094e95eb7ad8", null ],
     [ "nat_from_int", "functors_8hpp.html#a803e5d60676acd9a336f799a72755eaa", null ],
-    [ "nat_to_int", "functors_8hpp.html#a4867d521d3eb6fcf7c776bbe69a4e441", null ]
+    [ "nat_to_int", "functors_8hpp.html#a4867d521d3eb6fcf7c776bbe69a4e441", null ],
+    [ "rose_node", "functors_8hpp.html#a114d26069abef2608a1a5ef8a6887454", null ]
 ];

@@ -94,7 +94,6 @@ var hierarchy =
     [ "smd::fixpoint::gana_worker_t< F, MSeed, Dist, GCoalgebra >", "structsmd_1_1fixpoint_1_1gana__worker__t.html", null ],
     [ "smd::fixpoint::gcata_worker_t< Result, WResult, F, Dist, GAlgebra >", "structsmd_1_1fixpoint_1_1gcata__worker__t.html", null ],
     [ "anonymous_namespace{freer.t.cpp}::Get", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Get.html", null ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::Get", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Get.html", null ],
     [ "anonymous_namespace{freer_cosignature.t.cpp}::Get", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Get.html", null ],
     [ "anonymous_namespace{freer_run.t.cpp}::Get", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Get.html", null ],
     [ "anonymous_namespace{freer_task.t.cpp}::Get", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Get.html", null ],
@@ -169,9 +168,7 @@ var hierarchy =
         ] ]
       ] ]
     ] ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::impure_node< Op, X >", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1impure__node.html", null ],
     [ "smd::fixpoint::impure_node< Op, X >", "structsmd_1_1fixpoint_1_1impure__node.html", null ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::KVSig", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig.html", null ],
     [ "anonymous_namespace{free.t.cpp}::LazyLayer< X >", "structanonymous__namespace_02free_8t_8cpp_03_1_1LazyLayer.html", null ],
     [ "smd::typeclass::LazyLayerFunctorImpl< X >", "structsmd_1_1typeclass_1_1LazyLayerFunctorImpl.html", [
       [ "smd::typeclass::Functor< LazyLayerFunctorImpl< X > >", "structsmd_1_1typeclass_1_1Functor.html", [
@@ -186,8 +183,6 @@ var hierarchy =
         [ "smd::typeclass::ListFFunctorMap< E, A >", "structsmd_1_1typeclass_1_1ListFFunctorMap.html", null ]
       ] ]
     ] ],
-    [ "probe_b::local_layer< X >", "structprobe__b_1_1local__layer.html", null ],
-    [ "probe_b::marker_t", "structprobe__b_1_1marker__t.html", null ],
     [ "smd::typeclass::Monoid< VALUE_TYPE >", "structsmd_1_1typeclass_1_1Monoid.html", null ],
     [ "smd::typeclass::Monoid< Count >", "structsmd_1_1typeclass_1_1Monoid_3_01Count_01_4.html", null ],
     [ "smd::typeclass::Monoid< detail::All >", "structsmd_1_1typeclass_1_1Monoid_3_01detail_1_1All_01_4.html", null ],
@@ -223,6 +218,7 @@ var hierarchy =
     [ "retry_example::Now", "structretry__example_1_1Now.html", null ],
     [ "smd::fixpoint::one_shot< Sig >", "classsmd_1_1fixpoint_1_1one__shot.html", null ],
     [ "smd::fixpoint::one_shot< R(Args...)>", "classsmd_1_1fixpoint_1_1one__shot_3_01R_07Args_8_8_8_08_4.html", null ],
+    [ "smd::fixpoint::one_shot< smd::fixpoint::Box< X >(int)>", "classsmd_1_1fixpoint_1_1one__shot.html", null ],
     [ "smd::fixpoint::one_shot< smd::fixpoint::Box< X >(typename Op::response)>", "classsmd_1_1fixpoint_1_1one__shot.html", null ],
     [ "anonymous_namespace{mendler.t.cpp}::OpaqueSucc< A >", "structanonymous__namespace_02mendler_8t_8cpp_03_1_1OpaqueSucc.html", null ],
     [ "anonymous_namespace{mendler.t.cpp}::OpaqueZero< A >", "structanonymous__namespace_02mendler_8t_8cpp_03_1_1OpaqueZero.html", null ],
@@ -253,8 +249,8 @@ var hierarchy =
         [ "smd::typeclass::PairFunctorMap< B, A >", "structsmd_1_1typeclass_1_1PairFunctorMap.html", null ]
       ] ]
     ] ],
+    [ "smd::probe::plain_type", "structsmd_1_1probe_1_1plain__type.html", null ],
     [ "anonymous_namespace{freer.t.cpp}::Put", "structanonymous__namespace_02freer_8t_8cpp_03_1_1Put.html", null ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::Put", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1Put.html", null ],
     [ "anonymous_namespace{freer_cosignature.t.cpp}::Put", "structanonymous__namespace_02freer__cosignature_8t_8cpp_03_1_1Put.html", null ],
     [ "anonymous_namespace{freer_run.t.cpp}::Put", "structanonymous__namespace_02freer__run_8t_8cpp_03_1_1Put.html", null ],
     [ "anonymous_namespace{freer_task.t.cpp}::Put", "structanonymous__namespace_02freer__task_8t_8cpp_03_1_1Put.html", null ],
@@ -267,9 +263,26 @@ var hierarchy =
     [ "retry_example::RetryScript", "structretry__example_1_1RetryScript.html", null ],
     [ "smd::typeclass::Right< R >", "structsmd_1_1typeclass_1_1Right.html", null ],
     [ "smd::typeclass::Right< R & >", "structsmd_1_1typeclass_1_1Right_3_01R_01_6_01_4.html", null ],
+    [ "smd::concrete::RoseF< E, A >", "structsmd_1_1concrete_1_1RoseF.html", null ],
+    [ "smd::typeclass::RoseFFoldableImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFFoldableImpl.html", [
+      [ "smd::typeclass::Foldable< RoseFFoldableImpl< E, A > >", "structsmd_1_1typeclass_1_1Foldable.html", [
+        [ "smd::typeclass::RoseFFoldableMap< E, A >", "structsmd_1_1typeclass_1_1RoseFFoldableMap.html", null ]
+      ] ]
+    ] ],
+    [ "smd::typeclass::RoseFFunctorImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFFunctorImpl.html", [
+      [ "smd::typeclass::Functor< RoseFFunctorImpl< E, A > >", "structsmd_1_1typeclass_1_1Functor.html", [
+        [ "smd::typeclass::RoseFFunctorMap< E, A >", "structsmd_1_1typeclass_1_1RoseFFunctorMap.html", null ]
+      ] ]
+    ] ],
+    [ "smd::typeclass::RoseFTraversableImpl< E, A >", "structsmd_1_1typeclass_1_1RoseFTraversableImpl.html", [
+      [ "smd::typeclass::Traversable< RoseFTraversableImpl< E, A > >", "structsmd_1_1typeclass_1_1Traversable.html", [
+        [ "smd::typeclass::RoseFTraversableMap< E, A >", "structsmd_1_1typeclass_1_1RoseFTraversableMap.html", null ]
+      ] ]
+    ] ],
     [ "smd::fixpoint::row< Sigs >", "structsmd_1_1fixpoint_1_1row.html", null ],
     [ "anonymous_namespace{freer_row.t.cpp}::Send", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Send.html", null ],
     [ "retry_example::Send", "structretry__example_1_1Send.html", null ],
+    [ "smd::concrete::sender_node_info", "structsmd_1_1concrete_1_1sender__node__info.html", null ],
     [ "smd::typeclass::test::Sequence< VALUE_TYPE >", "structsmd_1_1typeclass_1_1test_1_1Sequence.html", null ],
     [ "smd::fixpoint::signature< Ops >", "structsmd_1_1fixpoint_1_1signature.html", null ],
     [ "anonymous_namespace{freer_row.t.cpp}::SleepFor", "structanonymous__namespace_02freer__row_8t_8cpp_03_1_1SleepFor.html", null ],
@@ -279,6 +292,7 @@ var hierarchy =
     [ "anonymous_namespace{fmap.t.cpp}::Succ< A >", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ.html", null ],
     [ "anonymous_namespace{recursion_schemes.t.cpp}::Succ< A >", "structanonymous__namespace_02recursion__schemes_8t_8cpp_03_1_1Succ.html", null ],
     [ "smd::concrete::Succ< A >", "structsmd_1_1concrete_1_1Succ.html", null ],
+    [ "smd::probe::tagged_t", "structsmd_1_1probe_1_1tagged__t.html", null ],
     [ "anonymous_namespace{fmap.t.cpp}::TaggingNatFunctorImpl", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1TaggingNatFunctorImpl.html", null ],
     [ "anonymous_namespace{prepro_takewhile_sum.cpp}::take_while_positive", "structanonymous__namespace_02prepro__takewhile__sum_8cpp_03_1_1take__while__positive.html", null ],
     [ "anonymous_namespace{generalized_tour.cpp}::take_while_positive_nat", "structanonymous__namespace_02generalized__tour_8cpp_03_1_1take__while__positive__nat.html", null ],
@@ -302,11 +316,9 @@ var hierarchy =
         [ "smd::typeclass::TreeFFunctorMap< E, A >", "structsmd_1_1typeclass_1_1TreeFFunctorMap.html", null ]
       ] ]
     ] ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::KVSig::type< X >", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1KVSig_1_1type.html", null ],
     [ "smd::fixpoint::row< Sigs >::type< X >", "structsmd_1_1fixpoint_1_1row_1_1type.html", null ],
     [ "smd::fixpoint::signature< Ops >::type< X >", "structsmd_1_1fixpoint_1_1signature_1_1type.html", null ],
     [ "anonymous_namespace{free_cofree_interlude.cpp}::Unit", "structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Unit.html", null ],
-    [ "anonymous_namespace{freer_baseline.t.cpp}::unit", "structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit.html", null ],
     [ "smd::fixpoint::unit", "structsmd_1_1fixpoint_1_1unit.html", null ],
     [ "smd::typeclass::VectorFoldableImpl< VALUE_TYPE >", "structsmd_1_1typeclass_1_1VectorFoldableImpl.html", [
       [ "smd::typeclass::Foldable< VectorFoldableImpl< VALUE_TYPE > >", "structsmd_1_1typeclass_1_1Foldable.html", [
@@ -323,6 +335,7 @@ var hierarchy =
         [ "smd::typeclass::VectorTraversableMap< VALUE_TYPE >", "structsmd_1_1typeclass_1_1VectorTraversableMap.html", null ]
       ] ]
     ] ],
+    [ "smd::probe::wrapper< T >", "structsmd_1_1probe_1_1wrapper.html", null ],
     [ "anonymous_namespace{either.t.cpp}::Zero", "structanonymous__namespace_02either_8t_8cpp_03_1_1Zero.html", null ],
     [ "anonymous_namespace{fix.t.cpp}::Zero", "structanonymous__namespace_02fix_8t_8cpp_03_1_1Zero.html", null ],
     [ "anonymous_namespace{fmap.t.cpp}::Zero", "structanonymous__namespace_02fmap_8t_8cpp_03_1_1Zero.html", null ],

@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['unit_0',['Unit',['../structanonymous__namespace_02free__cofree__interlude_8cpp_03_1_1Unit.html',1,'anonymous_namespace{free_cofree_interlude.cpp}']]],
-  ['unit_1',['unit',['../structanonymous__namespace_02freer__baseline_8t_8cpp_03_1_1unit.html',1,'anonymous_namespace{freer_baseline.t.cpp}::unit'],['../structsmd_1_1fixpoint_1_1unit.html',1,'smd::fixpoint::unit']]]
+  ['vectorfoldableimpl_0',['VectorFoldableImpl',['../structsmd_1_1typeclass_1_1VectorFoldableImpl.html',1,'smd::typeclass']]],
+  ['vectorfoldablemap_1',['VectorFoldableMap',['../structsmd_1_1typeclass_1_1VectorFoldableMap.html',1,'smd::typeclass']]],
+  ['vectorfunctorimpl_2',['VectorFunctorImpl',['../structsmd_1_1typeclass_1_1VectorFunctorImpl.html',1,'smd::typeclass']]],
+  ['vectorfunctormap_3',['VectorFunctorMap',['../structsmd_1_1typeclass_1_1VectorFunctorMap.html',1,'smd::typeclass']]],
+  ['vectortraversableimpl_4',['VectorTraversableImpl',['../structsmd_1_1typeclass_1_1VectorTraversableImpl.html',1,'smd::typeclass']]],
+  ['vectortraversablemap_5',['VectorTraversableMap',['../structsmd_1_1typeclass_1_1VectorTraversableMap.html',1,'smd::typeclass']]]
 ];

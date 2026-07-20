@@ -59,6 +59,8 @@ var dir_dcdb2c4281ea1f3a485a2d38826e2a05 =
     [ "recursion_schemes.t.cpp", "recursion__schemes_8t_8cpp.html", "recursion__schemes_8t_8cpp" ],
     [ "schemes.hpp", "schemes_8hpp.html", null ],
     [ "schemes.t.cpp", "schemes_8t_8cpp.html", "schemes_8t_8cpp" ],
+    [ "type_name.hpp", "type__name_8hpp.html", "type__name_8hpp" ],
+    [ "type_name.t.cpp", "type__name_8t_8cpp.html", "type__name_8t_8cpp" ],
     [ "unfold_cofree.hpp", "unfold__cofree_8hpp.html", "unfold__cofree_8hpp" ],
     [ "zygo.hpp", "zygo_8hpp.html", "zygo_8hpp" ],
     [ "zygo.t.cpp", "zygo_8t_8cpp.html", "zygo_8t_8cpp" ]

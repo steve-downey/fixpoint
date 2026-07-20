@@ -1,11 +1,9 @@
 var searchData=
 [
-  ['reply_0',['reply',['../structanonymous__namespace_02freer__row_8t_8cpp_03_1_1reply.html',1,'anonymous_namespace{freer_row.t.cpp}::reply'],['../structretry__example_1_1reply.html',1,'retry_example::reply']]],
-  ['request_1',['request',['../structanonymous__namespace_02freer__row_8t_8cpp_03_1_1request.html',1,'anonymous_namespace{freer_row.t.cpp}::request'],['../structretry__example_1_1request.html',1,'retry_example::request']]],
-  ['responder_2',['responder',['../structsmd_1_1fixpoint_1_1responder.html',1,'smd::fixpoint']]],
-  ['responder_3c_20ops_2c_20x_20_3e_3',['responder&lt; Ops, X &gt;',['../structsmd_1_1fixpoint_1_1responder.html',1,'smd::fixpoint']]],
-  ['retryscript_4',['RetryScript',['../structretry__example_1_1RetryScript.html',1,'retry_example']]],
-  ['right_5',['Right',['../structsmd_1_1typeclass_1_1Right.html',1,'smd::typeclass']]],
-  ['right_3c_20r_20_26_20_3e_6',['Right&lt; R &amp; &gt;',['../structsmd_1_1typeclass_1_1Right_3_01R_01_6_01_4.html',1,'smd::typeclass']]],
-  ['row_7',['row',['../structsmd_1_1fixpoint_1_1row.html',1,'smd::fixpoint']]]
+  ['send_0',['Send',['../structanonymous__namespace_02freer__row_8t_8cpp_03_1_1Send.html',1,'anonymous_namespace{freer_row.t.cpp}::Send'],['../structretry__example_1_1Send.html',1,'retry_example::Send']]],
+  ['sender_5fnode_5finfo_1',['sender_node_info',['../structsmd_1_1concrete_1_1sender__node__info.html',1,'smd::concrete']]],
+  ['sequence_2',['Sequence',['../structsmd_1_1typeclass_1_1test_1_1Sequence.html',1,'smd::typeclass::test']]],
+  ['signature_3',['signature',['../structsmd_1_1fixpoint_1_1signature.html',1,'smd::fixpoint']]],
+  ['sleepfor_4',['SleepFor',['../structanonymous__namespace_02freer__row_8t_8cpp_03_1_1SleepFor.html',1,'anonymous_namespace{freer_row.t.cpp}::SleepFor'],['../structretry__example_1_1SleepFor.html',1,'retry_example::SleepFor']]],
+  ['succ_5',['Succ',['../structanonymous__namespace_02either_8t_8cpp_03_1_1Succ.html',1,'anonymous_namespace{either.t.cpp}::Succ&lt; A &gt;'],['../structanonymous__namespace_02fix_8t_8cpp_03_1_1Succ.html',1,'anonymous_namespace{fix.t.cpp}::Succ&lt; A &gt;'],['../structanonymous__namespace_02fmap_8t_8cpp_03_1_1Succ.html',1,'anonymous_namespace{fmap.t.cpp}::Succ&lt; A &gt;'],['../structanonymous__namespace_02recursion__schemes_8t_8cpp_03_1_1Succ.html',1,'anonymous_namespace{recursion_schemes.t.cpp}::Succ&lt; A &gt;'],['../structsmd_1_1concrete_1_1Succ.html',1,'smd::concrete::Succ&lt; A &gt;']]]
 ];

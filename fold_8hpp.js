@@ -8,5 +8,5 @@ var fold_8hpp =
     [ "smd::typeclass::Monoid< detail::All >", "structsmd_1_1typeclass_1_1Monoid_3_01detail_1_1All_01_4.html", "structsmd_1_1typeclass_1_1Monoid_3_01detail_1_1All_01_4" ],
     [ "smd::typeclass::Monoid< detail::First< VALUE_TYPE > >", "structsmd_1_1typeclass_1_1Monoid_3_01detail_1_1First_3_01VALUE__TYPE_01_4_01_4.html", "structsmd_1_1typeclass_1_1Monoid_3_01detail_1_1First_3_01VALUE__TYPE_01_4_01_4" ],
     [ "smd::typeclass::Foldable< Impl >", "structsmd_1_1typeclass_1_1Foldable.html", "structsmd_1_1typeclass_1_1Foldable" ],
-    [ "foldable_typeclass", "fold_8hpp.html#a204d658c5b21d8dc51c7ff09da77ab8a", null ]
+    [ "foldable_typeclass", "fold_8hpp.html#aebb7742804906cab06397aae73ff63a6", null ]
 ];
