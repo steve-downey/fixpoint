@@ -102,12 +102,18 @@ if(FIXPOINT_ENABLE_TESTING)
     # fixpoint.fixpoint -- this step only proves the deps are fetchable and
     # linkable, S07 does the real interpreter work against them.
     #
-    # cmake/beman-deps.cmake (loaded via CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
-    # only FetchContent_Declare()s beman-execution/beman-task; the actual
+    # cmake/beman-deps.cmake only FetchContent_Declare()s beman-execution/
+    # beman-task (idempotent under include_guard); the actual
     # FetchContent_MakeAvailable() has to happen here, outside the
     # top-level project() call, to avoid a recursive project() error (see
-    # that file's comment for why).
-    include(FetchContent)
+    # that file's comment for why). Including it here, at the point of
+    # consumption, is what keeps every configure flow working: the Beman
+    # preset/matrix CI lanes put only infra/cmake/use-fetch-content.cmake
+    # (Catch2) in CMAKE_PROJECT_TOP_LEVEL_INCLUDES, so a declare left to a
+    # top-level include would be missing there and this
+    # FetchContent_MakeAvailable() would fail to configure ("No content
+    # details recorded for execution").
+    include(${PROJECT_SOURCE_DIR}/cmake/beman-deps.cmake)
     FetchContent_MakeAvailable(execution task)
 
     add_executable(freer_beman_probe_test)
