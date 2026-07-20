@@ -26,6 +26,24 @@
 #include <utility>
 #include <variant>
 
+// These probes are historical evidence *about* std::move_only_function --
+// the D-B input that led to one_shot.hpp (whose file comment records the
+// outcome: libc++, on both the Linux and Apple rows of the CI matrix,
+// does not declare std::move_only_function at all). On a toolchain
+// without the type the gate cannot be expressed, so it compiles out;
+// rewriting the probes in terms of one_shot would gut what they are
+// evidence of. The library itself never uses std::move_only_function.
+#if !defined(__cpp_lib_move_only_function)
+
+TEST_CASE("freer baseline: gated off -- no std::move_only_function") {
+    SUCCEED("this standard library does not declare "
+            "std::move_only_function; the D-B baseline probes are "
+            "compiled out (one_shot.hpp is the library's continuation "
+            "representation on every toolchain)");
+}
+
+#else
+
 namespace {
 
 // ---------------------------------------------------------------------
@@ -272,3 +290,5 @@ TEST_CASE("freer baseline [FD12][FD9]: KVFree move-construction propagates "
     CHECK(smd::fixpoint::is_pure(*resumed));
     CHECK(std::get<int>((*resumed).node) == 99);
 }
+
+#endif // __cpp_lib_move_only_function

@@ -52,6 +52,24 @@ endif()
 
 add_subdirectory(src)
 
+# Header-set verification needs the beman include dirs to compile the
+# headers in smd_fixpoint_beman_headers (see src/smd/fixpoint/
+# CMakeLists.txt). In a configure without FIXPOINT_ENABLE_TESTING the
+# beman targets are never fetched, so exclude that set from verification
+# rather than fail on an unresolvable #include.
+if(NOT TARGET beman::execution_headers)
+    get_property(
+        _fixpoint_verify_sets
+        TARGET fixpoint.fixpoint
+        PROPERTY INTERFACE_HEADER_SETS
+    )
+    list(REMOVE_ITEM _fixpoint_verify_sets smd_fixpoint_beman_headers)
+    set_property(
+        TARGET fixpoint.fixpoint
+        PROPERTY INTERFACE_HEADER_SETS_TO_VERIFY "${_fixpoint_verify_sets}"
+    )
+endif()
+
 include(infra/cmake/beman-install-library.cmake)
 beman_install_library(fixpoint.fixpoint TARGETS fixpoint.fixpoint NAMESPACE smd::)
 
