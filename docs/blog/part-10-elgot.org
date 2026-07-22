@@ -11,7 +11,7 @@
 #+begin_abstract
 Multiply a list of integers. The instant you see a zero, the answer is
 zero --- so why examine the rest? A hylomorphism has no way to say "stop
-generating"; an Elgot algebra gives the coalgebra exactly that veto, and
+generating"; an Elgot algebra gives the coalgebra that veto, and
 its dual gives the algebra the seed that produced each layer.
 #+end_abstract
 
@@ -76,7 +76,7 @@ the original subtree next to each result; ~coelgot~'s sees the original
 /seed/ next to the folded layer, in a refold where no subtree ever
 exists to show.
 
-One implementation note earns its comment: ~coalgebra(seed)~ is bound to
+One implementation note: ~coalgebra(seed)~ is bound to
 a local before the ~fmap~.
 A careless transcription that calls ~psi~ twice --- once to build the
 layer, once inside the fold --- would be invisible to every test with a
@@ -97,7 +97,7 @@ Count the extra-power moves the catalog has made:
 Every one is "same three-line worker, richer type at one position", and
 each side's riches line up with the other's --- products and annotations
 feeding algebras, sums and chunks flowing from coalgebras.
-The catalog is complete except for the reveal: Part 11 shows the one
+The catalog is complete but for the theorem: Part 11 shows the one
 construction all the algebra-side schemes are instances of, the one all
 the coalgebra-side schemes are instances of, and the single moving part
 --- a distributive law --- that selects among them.

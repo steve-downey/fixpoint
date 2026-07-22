@@ -9,7 +9,7 @@
 
 * Overview
 
-A field guide to the recursion-schemes menagerie, implemented in C++26 as
+A field guide to the recursion schemes, implemented in C++26 as
 the ~smd::fixpoint~ library: the full Kmett catalog --- folds, unfolds,
 refolds, course-of-values recursion, Mendler style, Elgot algebras, and
 the comonadic/monadic generalizations --- built on one fixpoint type, a
@@ -68,7 +68,7 @@ Refolds where the coalgebra can stop with an answer, the dual where the
 algebra sees the seed, and testing the work instead of the answer.
 
 ** [[file:part-11-generalized.org][Part 11 — Distributive Laws and the Generalized Schemes]]
-The reveal: gcata and gana subsume the catalog, one distributive law per
+gcata and gana subsume the catalog, one distributive law per
 scheme, with the executable proof.
 
 ** [[file:part-12-capstone.org][Part 12 — The Capstone: zygoHistoPrepro]]
@@ -76,8 +76,8 @@ Composing comonads: zygo + histo + prepro in one pass, and the dedicated
 EnvT-style instance the generic pair could not provide.
 
 ** [[file:part-13-conclusion.org][Part 13 — Conclusion]]
-The catalog in review, the ledger of what C++ pushed back on, and where
-the trail continues.
+The catalog in review, the tally of what C++ pushed back on, and where
+it goes next.
 
 * Table of Contents
 

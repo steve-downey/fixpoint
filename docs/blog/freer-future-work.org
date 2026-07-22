@@ -66,7 +66,7 @@ untagged by its feature-test macro --- it is not declared at all. ~<version>~
 carries the ~#define __cpp_lib_move_only_function~ line, commented out, and the
 type is absent from ~namespace std~. A header that names it unconditionally does
 not mis-detect a feature; it fails to compile on a row the CI matrix claims. So
-the bespoke box is the uniform answer, and it earns a little of its keep: it
+the bespoke box is the uniform answer, and it has one virtue: it
 carries the one-shot invariant directly, where a second call is a hard error
 rather than a UB-adjacent call on a moved-from target.
 
@@ -101,4 +101,4 @@ right there next to ~run~, which already proves the shape.
 *
 
 Three structures, all real, all deferred, all disclosed as costs and none of
-them spun as a feature. A deque, a macro, and a loop. The trail continues.
+them spun as a feature. A deque, a macro, and a loop. None of them done yet.

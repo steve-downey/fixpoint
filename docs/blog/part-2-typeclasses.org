@@ -106,7 +106,7 @@ The caller binds a specific instance as the non-type template parameter,
 overriding the registry for this call.
 Resolved once, at instantiation.
 
-The mechanics of that NTTP repay attention, because getting them wrong
+The mechanics of that NTTP are easy to get wrong, and getting them wrong
 makes the whole mode unusable.
 The parameter is ~const auto&~ --- a *reference* NTTP that binds the
 ~inline constexpr~ instance variable's static storage.
@@ -126,7 +126,7 @@ Pass the instance as an ordinary argument:
 #+transclude: [[file:../../src/smd/fixpoint/fmap.hpp::c7e66aa1-1de1-4776-97d1-dc831115749a]] :lines 2- :src cpp :end "c7e66aa1-1de1-4776-97d1-dc831115749a end"
 
 The object need not be registered in ~functor_typeclass~ at all.
-This is the escape hatch --- above all for tests, which want the machinery
+This is the escape hatch --- above all for tests, which want the operations
 without owning, or risking an ODR clash on, a global specialization.
 It is also the door through which a scheme can thread an instance by value
 down its own recursion.
@@ -148,7 +148,7 @@ consumer that keeps the design honest, because recursion schemes stress
 exactly the awkward corner --- an operation reached from deep inside
 recursive generic code, where nothing can be spelled explicitly.
 
-One more consequence worth naming: the whole apparatus is ordinary C++.
+One more consequence: the whole apparatus is ordinary C++.
 Variable templates, partial specialization, a concept, a reference NTTP.
 No macros, no code generation, and instances are about a dozen lines per
 functor.

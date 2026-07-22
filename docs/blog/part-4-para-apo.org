@@ -49,11 +49,11 @@ The pretty-printer, from
 
 #+transclude: [[file:../../src/examples/para_pretty_print.cpp::bcdeef00-3342-4245-aca3-f4a63d366637]] :lines 2- :src cpp :end "bcdeef00-3342-4245-aca3-f4a63d366637 end"
 
-The ~Mul~ case is the payoff line: ~is_add(child.first)~ interrogates the
+The ~Mul~ case is where it pays off: ~is_add(child.first)~ interrogates the
 original subtree; ~child.second~ is the already-rendered string it wraps
 or passes through.
 The program prints ~2 * 3 + 4~ for one association and ~2 * (3 + 4)~ for
-the other --- parentheses exactly where meaning requires them, nowhere
+the other --- parentheses where meaning requires them, nowhere
 else.
 
 Degeneracy law: ignore ~.first~ everywhere and ~para~ /is/ ~fold_fix~.
@@ -116,10 +116,10 @@ sources: *Left stops, Right continues*.
 Apo: Left = graft this subtree.
 Elgot (Part 10): Left = here is the final answer.
 The monad instance is right-biased, ~pure~ is ~make_right~, and Part 11
-will lean on exactly that when ~apo~ is recovered from the generalized
+will lean on that when ~apo~ is recovered from the generalized
 unfold.
 
-One more symmetry worth seeing now: the design treats ~std::pair~ and
+One more symmetry, now: the design treats ~std::pair~ and
 ~either~ as proper duals --- product and coproduct --- with matched
 vocabulary on each side: ~fanout~ builds toward a pair as ~fanin~ matches
 away from an either, and the value slot sits second in both (~pair~'s

@@ -23,7 +23,7 @@ chrono, where Fibonacci's memo table is a Cofree that no one ever declared.
 
 * Three Fusions, One Header
 
-The compositions worth naming:
+The three compositions:
 
 #+begin_example
 dyna    = histo . ana     -- fold-with-history over a generated structure
@@ -31,7 +31,7 @@ codyna  = cata  . futu    -- plain fold over a chunked unfold
 chrono  = histo . futu    -- history on the way up, chunks on the way down
 #+end_example
 
-Each could be written as exactly that composition --- unfold, then fold ---
+Each could be written as that composition --- unfold, then fold ---
 and the test suite does write them that way, as the laws that pin the
 fused versions.
 But the composition builds the whole intermediate ~Fix<F>~ and walks it
@@ -87,8 +87,8 @@ The seed type becomes ~Free<F, Seed>~ itself, starting at
 Each ~refold~ step peels exactly one layer: a ~Pure~ leaf calls the real
 coalgebra for a fresh chunk; a ~Roll~ layer yields its top, leaving the
 children --- still chunks --- for the next steps.
-The chunk is consumed lazily, one layer per demand, which is precisely
-what a fused pipeline needs and precisely what ~futu~'s own worker (which
+The chunk is consumed lazily, one layer per demand, which is what a
+fused pipeline needs and what ~futu~'s own worker (which
 resolves whole chunks eagerly) does not do.
 ~chrono~ [cite:@kmett2009fieldguide] then stacks both extensions --- Cofree
 carrier up, Free chunks down --- and its body is, once more, the same
