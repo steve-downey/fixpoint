@@ -33,7 +33,7 @@ env comonad twice, Cofree.
 The unfold carriers: ~Seed~ bare (Identity monad), ~either<Fix<F>, Seed>~
 (apo --- either's right-biased monad), ~Free<F, Seed>~ (futu).
 Monads, every one.
-The library registered exactly these ~comonad_typeclass~ and
+The library registered these ~comonad_typeclass~ and
 ~monad_typeclass~ instances back in their own parts, quietly.
 
 Uustalu, Vene, and Pardo made the pattern a theorem
@@ -90,7 +90,7 @@ completes --- so the return type ~C~ is computed /up front/, from
 ~Result~/~WResult~/~F~/~Dist~ alone, and the worker is a named type
 recursing via ~(*this)~.
 Every self-recursive helper in this codebase independently rediscovered
-that discipline; the header comments cite the trail.
+that discipline; the header comments record it.
 
 One subtlety the comment documents: only /one/ ~comonad_typeclass~ lookup
 happens, keyed on ~WResult~, even though the worker needs
@@ -119,7 +119,7 @@ functions just say so in the type system.
 ~extract~, ~join~ for ~duplicate~, the distributive law flipped to
 ~M<F<X>> -> F<M<X>>~.
 ~ana_via_gana~, ~apo_via_gana~, and ~futu_via_gana~ recover the unfolds
-exactly as their fold counterparts did --- apo and futu passing their
+just as their fold counterparts did --- apo and futu passing their
 coalgebras straight through.
 
 ~ghylo~ composes both halves:
@@ -145,7 +145,7 @@ computes each answer twice --- classical scheme and generalized recovery
 ~dist_ana~.
 Three schemes from ten parts of this series, reconstructed before your
 eyes from a distributive law and a (co)monad each.
-One reveal remains: what happens when one ~W~ is not enough, and two
+One question remains: what happens when one ~W~ is not enough, and two
 comonads have to be composed.
 
 #+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">

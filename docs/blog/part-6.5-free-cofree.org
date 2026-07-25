@@ -19,7 +19,7 @@ what I understand. Where the category theory outruns me --- adjunctions,
 mostly --- I quote the definitions and say so, rather than pretend; where the
 code compiles, I vouch for it, and every excerpt here compiles: Haskell by
 GHC 9.6.7, C++ by the library's own build. There is also one genuine surprise
-on the trail: C++26 has already shipped something shaped exactly like a Freer
+along the way: C++26 has already shipped something shaped exactly like a Freer
 monad, and it is called sender/receiver.
 #+end_abstract
 
@@ -143,8 +143,7 @@ From [[file:../../src/examples/free_cofree_interlude.cpp][=src/examples/free_cof
 
 #+transclude: [[file:../../src/examples/free_cofree_interlude.cpp::2ecd0000-0000-4000-8000-000000000001]] :lines 2- :src cpp :end "2ecd0000-0000-4000-8000-000000000001 end"
 
-That both conversions compile is Part 1's magic trick paying its second and
-third dividends.
+That both conversions compile is the Part 1 trick again, twice over.
 ~Free<F, A>~ and ~Cofree<F, A>~ contain ~F<Free<F, A>>~ and
 ~F<Cofree<F, A>>~ /by value/, mid-definition, for the identical reason
 ~Fix<F>~ could: boxing is the functor's responsibility, so ~F<X>~ is complete
@@ -153,7 +152,7 @@ One convention about who owns the indirection, three self-referential types.
 
 * The Naive Implementation, in Both Languages
 
-The direct Haskell models are four lines each, and they are precisely what the
+The direct Haskell models are four lines each, and they are what the
 library's headers transcribe.
 Here is the naive free monad --- a ~Pure~ value or one ~F~-layer of more Free
 --- and the naive cofree comonad --- an annotation at the head and one
@@ -189,7 +188,7 @@ The naive Free is data.
 There is a rival representation that is /function/: encode a value by the
 one thing you will ever do to it --- fold it.
 This is the Church, or Böhm--Berarducci, encoding [cite:@boehm1985], and it is
-the exact dual of the library's design choice, so it is worth seeing.
+the exact dual of the library's design choice.
 
 A Church-encoded free value is a function that, given what to do with a ~Pure~
 leaf (~a → r~) and an ~F~-algebra (~f r → r~), returns the ~r~.
@@ -221,7 +220,7 @@ So why does ~smd::fixpoint~ use the naive ~Fix~-of-a-variant and not the
 Church encoding?
 Because this library's product is a /materialized, ~constexpr~ tree/ ---
 values that you pattern-match, compare with ~==~, and fold at compile time.
-A ~forall r~ rank-2 newtype is precisely the thing you cannot pattern-match,
+A ~forall r~ rank-2 newtype is the thing you cannot pattern-match,
 cannot compare structurally, and cannot easily fold in a constant expression.
 The encoding that wins for asymptotic bind performance in a lazy language is
 the one that loses for a value-semantics compile-time library.
@@ -356,7 +355,7 @@ but you pay a Functor to get in.
 Both make any ~f~ a functor, so ~Cofree (Yoneda f)~ is /also/ a lawful comonad
 for every ~f~; which one is "the" CoFreer depends on whether you are
 constructing or consuming.
-Since a comonad is a thing you /observe/, ~Yoneda~ is arguably the more
+Since a comonad is a thing you /observe/, ~Yoneda~ is the more
 honest dual --- and it costs nothing to write both down:
 
 #+transclude: [[file:code/Cofreer.hs::4e76f426-2ebe-4fab-8b78-3d3098132802]] :lines 2- :src haskell :end "4e76f426-2ebe-4fab-8b78-3d3098132802 end"
@@ -375,7 +374,7 @@ The honest summary: yes, there is a CoFreer; no, you have probably never
 needed one; and writing it down is a two-line ~type~ synonym once you have
 Coyoneda.
 
-* The Ledger
+* The Family Table
 
 The family, one row per member, and the question that separates them --- does
 the construction demand a Functor instance for ~F~?
@@ -401,7 +400,7 @@ And if the ~Freer~ row rings familiar from the day job, that is the
 side-light: C++26's sender/receiver sits in that row too.
 
 With the carriers demystified, Part 7 can hand you Cofree and Free and you
-will know precisely what is in your hand: ~Fix~, annotated on the left and
+will know what is in your hand: ~Fix~, annotated on the left and
 seeded on the right.
 
 #+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">

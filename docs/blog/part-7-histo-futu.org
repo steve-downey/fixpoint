@@ -34,11 +34,10 @@ From [[file:../../src/smd/fixpoint/cofree.hpp][=src/smd/fixpoint/cofree.hpp=]]:
 
 #+transclude: [[file:../../src/smd/fixpoint/cofree.hpp::bfa61c28-7fe2-46f9-8ca6-1006b3348836]] :lines 2- :src cpp :end "bfa61c28-7fe2-46f9-8ca6-1006b3348836 end"
 
-Notice that this compiles for exactly the reason ~Fix~ did.
+Notice that this compiles for the same reason ~Fix~ did.
 ~F~'s recursive positions are boxed, so ~F<Cofree<F, A>>~ is a complete
-type while ~Cofree<F, A>~ is still being defined --- the Part 1 trick,
-paying its second dividend.
-(And the hand-written ~operator==~ is the Part 1 war story again, at the
+type while ~Cofree<F, A>~ is still being defined --- the Part 1 trick again.
+(And the hand-written ~operator==~ is the Part 1 problem again, at the
 type where Clang's eager completeness check actually fired.)
 
 * histo: Fold With Total Recall
@@ -84,7 +83,7 @@ Read ~Free<F, Seed>~ as "a chunk of tree, with fresh seeds where I stopped
 building."
 ~pure_free~ is a seed; ~roll_free~ is one more layer of chunk.
 Cofree is the cofree /comonad/ over F and Free the free /monad/ --- the
-library registers exactly those instances, and Part 11 spends them.
+library registers those instances, and Part 11 spends them.
 
 * futu: Unfold Several Layers per Step
 
@@ -114,10 +113,9 @@ not five.
 A plain unfold would need seed bookkeeping --- "which pair, how many
 emitted so far" --- to fake what the chunk states directly.
 
-* The Symmetry Ledger
+* The Symmetry Table
 
-The catalog is now symmetric three levels deep, and it is worth writing
-the ledger down:
+The catalog is now symmetric three levels deep; here is the table:
 
 | fold side                          | unfold side                     |
 |------------------------------------+---------------------------------|

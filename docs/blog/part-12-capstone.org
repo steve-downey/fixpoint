@@ -62,12 +62,12 @@ with ~dist_histo<F>~, pair the results.
 A distributive law for a composed comonad is the two component laws,
 composed.
 It lives here rather than in ~dist_laws.hpp~ deliberately --- it is
-capstone-specific, and the library keeps one-off machinery next to its
+capstone-specific, and the library keeps one-off pieces next to their
 one use.
 
 * The Thin Ice: Why the Generic Pair Instance Is Wrong
 
-Here is the part worth the price of admission.
+Here is the part that matters.
 The library already has a comonad instance for ~std::pair<B, A>~ --- the
 env comonad, serving zygo and para since Part 11.
 ~W<X> = pair<Helper, Cofree<F, X>>~ /is/ a pair.
@@ -92,7 +92,7 @@ The registration is a partial specialization keyed on
 generic ~pair<B, A>~, so it wins exactly when the value slot is a Cofree
 and never otherwise.
 Zygo's and para's pairs still use the generic instance, untouched.
-This is the typeclass-object machinery of Part 2 earning its keep under
+This is the typeclass-object machinery of Part 2 under
 real load: two lawful comonad structures on the same C++ type,
 disambiguated by specialization order, no newtype wrapper required ---
 where Haskell /must/ wrap in ~EnvT~ to select the instance, the C++
@@ -116,7 +116,7 @@ in one algebra.
 ~[3, 4, -1, 5]~ truncates to ~[3, 4]~; only ~4~ survives the even-length
 test; the answer is ~4~, against a hand-checked expectation --- because
 there /is/ no specialized scheme to compare with.
-This computation exists only because the composition machinery makes it
+This computation exists only because the composition makes it
 expressible.
 That is the capstone's real claim: not that it reproduces the catalog,
 but that the catalog's pieces compose into schemes nobody bothered to

@@ -180,7 +180,7 @@ is the whole program:
 No tree-walking code anywhere in it.
 That absence is the product this library sells.
 
-* The Rest of the Bestiary
+* The Rest of the Base Functors
 
 The same header defines the other base functors the series uses:
 ~NatF~ (Peano naturals --- ~Zero~ or ~Succ~), ~ListF<E, ·>~ (cons lists
@@ -201,7 +201,7 @@ mid-definition; a plain friend body is only instantiated when used.
 Shipping code accumulates scars.
 The field guide keeps them visible.
 
-Next: the ~fmap~ that every scheme leans on, and the typeclass machinery
+Next: the ~fmap~ that every scheme leans on, and the typeclass lookup
 that finds it.
 
 #+html: <nav style="margin-top: 3em; border-top: 1px solid #ccc; padding-top: 1em">

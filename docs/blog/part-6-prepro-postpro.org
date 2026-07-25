@@ -83,7 +83,7 @@ No separate filtering pass, no intermediate list.
 The full program is
 [[file:../../src/examples/prepro_takewhile_sum.cpp][=src/examples/prepro_takewhile_sum.cpp=]].
 
-The header's cumulative-cost note deserves its moment: each step
+The header records the cumulative cost: each step
 re-hoists the whole remaining subtree, so this literal transcription of
 Fokkinga's equation [cite:@fokkinga1992law] does O(depth) passes over
 deep nodes.
@@ -111,7 +111,7 @@ and the test suite says so verbatim.
 
 * The Shape of the Delta
 
-Worth pausing on how small these were.
+Look at how small these were.
 ~para~ was ~fold_fix~ with a pair in the lambda.
 ~zygo~ was ~fold_fix~ with a pair carrier and a projection.
 ~prepro~ is ~fold_fix~ with a ~hoist~ before the recursive call;

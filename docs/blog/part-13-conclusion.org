@@ -12,8 +12,8 @@
 The field guide is complete: twenty-odd schemes, one fixpoint type, one
 fmap hook, and a handful of distributive laws --- the full Kmett catalog,
 implemented, tested against its laws, and running at compile time in
-C++26. What we told you, what C++ pushed back on, and where the trail
-continues.
+C++26. What we told you, what C++ pushed back on, and where it goes
+next.
 #+end_abstract
 
 #+MACRO: TEASER_END
@@ -60,7 +60,7 @@ state.
 Elgot algebras give the coalgebra a veto (Left = answer, stop) and the
 algebra the seed.
 
-*Parts 11-12 --- The Reveal.*
+*Parts 11-12 --- The Theorem.*
 Distributive laws; gcata subsuming fold_fix/histo/zygo/para; gana
 subsuming unfold_fix/apo/futu; ghylo fusing both; gprepro/gpostpro
 splicing in natural transformations; and zygoHistoPrepro composing the
@@ -70,7 +70,7 @@ generic machinery could not supply, and the executable proof in
 
 * What C++ Pushed Back On
 
-The transcription project kept a ledger, and the entries repay reading.
+The transcription project kept a ledger, and here are the entries.
 
 *Carriers must be spelled.*
 Haskell infers a fold's carrier through the recursive call; C++ never
@@ -102,7 +102,7 @@ generically.
 Clang 22's eager deleted-ness check on ~= default~ comparisons cycles on
 self-referential functor families; hand-written friend bodies, which
 instantiate only when called, break the cycle.
-The scars are documented at every site.
+The workarounds are documented at every site.
 
 *Some guarantees decay into disciplines.*
 Mendler's rank-2 abstraction, prepro's naturality, the "Left stops"

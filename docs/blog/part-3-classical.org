@@ -26,7 +26,7 @@ argument for calling them ~fold_fix~, ~unfold_fix~, and ~refold~ instead.
 An /F-algebra/ is a function ~F<Result> -> Result~: it consumes one layer
 whose child positions already hold finished results
 [cite:@meijer1991bananas].
-The ~eval~ from Part 1 is built on exactly such an algebra --- an
+The ~eval~ from Part 1 is built on such an algebra --- an
 ~ExprF<int> -> int~ where an ~Add~'s children are already ~int~ s.
 The algebra adds; it never recurses; it cannot even express recursion,
 because its argument type has no subtrees in it.
@@ -103,7 +103,7 @@ refold<R, F>(alg, coalg, seed) == fold_fix<R>(alg, unfold_fix<F>(coalg, seed))
 
 Same answer, no tree.
 Everything in Part 8 --- dynamic programming straight from a seed --- is
-this idea wearing a comonad.
+this idea with a comonad for a carrier.
 
 * The Explicit-fmap Escape Hatch
 

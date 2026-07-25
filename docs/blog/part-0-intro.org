@@ -35,7 +35,7 @@ The walking code and the combining code are tangled together, and the walking
 code is the part that harbors the bugs --- the missed case, the unmanaged
 lifetime, the stack that only overflows in production.
 
-Functional programmers factored this zoo thirty-five years ago.
+Functional programmers factored this out thirty-five years ago.
 Meijer, Fokkinga, and Paterson's "Functional Programming with Bananas, Lenses,
 Envelopes and Barbed Wire" [cite:@meijer1991bananas] named the pattern:
 a /catamorphism/ tears a structure down, an /anamorphism/ builds one up, and a
@@ -45,7 +45,7 @@ context.
 Uustalu and Vene added course-of-values recursion --- folds that remember
 history [cite:@uustalu1999primitive].
 Edward Kmett's Haskell ~recursion-schemes~ package
-[cite:@kmett-recursion-schemes] collected the whole menagerie behind one
+[cite:@kmett-recursion-schemes] collected them all behind one
 interface, and his "Field Guide" [cite:@kmett2009fieldguide] is still the best
 map of the territory.
 
@@ -73,7 +73,7 @@ Every scheme needs ~fmap~ --- apply a function at each child position of one
 layer.
 Rather than virtual functions, traits, or ADL, the library uses variable
 templates holding instance objects, looked up by the concrete layer type.
-Part 2 shows the machinery and its three lookup modes.
+Part 2 shows the pieces and their three lookup modes.
 
 Third, the *schemes themselves*, each a short constexpr function template.
 The recursive equations transcribe almost line-for-line from the Haskell
@@ -95,9 +95,8 @@ templates, CRTP instance maps, and the single bridge function ~layer_fmap~
 with its three lookup modes --- implicit, NTTP-pinned, and explicit-object.
 
 *Part 3 --- Fold, Unfold, Refold.*
-The classical trio --- catamorphism, anamorphism, hylomorphism --- under their
-descriptive names ~fold_fix~, ~unfold_fix~, and ~refold~, and why the library
-deprecated ~cata~.
+The classical trio under their descriptive names ~fold_fix~,
+~unfold_fix~, and ~refold~, and why the library deprecated ~cata~.
 
 *Part 4 --- Paramorphisms and Apomorphisms.*
 Folds that also see the original subtree, and unfolds that can graft a
@@ -137,7 +136,7 @@ Refolds where the coalgebra can short-circuit with a finished answer, and the
 dual where the algebra also sees the seed.
 
 *Part 11 --- Distributive Laws and the Generalized Schemes.*
-The big reveal: ~fold_fix~, ~histo~, ~zygo~, and ~para~ are one scheme
+The theorem the series builds to: ~fold_fix~, ~histo~, ~zygo~, and ~para~ are one scheme
 (~gcata~) instantiated at different comonads; ~unfold_fix~, ~apo~, and ~futu~
 are one scheme (~gana~) at different monads.
 A distributive law is the only moving part.
