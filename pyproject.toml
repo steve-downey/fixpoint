@@ -11,7 +11,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "clang-format==23.1.2",
-  "cmake==4.4.0",
+  "cmake==4.4.4",
   "gcovr>=8.6",
   "mbake==1.4.6",
   "ninja>=1.13",
