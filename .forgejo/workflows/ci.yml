@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+# Forgejo Actions CI for the self-hosted forge. Forgejo reads this directory
+# in place of .github/workflows, which stays for GitHub. The job image has no
+# node, so no JavaScript actions: checkout is plain git.
+
+name: Forgejo CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [gcc-release, gcc-debug]
+    runs-on: docker
+    container:
+      image: ghcr.io/bemanproject/infra-containers-gcc:latest
+    env:
+      # Forgejo on ceridwen serves a self-signed certificate.
+      GIT_SSL_NO_VERIFY: "1"
+    steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git config --global --add safe.directory "$PWD"
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
+          git -c http.extraHeader="Authorization: token ${{ github.token }}" \
+            fetch -q --depth=1 origin "${{ github.sha }}"
+          git checkout -q FETCH_HEAD
+          git submodule update --init --recursive --depth=1
+      - name: Toolchain
+        run: |
+          g++ --version | head -1
+          cmake --version | head -1
+      - name: Build and test
+        run: cmake --workflow --preset ${{ matrix.preset }}
